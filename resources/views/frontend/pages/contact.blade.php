@@ -149,7 +149,7 @@
                     <h3><a href="{{ route('frontend.contact') }}">WhatsApp</a></h3> 
                     <ul> 
                       <li>
-                        <a href="{{ route('frontend.contact') }}">+91 99652 52555</a>
+                        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $commonSettings['contact_phone'] ?? '') }}">{{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }}</a>
                       </li>
                     </ul>
                   </div>
@@ -281,7 +281,7 @@
                         >
                       </li>
                       <li>
-                        <a href="{{ route('frontend.contact') }}">+91 99652 52555</a>
+                        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $commonSettings['contact_phone'] ?? '') }}">{{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }}</a>
                       </li>
                     </ul>
                   </div>

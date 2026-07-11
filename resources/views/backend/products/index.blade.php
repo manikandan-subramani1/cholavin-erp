@@ -16,7 +16,7 @@
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
             <h4 class="mb-sm-0">Products</h4>
-            <div class="page-title-right"><a href="{{ route('admin.products.create') }}" class="btn btn-primary"><i class="ri-add-line me-1"></i>Add Product</a></div>
+            @can('create', App\Models\Product::class)<div class="page-title-right"><a href="{{ route('admin.products.create') }}" class="btn btn-primary"><i class="ri-add-line me-1"></i>Add Product</a></div>@endcan
         </div>
     </div>
 </div>

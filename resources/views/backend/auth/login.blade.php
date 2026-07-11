@@ -1,31 +1,42 @@
 <!doctype html>
-<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>Sign In | Cholavin ERP</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Cholavin ERP login UI" name="description" />
-    <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.ico') }}">
-    <script src="{{ asset('backend/assets/js/layout.js') }}"></script>
-    <link href="{{ asset('backend/assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('backend/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('backend/assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('backend/assets/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
+    <meta charset="utf-8">
+    <title>Sign In | {{ $commonSettings['company_name'] ?? 'Cholavin' }} ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ asset('backend/assets/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('backend/assets/css/icons.min.css') }}" rel="stylesheet">
+    <style>
+        :root{--maroon:#5e001b;--deep:#3b0010;--red:#8f0028;--gold:#f4c430;--ivory:#fff8e6}*{box-sizing:border-box}body{margin:0;background:#f8f4f1;color:#35292d;font-family:Inter,Arial,sans-serif}.auth-shell{min-height:100vh;display:grid;grid-template-columns:minmax(420px,1.05fr) minmax(420px,.95fr)}.auth-brand{position:relative;background:var(--deep);overflow:hidden;display:flex;align-items:flex-end;padding:56px}.auth-brand:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(59,0,16,.06),rgba(59,0,16,.78)),url('{{ asset($commonSettings['auth_brand_image'] ?? 'frontend/assets/img/logo/logo-hm64.png') }}') center/cover no-repeat}.auth-brand-content{position:relative;z-index:1;color:#fff;max-width:580px}.auth-brand-content img{width:250px;max-height:90px;object-fit:contain;object-position:left;margin-bottom:32px}.auth-kicker{color:var(--gold);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}.auth-brand h1{font-size:42px;color:#fff;margin:12px 0}.auth-brand p{font-size:17px;color:#eadcdf;line-height:1.7}.auth-form-panel{display:grid;place-items:center;padding:45px;background:linear-gradient(145deg,#fff,#fff8ed)}.auth-form{width:100%;max-width:430px}.auth-form h2{color:var(--deep);font-size:30px;margin-bottom:7px}.auth-form .lead{color:#84777b;font-size:15px;margin-bottom:32px}.form-label{font-weight:700;color:#57484d}.form-control{height:50px;border:1px solid #ded2d5;border-radius:9px}.form-control:focus{border-color:var(--red);box-shadow:0 0 0 .2rem rgba(143,0,40,.1)}.btn-login{height:52px;border:0;border-radius:9px;background:var(--red);color:#fff;font-weight:800;width:100%;box-shadow:0 10px 24px rgba(143,0,40,.18)}.btn-login:hover{background:var(--deep);color:var(--gold)}.auth-meta{display:flex;align-items:center;justify-content:space-between;margin:18px 0 28px}.security-note{margin-top:28px;padding-top:20px;border-top:1px solid #ebdfe1;color:#93878a;font-size:12px}.mobile-logo{display:none;background:var(--deep);border-radius:12px;padding:18px;margin-bottom:25px}.mobile-logo img{width:220px;max-height:65px;object-fit:contain}@media(max-width:900px){.auth-shell{display:block}.auth-brand{display:none}.auth-form-panel{min-height:100vh;padding:28px}.mobile-logo{display:block}}
+    </style>
 </head>
 <body>
-    <div class="auth-page-wrapper pt-5">
-        <div class="auth-one-bg-position auth-one-bg" id="auth-particles"><div class="bg-overlay"></div><div class="shape"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path d="M 0,36 C 144,53.6 432,123.2 720,124 C 1008,124.8 1296,56.8 1440,40L1440 140L0 140z"></path></svg></div></div>
-        <div class="auth-page-content"><div class="container"><div class="row"><div class="col-lg-12"><div class="text-center mt-sm-5 mb-4 text-white-50"><a href="{{ route('admin.dashboard') }}" class="d-inline-block auth-logo"><img src="{{ asset('backend/assets/images/logo-light.png') }}" alt="" height="20"></a><p class="mt-3 fs-15 fw-medium">Cholavin Billing Software</p></div></div></div><div class="row justify-content-center"><div class="col-md-8 col-lg-6 col-xl-5"><div class="card mt-4 card-bg-fill"><div class="card-body p-4"><div class="text-center mt-2"><h5 class="text-primary">Welcome Back</h5><p class="text-muted">Sign in to continue to the billing dashboard.</p></div><div class="p-2 mt-4"><form action="{{ route('admin.dashboard') }}" method="get"><div class="mb-3"><label for="username" class="form-label">Username</label><input type="text" class="form-control" id="username" placeholder="Enter username"></div><div class="mb-3"><div class="float-end"><a href="#" class="text-muted">Forgot password?</a></div><label class="form-label" for="password-input">Password</label><div class="position-relative auth-pass-inputgroup mb-3"><input type="password" class="form-control pe-5 password-input" placeholder="Enter password" id="password-input"><button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button></div></div><div class="form-check"><input class="form-check-input" type="checkbox" id="auth-remember-check"><label class="form-check-label" for="auth-remember-check">Remember me</label></div><div class="mt-4"><button class="btn btn-success w-100" type="submit">Sign In</button></div></form></div></div></div></div></div></div></div>
-        <footer class="footer"><div class="container"><div class="row"><div class="col-lg-12"><div class="text-center"><p class="mb-0 text-muted">&copy; <script>document.write(new Date().getFullYear())</script> Cholavin ERP.</p></div></div></div></div></footer>
-    </div>
-    <script src="{{ asset('backend/assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('backend/assets/libs/simplebar/simplebar.min.js') }}"></script>
-    <script src="{{ asset('backend/assets/libs/node-waves/waves.min.js') }}"></script>
-    <script src="{{ asset('backend/assets/libs/feather-icons/feather.min.js') }}"></script>
-    <script src="{{ asset('backend/assets/js/pages/plugins/lord-icon-2.1.0.js') }}"></script>
-    <script src="{{ asset('backend/assets/js/plugins.js') }}"></script>
-    <script src="{{ asset('backend/assets/libs/particles.js/particles.js') }}"></script>
-    <script src="{{ asset('backend/assets/js/pages/particles.app.js') }}"></script>
-    <script src="{{ asset('backend/assets/js/pages/password-addon.init.js') }}"></script>
+<main class="auth-shell">
+    <section class="auth-brand">
+        <div class="auth-brand-content">
+            <img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}">
+            <span class="auth-kicker">Secure business workspace</span>
+            <h1>One system. Every shop. Complete control.</h1>
+            <p>Access billing, inventory, customer operations, and reports according to your assigned role and working location.</p>
+        </div>
+    </section>
+    <section class="auth-form-panel">
+        <div class="auth-form">
+            <div class="mobile-logo"><img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="Brand logo"></div>
+            <span class="auth-kicker">{{ $commonSettings['company_name'] ?? 'Cholavin' }} ERP</span>
+            <h2>Welcome back</h2>
+            <p class="lead">Sign in with your username, email address, or mobile number.</p>
+            @if ($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
+            <form action="{{ route('admin.login.store') }}" method="post">
+                @csrf
+                <div class="mb-3"><label for="login" class="form-label">Username / Email / Mobile</label><input type="text" name="login" value="{{ old('login') }}" class="form-control @error('login') is-invalid @enderror" id="login" placeholder="Enter your login ID" required autofocus autocomplete="username"></div>
+                <div class="mb-2"><label for="password" class="form-label">Password</label><input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="Enter your password" required autocomplete="current-password"></div>
+                <div class="auth-meta"><label class="form-check-label"><input class="form-check-input me-1" name="remember" value="1" type="checkbox"> Remember me</label><span class="text-muted small"><i class="ri-shield-check-line"></i> Secure access</span></div>
+                <button class="btn btn-login" type="submit">Sign in to ERP <i class="ri-arrow-right-line ms-1"></i></button>
+            </form>
+            <div class="security-note">Access is monitored and restricted by role, shop, and godown assignment.</div>
+        </div>
+    </section>
+</main>
 </body>
 </html>

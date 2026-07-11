@@ -39,7 +39,7 @@
                   data-aos-duration="900"
                 >
                   <a
-                    href="https://wa.me/9965252555?text=Hello%20Cholavin%20Your%20Rice%20Expert%2C%20I%20want%20to%20order%20rice."
+                    href="https://wa.me/{{ $commonSettings['whatsapp_number'] ?? '919965252555' }}?text=Hello%20Cholavin%20Your%20Rice%20Expert%2C%20I%20want%20to%20order%20rice."
                     class="vl-btn6"
                     target="_blank"
                     rel="noopener"
@@ -94,7 +94,7 @@
                     <ul class="social_link">
                       <li>
                         <a
-                          href="https://www.facebook.com/cholavinrice"
+                          href="{{ $commonSettings['facebook'] ?? '#' }}"
                           target="_blank"
                           rel="noopener"
                           ><i class="fa-brands fa-facebook-f"></i
@@ -102,7 +102,7 @@
                       </li>
                       <li>
                         <a
-                          href="https://www.instagram.com/cholavin_"
+                          href="{{ $commonSettings['instagram'] ?? '#' }}"
                           target="_blank"
                           rel="noopener"
                           ><i class="fa-brands fa-instagram"></i
@@ -194,7 +194,7 @@
               />
               <img
                 class="thumb2"
-                src="{{ asset('frontend/assets/') }}/img/about/logo-hm64.png"
+                src="{{ asset($commonSettings['auth_brand_image'] ?? 'frontend/assets/img/logo/logo-hm64.png') }}"
                 alt=""
                 data-aos="fade-left"
                 data-aos-duration="1000"
@@ -381,7 +381,7 @@
                 </p>
                 <div class="space24"></div>
                 <a
-                  href="https://wa.me/9965252555?text=Hello%20Cholavin%20Your%20Rice%20Expert%2C%20I%20want%20to%20order%20fresh%20rice."
+                  href="https://wa.me/{{ $commonSettings['whatsapp_number'] ?? '919965252555' }}?text=Hello%20Cholavin%20Your%20Rice%20Expert%2C%20I%20want%20to%20order%20fresh%20rice."
                   class="btn4-home6"
                   target="_blank"
                   rel="noopener"
@@ -1019,7 +1019,7 @@
                     <h3><a href="{{ route('frontend.contact') }}">WhatsApp</a></h3> 
                     <ul> 
                       <li>
-                        <a href="{{ route('frontend.contact') }}">+91 99652 52555</a>
+                        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $commonSettings['contact_phone'] ?? '') }}">{{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }}</a>
                       </li>
                     </ul>
                   </div>
@@ -1151,7 +1151,7 @@
                         >
                       </li>
                       <li>
-                        <a href="{{ route('frontend.contact') }}">+91 99652 52555</a>
+                        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $commonSettings['contact_phone'] ?? '') }}">{{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }}</a>
                       </li>
                     </ul>
                   </div>

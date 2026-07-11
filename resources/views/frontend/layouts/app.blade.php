@@ -61,7 +61,7 @@
       <div class="loading-container">
         <div class="loading"></div>
         <div id="loading-icon">
-          <img src="{{ asset('frontend/assets/') }}/img/logo/cholavin.png" alt="Cholovin logo" />
+          <img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }} logo" />
         </div>
         <span class="loading-shape shape-one"></span>
         <span class="loading-shape shape-two"></span>
@@ -98,7 +98,7 @@
           >
             <div class="vl-offcanvas-logo">
               <a href="{{ route('frontend.home') }}"
-                ><img src="{{ asset('frontend/assets/') }}/img/logo/logo-hm62.png" alt=""
+                ><img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}"
               /></a>
             </div>
             <div class="vl-offcanvas-close">
@@ -123,14 +123,14 @@
               ></span
             >
             <span
-              ><a href="tel:+9965252555"
-                ><i class="fa-solid fa-phone"></i> +91 99652 52555</a
+              ><a href="tel:{{ preg_replace('/[^0-9+]/', '', $commonSettings['contact_phone'] ?? '') }}"
+                ><i class="fa-solid fa-phone"></i> {{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }}</a
               ></span
             >
             <span
               ><a href="#"
                 ><i class="fa-solid fa-location-dot"></i> Cholavin - Your rice expert,
-                Pallipalayam & Kumarapalayam</a
+                {{ $commonSettings['company_address'] ?? 'Pallipalayam & Kumarapalayam' }}</a
               ></span
             >
           </div>
@@ -139,7 +139,7 @@
             <h3 class="vl-offcanvas-sm-title">Follow Us</h3>
             <div class="space20"></div>
             <a
-              href="https://www.facebook.com/cholavinrice"
+              href="{{ $commonSettings['facebook'] ?? '#' }}"
               target="_blank"
               rel="noopener"
               ><i class="fab fa-facebook-f"></i
@@ -147,7 +147,7 @@
             <!-- <a href="#"><i class="fab fa-twitter"></i></a> -->
             <!-- <a href="#"><i class="fab fa-linkedin-in"></i></a> -->
             <a
-              href="https://www.instagram.com/cholavin_"
+              href="{{ $commonSettings['instagram'] ?? '#' }}"
               target="_blank"
               rel="noopener"
               ><i class="fab fa-instagram"></i
@@ -188,7 +188,7 @@
                           d="M10 1.875C5.5125 1.875 1.875 5.5125 1.875 10C1.875 11.4354 2.25729 12.7854 2.92708 13.9479L1.875 18.125L6.17708 17.099C7.30208 17.724 8.60938 18.125 10 18.125C14.4875 18.125 18.125 14.4875 18.125 10C18.125 5.5125 14.4875 1.875 10 1.875ZM7.34375 6.5625C7.52083 6.5625 7.70313 6.5625 7.86458 6.57292C8.04167 6.58333 8.23958 6.59896 8.42708 7.02083C8.64583 7.51563 9.11458 8.67708 9.17708 8.80208C9.23958 8.92708 9.28125 9.07292 9.19792 9.23958C9.11458 9.40625 9.07292 9.51042 8.94792 9.65625C8.82292 9.80208 8.6875 9.97917 8.57292 10.0833C8.44792 10.2083 8.31771 10.3438 8.46354 10.5938C8.60938 10.8438 9.10417 11.6615 9.84896 12.3229C10.8021 13.1667 11.6042 13.4167 11.8542 13.5417C12.1042 13.6667 12.25 13.6458 12.3958 13.4792C12.5417 13.3125 13.0156 12.7604 13.1771 12.5104C13.3385 12.2604 13.5 12.3021 13.7292 12.3854C13.9583 12.4688 15.1146 13.0573 15.3646 13.1823C15.6146 13.3073 15.776 13.3698 15.8385 13.4688C15.901 13.5677 15.901 14.0365 15.7083 14.5885C15.5156 15.1406 14.5625 15.6615 14.1198 15.7083C13.6771 15.7552 13.2552 15.9219 11.3229 15.1667C8.98958 14.2604 7.47396 11.901 7.34896 11.7344C7.22396 11.5677 6.35417 10.401 6.35417 9.19271C6.35417 7.98438 7.00521 7.38021 7.23438 7.13021C7.46354 6.88021 7.73438 6.82292 7.89583 6.82292L7.34375 6.5625Z"
                           fill="#F4C430"
                         />
-                      </svg>WhatsApp: +91 99652 52555</a
+                      </svg>WhatsApp: {{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }}</a
                     >
                     <span class="header-top-line">|</span>
                     <a href="#" class="header-time header6-time"
@@ -227,7 +227,7 @@
               <div class="col-xl-2 col-md-6 col-6">
                 <div class="vl-logo">
                   <a href="{{ route('frontend.home') }}"
-                    ><img src="{{ asset('frontend/assets/') }}/img/logo/logo-hm62.png" alt=""
+                    ><img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}"
                   /></a>
                 </div>
               </div>
@@ -454,7 +454,7 @@
                 <div class="space30 d-xl-none d-block"></div>
                 <div class="footer1-mobile footer1-mobile-fixxer lg-mt20">
                   <a
-                    href="https://wa.me/9965252555?text=Hello%20Cholavin%20Your%20Rice%20Expert%2C%20I%20want%20to%20place%20an%20order."
+                    href="https://wa.me/{{ $commonSettings['whatsapp_number'] ?? '919965252555' }}?text=Hello%20Cholavin%20Your%20Rice%20Expert%2C%20I%20want%20to%20place%20an%20order."
                     class="btn4-home6"
                     target="_blank"
                     rel="noopener"
@@ -468,7 +468,7 @@
             <div class="row">
               <div class="col-xl-4 col-lg-4 col-md-6">
                 <div class="footer1-logo-area">
-                  <img src="{{ asset('frontend/assets/') }}/img/logo/logo-hm62.png" alt="" />
+                  <img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}" />
                   <div class="space24"></div>
                   <p>
                     Cholavin - Your rice expert is your trusted source for premium rice in Pallipalayam & Kumarapalayam. We deliver quality rice varieties straight to your doorstep.
@@ -533,7 +533,7 @@
                           ><a class="f-date" href="#">Service Area:</a></span
                         >
                         <span
-                          ><a href="#">Pallipalayam & Kumarapalayam</a></span
+                          ><a href="#">{{ $commonSettings['company_address'] ?? 'Pallipalayam & Kumarapalayam' }}</a></span
                         >
                       </li>
                     </ul>
@@ -543,7 +543,7 @@
                     <ul class="social_link social1-footer">
                       <li>
                         <a
-                          href="https://www.facebook.com/cholavinrice"
+                          href="{{ $commonSettings['facebook'] ?? '#' }}"
                           target="_blank"
                           rel="noopener"
                           ><i class="fa-brands fa-facebook"></i
@@ -551,7 +551,7 @@
                       </li>
                       <li>
                         <a
-                          href="https://www.instagram.com/cholavin_"
+                          href="{{ $commonSettings['instagram'] ?? '#' }}"
                           target="_blank"
                           rel="noopener"
                           ><i class="fa-brands fa-instagram"></i
@@ -989,7 +989,7 @@
                 message: $.trim($("#message").val()),
               };
 
-              var whatsappNumber = "9965252555";
+              var whatsappNumber = @json($commonSettings['whatsapp_number'] ?? '919965252555');
               var whatsappUrl =
                 "https://wa.me/" +
                 whatsappNumber +

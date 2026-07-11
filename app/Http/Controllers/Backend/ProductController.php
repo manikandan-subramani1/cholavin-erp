@@ -13,19 +13,21 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Product::class);
         if ($request->ajax()) {
             $query = Product::query()->latest('id');
 
             return DataTables::eloquent($query)
                 ->addIndexColumn()
                 ->addColumn('image_preview', function (Product $product) {
-                    return '<img src="' . e($product->imageUrl()) . '" alt="' . e($product->name) . '" class="rounded" style="width:54px;height:54px;object-fit:cover;">';
+                    return '<img src="'.e($product->imageUrl()).'" alt="'.e($product->name).'" class="rounded" style="width:54px;height:54px;object-fit:cover;">';
                 })
-                ->editColumn('price', fn (Product $product) => $product->price ? 'Rs. ' . number_format((float) $product->price, 2) : '-')
+                ->editColumn('price', fn (Product $product) => $product->price ? 'Rs. '.number_format((float) $product->price, 2) : '-')
                 ->editColumn('is_active', function (Product $product) {
                     $class = $product->is_active ? 'success' : 'secondary';
                     $text = $product->is_active ? 'Active' : 'Hidden';
-                    return '<span class="badge bg-' . $class . '-subtle text-' . $class . '">' . $text . '</span>';
+
+                    return '<span class="badge bg-'.$class.'-subtle text-'.$class.'">'.$text.'</span>';
                 })
                 ->editColumn('show_on_homepage', function (Product $product) {
                     return $product->show_on_homepage
@@ -44,11 +46,14 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('backend.products.form', ['product' => new Product()]);
+        $this->authorize('create', Product::class);
+
+        return view('backend.products.form', ['product' => new Product]);
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Product::class);
         $data = $this->validated($request);
         $data['slug'] = $this->uniqueSlug($data['name']);
         $data['is_active'] = $request->boolean('is_active');
@@ -68,11 +73,14 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
+        $this->authorize('update', $product);
+
         return view('backend.products.form', compact('product'));
     }
 
     public function update(Request $request, Product $product)
     {
+        $this->authorize('update', $product);
         $data = $this->validated($request, $product->id);
         $data['slug'] = $this->uniqueSlug($data['name'], $product->id);
         $data['is_active'] = $request->boolean('is_active');
@@ -93,6 +101,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $this->authorize('delete', $product);
         Helper::unlinkImage($product->image);
         $product->delete();
 
@@ -119,7 +128,7 @@ class ProductController extends Controller
         $count = 1;
 
         while (Product::where('slug', $slug)->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))->exists()) {
-            $slug = $base . '-' . $count++;
+            $slug = $base.'-'.$count++;
         }
 
         return $slug;

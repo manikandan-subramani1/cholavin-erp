@@ -393,7 +393,7 @@
               />
               <img
                 class="thumb2"
-                src="{{ asset('frontend/assets/') }}/img/about/logo-hm64.png"
+                src="{{ asset($commonSettings['auth_brand_image'] ?? 'frontend/assets/img/logo/logo-hm64.png') }}"
                 alt="Cholavin logo badge"
                 data-aos="fade-left"
                 data-aos-duration="1000"
@@ -908,7 +908,7 @@
             <div class="process-step">
               <div class="process-num">02</div>
               <h4>Place Your Order</h4>
-              <p>WhatsApp us or call +91 9965252555 with your requirement.</p>
+              <p>WhatsApp us or call {{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }} with your requirement.</p>
             </div>
           </div>
           <div
@@ -1489,7 +1489,7 @@
                     >
                       <div class="accordion-body">
                         <p class="para">
-                          WhatsApp us at +91 99652 52555 or call during business
+                          WhatsApp us at {{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }} or call during business
                           hours (Mon–Sat, 8am–6pm). Tell us the rice variety,
                           pack size, quantity, and your delivery address.
                         </p>
@@ -1524,13 +1524,13 @@
         </p>
         <div class="cta-strip-btns">
           <a
-            href="https://wa.me/9965252555?text=Hello%20Cholavin%2C%20I%20would%20like%20to%20place%20an%20order."
+            href="https://wa.me/{{ $commonSettings['whatsapp_number'] ?? '919965252555' }}?text=Hello%20Cholavin%2C%20I%20would%20like%20to%20place%20an%20order."
             class="cta-wa"
             target="_blank"
             rel="noopener"
             >WhatsApp Now</a
           >
-          <a href="tel:+9965252555" class="cta-tel">Call: +91 99652 52555</a>
+          <a href="tel:{{ preg_replace('/[^0-9+]/', '', $commonSettings['contact_phone'] ?? '') }}" class="cta-tel">Call: {{ $commonSettings['contact_phone'] ?? '+91 99652 52555' }}</a>
         </div>
       </div>
     </div>

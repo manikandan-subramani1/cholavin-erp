@@ -1,148 +1,27 @@
 <div class="app-menu navbar-menu">
-    <!-- LOGO -->
     <div class="navbar-brand-box">
-        <!-- Dark Logo-->
-        <a href="index.html" class="logo logo-dark">
-            <span class="logo-sm">
-                <img src="assets/images/logo-sm.png" alt="" height="22">
-            </span>
-            <span class="logo-lg">
-                <img src="assets/images/logo-dark.png" alt="" height="17">
-            </span>
-        </a>
-        <!-- Light Logo-->
-        <a href="index.html" class="logo logo-light">
-            <span class="logo-sm">
-                <img src="assets/images/logo-sm.png" alt="" height="22">
-            </span>
-            <span class="logo-lg">
-                <img src="assets/images/logo-light.png" alt="" height="17">
-            </span>
-        </a>
-        <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-            id="vertical-hover">
-            <i class="ri-record-circle-line"></i>
-        </button>
+        <a href="{{ route('admin.dashboard') }}" class="logo logo-dark"><span class="logo-sm"><i class="ri-seedling-fill brand-glyph"></i></span><span class="logo-lg"><img class="erp-brand-logo" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}"></span></a>
+        <a href="{{ route('admin.dashboard') }}" class="logo logo-light"><span class="logo-sm"><i class="ri-seedling-fill brand-glyph"></i></span><span class="logo-lg"><img class="erp-brand-logo" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}"></span></a>
+        <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover"><i class="ri-record-circle-line"></i></button>
     </div>
-
     <div class="dropdown sidebar-user m-1 rounded">
-        <button type="button" class="btn material-shadow-none" id="page-header-user-dropdown" data-bs-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            <span class="d-flex align-items-center gap-2">
-                <img class="rounded header-profile-user" src="assets/images/users/avatar-1.jpg" alt="Header Avatar">
-                <span class="text-start">
-                    <span class="d-block fw-medium sidebar-user-name-text">Anna Adame</span>
-                    <span class="d-block fs-14 sidebar-user-name-sub-text"><i
-                            class="ri ri-circle-fill fs-10 text-success align-baseline"></i> <span
-                            class="align-middle">Online</span></span>
-                </span>
-            </span>
-        </button>
-        <div class="dropdown-menu dropdown-menu-end">
-            <!-- item-->
-            <h6 class="dropdown-header">Welcome Anna!</h6>
-            <a class="dropdown-item" href="pages-profile.html"><i
-                    class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span
-                    class="align-middle">Profile</span></a>
-            <a class="dropdown-item" href="apps-chat.html"><i
-                    class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i> <span
-                    class="align-middle">Messages</span></a>
-            <a class="dropdown-item" href="apps-tasks-kanban.html"><i
-                    class="mdi mdi-calendar-check-outline text-muted fs-16 align-middle me-1"></i> <span
-                    class="align-middle">Taskboard</span></a>
-            <a class="dropdown-item" href="pages-faqs.html"><i
-                    class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i> <span
-                    class="align-middle">Help</span></a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="pages-profile.html"><i
-                    class="mdi mdi-wallet text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Balance :
-                    <b>$5971.67</b></span></a>
-            <a class="dropdown-item" href="pages-profile-settings.html"><span
-                    class="badge bg-success-subtle text-success mt-1 float-end">New</span><i
-                    class="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i> <span
-                    class="align-middle">Settings</span></a>
-            <a class="dropdown-item" href="auth-lockscreen-basic.html"><i
-                    class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Lock
-                    screen</span></a>
-            <a class="dropdown-item" href="auth-logout-basic.html"><i
-                    class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle"
-                    data-key="t-logout">Logout</span></a>
-        </div>
+        <button type="button" class="btn material-shadow-none" data-bs-toggle="dropdown"><span class="d-flex align-items-center gap-2"><span class="avatar-xs"><span class="avatar-title rounded-circle bg-primary">{{ str(auth()->user()->name)->substr(0, 1)->upper() }}</span></span><span class="text-start"><span class="d-block fw-medium">{{ auth()->user()->name }}</span><span class="d-block fs-12 text-muted">{{ auth()->user()->role?->name }}</span></span></span></button>
+        <div class="dropdown-menu dropdown-menu-end"><form method="post" action="{{ route('admin.logout') }}">@csrf<button class="dropdown-item"><i class="mdi mdi-logout me-1"></i> Logout</button></form></div>
     </div>
-    <div id="scrollbar">
-        <div class="container-fluid"> 
-            <div id="two-column-menu">
-            </div>
-            <ul class="navbar-nav" id="navbar-nav">
-                <li class="menu-title"><span data-key="t-menu">Menu</span></li>
-                <li class="nav-item"><a class="nav-link menu-link active" href="{{ route('admin.dashboard') }}"><i
-                            class="ri-dashboard-2-line"></i> <span>Dashboard</span></a></li>
-                <li class="nav-item"><a class="nav-link menu-link" href="#"><i class="ri-file-list-3-line"></i>
-                        <span>Invoices</span></a></li>
-                <li class="nav-item"><a class="nav-link menu-link" href="{{ route('admin.products.index') }}"><i
-                            class="ri-shopping-bag-3-line"></i> <span>Products</span></a></li>
-                <li class="nav-item"><a class="nav-link menu-link" href="{{ route('admin.enquiries.index') }}"><i
-                            class="ri-message-3-line"></i> <span>Enquiries</span></a></li>
-                <li class="nav-item"><a class="nav-link menu-link" href="#"><i class="ri-line-chart-line"></i>
-                        <span>Reports</span></a></li>
-                <li class="nav-item"><a class="nav-link menu-link" href="#"><i class="ri-settings-4-line"></i>
-                        <span>Settings</span></a></li>
-
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="#sidebarMultilevel" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="sidebarMultilevel">
-                        <i class="ri-share-line"></i> <span data-key="t-multi-level">Multi Level</span>
-                    </a>
-                    <div class="collapse menu-dropdown" id="sidebarMultilevel">
-                        <ul class="nav nav-sm flex-column">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link" data-key="t-level-1.1"> Level 1.1 </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#sidebarAccount" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarAccount" data-key="t-level-1.2">
-                                    Level
-                                    1.2
-                                </a>
-                                <div class="collapse menu-dropdown" id="sidebarAccount">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="#" class="nav-link" data-key="t-level-2.1"> Level 2.1 </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="#sidebarCrm" class="nav-link" data-bs-toggle="collapse"
-                                                role="button" aria-expanded="false" aria-controls="sidebarCrm"
-                                                data-key="t-level-2.2"> Level 2.2
-                                            </a>
-                                            <div class="collapse menu-dropdown" id="sidebarCrm">
-                                                <ul class="nav nav-sm flex-column">
-                                                    <li class="nav-item">
-                                                        <a href="#" class="nav-link" data-key="t-level-3.1">
-                                                            Level 3.1
-                                                        </a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a href="#" class="nav-link" data-key="t-level-3.2">
-                                                            Level 3.2
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-            </ul>
-        </div>
-        <!-- Sidebar -->
-    </div>
-
+    <div id="scrollbar"><div class="container-fluid"><ul class="navbar-nav" id="navbar-nav">
+        <li class="menu-title"><span>Menu</span></li>
+        <li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="ri-dashboard-2-line"></i><span>Dashboard</span></a></li>
+        @can('viewAny', App\Models\Product::class)<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}"><i class="ri-shopping-bag-3-line"></i><span>Products</span></a></li>@endcan
+        @can('viewAny', App\Models\ContactEnquiry::class)<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.enquiries.*') ? 'active' : '' }}" href="{{ route('admin.enquiries.index') }}"><i class="ri-message-3-line"></i><span>Enquiries</span></a></li>@endcan
+        @if(auth()->user()->can('users.view') || auth()->user()->can('roles.view') || auth()->user()->can('shops.view') || auth()->user()->can('activity-logs.view') || auth()->user()->can('settings.view'))
+        <li class="menu-title"><span>Access Control</span></li>
+        @can('users.view')<li class="nav-item"><a class="nav-link menu-link" href="{{ route('admin.users.index') }}"><i class="ri-user-settings-line"></i><span>Users</span></a></li>@endcan
+        @can('roles.view')<li class="nav-item"><a class="nav-link menu-link" href="{{ route('admin.roles.index') }}"><i class="ri-shield-user-line"></i><span>Roles & Permissions</span></a></li>@endcan
+        @can('shops.view')<li class="nav-item"><a class="nav-link menu-link" href="{{ route('admin.locations.index') }}"><i class="ri-store-2-line"></i><span>Shops & Godowns</span></a></li>@endcan
+        @can('activity-logs.view')<li class="nav-item"><a class="nav-link menu-link" href="{{ route('admin.activity-logs.index') }}"><i class="ri-history-line"></i><span>Activity Logs</span></a></li>@endcan
+        @can('settings.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.index') }}"><i class="ri-settings-4-line"></i><span>Company Settings</span></a></li>@endcan
+        @endif
+    </ul></div></div>
     <div class="sidebar-background"></div>
 </div>
-<!-- Left Sidebar End -->
-<!-- Vertical Overlay-->
 <div class="vertical-overlay"></div>
