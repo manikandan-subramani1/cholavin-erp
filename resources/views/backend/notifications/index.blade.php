@@ -1,0 +1,10 @@
+@extends('backend.layouts.app')
+@section('title', 'Notifications | Cholavin ERP')
+@section('content')
+<div class="page-title-box d-flex justify-content-between"><div><span class="erp-eyebrow">Alerts & Reminders</span><h4>Notifications</h4></div>@can('notifications.update')<button id="refresh-alerts" class="btn btn-primary">Refresh Operational Alerts</button>@endcan</div>
+<div class="card mb-3"><div class="card-body"><div class="row"><div class="col-md-3"><label class="form-label">Alert Type</label><select id="notification-type-filter" class="form-select"><option value="">All</option><option value="low_stock">Low stock</option><option value="expiry">Expiry</option><option value="payment_reminder">Payment reminder</option><option value="pending_delivery">Pending delivery</option></select></div></div></div></div>
+<div class="card"><div class="card-body table-responsive"><table id="notifications-table" class="table w-100"><thead><tr><th>S.No</th><th>Type</th><th>Title</th><th>Message</th><th>Status</th><th>Created</th><th>Action</th></tr></thead></table></div></div>
+@endsection
+@push('scripts')
+<script>$(function(){const token=document.querySelector('meta[name="csrf-token"]').content;const table=initializeDataTable({selector:'#notifications-table',url:@json(route('admin.notifications.index')),filters:()=>({type:$('#notification-type-filter').val()}),columns:[{data:'DT_RowIndex',orderable:false,searchable:false},{data:'type'},{data:'title'},{data:'message'},{data:'status'},{data:'created_at'},{data:'action',orderable:false,searchable:false}]});$('#notification-type-filter').on('change',()=>table.ajax.reload());$('#refresh-alerts').on('click',()=>$.ajax({url:@json(route('admin.notifications.generate')),type:'POST',headers:{'X-CSRF-TOKEN':token}}).done(response=>{table.ajax.reload(null,false);if(window.toastr)toastr.success(response.message);}).fail(xhr=>handleAjaxError(xhr)));$(document).on('click','.mark-notification-read',function(){$.ajax({url:this.dataset.url,type:'PATCH',headers:{'X-CSRF-TOKEN':token}}).done(()=>table.ajax.reload(null,false)).fail(xhr=>handleAjaxError(xhr));});});</script>
+@endpush

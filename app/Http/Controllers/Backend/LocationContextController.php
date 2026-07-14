@@ -2,39 +2,51 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
-use App\Models\Godown;
-use App\Models\Shop;
-use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\Access\SwitchGodownContextRequest;
+use App\Http\Requests\Access\SwitchShopContextRequest;
+use App\Services\Access\BusinessContextService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class LocationContextController extends Controller
 {
-    public function update(Request $request): RedirectResponse
+    public function godowns(Request $request, BusinessContextService $contexts): JsonResponse
     {
-        $data = $request->validate([
-            'shop_id' => ['required', 'integer', 'exists:shops,id'],
-            'godown_id' => ['nullable', 'integer', 'exists:godowns,id'],
+        Gate::authorize('godowns.switch');
+
+        $shopId = (int) $request->integer('shop_id');
+        abort_unless($contexts->permittedShops($request->user())->contains('id', $shopId), 403);
+
+        return ResponseHelper::success('Available godowns loaded.', [
+            'godowns' => $contexts->permittedGodowns($request->user(), $shopId)
+                ->map->only(['id', 'name', 'code'])
+                ->values(),
         ]);
+    }
 
-        $user = $request->user();
-        $shop = Shop::where('is_active', true)->findOrFail($data['shop_id']);
-        abort_unless($user->canAccessShop($shop->id), 403);
+    public function switchShop(SwitchShopContextRequest $request, BusinessContextService $contexts): JsonResponse
+    {
+        Gate::authorize('shops.switch');
 
-        $godown = isset($data['godown_id'])
-            ? Godown::where('is_active', true)->findOrFail($data['godown_id'])
-            : null;
+        return ResponseHelper::success(
+            'Working shop changed successfully.',
+            $contexts->switchShop($request->user(), $request->integer('shop_id'))
+        );
+    }
 
-        if ($godown) {
-            abort_unless($user->canAccessGodown($godown->id), 403);
-            abort_if($godown->shop_id && $godown->shop_id !== $shop->id, 422, 'The godown does not belong to the selected shop.');
-        }
+    public function switchGodown(SwitchGodownContextRequest $request, BusinessContextService $contexts): JsonResponse
+    {
+        Gate::authorize('godowns.switch');
 
-        $request->session()->put([
-            'active_shop_id' => $shop->id,
-            'active_godown_id' => $godown?->id,
-        ]);
-
-        return back()->with('success', 'Working location changed successfully.');
+        return ResponseHelper::success(
+            'Working godown changed successfully.',
+            $contexts->switchGodown(
+                $request->user(),
+                $request->filled('godown_id') ? $request->integer('godown_id') : null
+            )
+        );
     }
 }

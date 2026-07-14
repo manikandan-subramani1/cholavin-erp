@@ -10,8 +10,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta content="Cholavin ERP billing software interface" name="description" />
     <meta content="Cholavin" name="author" />
+    @include('shared.google-fonts')
     <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.ico') }}">
-    @stack('styles')
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.ico') }}">
 
@@ -26,12 +26,20 @@
     <script src="{{ asset('backend/assets/js/layout.js') }}"></script>
     <!-- Bootstrap Css -->
     <link href="{{ asset('backend/assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- Shared offline ERP dependencies -->
+    <link href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap5.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/vendor/datatables/responsive.bootstrap5.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/vendor/toastr/toastr.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- Icons Css -->
     <link href="{{ asset('backend/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- App Css-->
     <link href="{{ asset('backend/assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="{{ asset('backend/assets/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/css/cholavin-erp.css') }}?v={{ filemtime(public_path('backend/assets/css/cholavin-erp.css')) }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('shared/assets/css/cholavin-fonts.css') }}?v={{ filemtime(public_path('shared/assets/css/cholavin-fonts.css')) }}" rel="stylesheet" type="text/css" />
+    @stack('styles')
     <style>
         :root { --cholavin-maroon:#5e001b; --cholavin-deep:#3b0010; --cholavin-red:#8f0028; --cholavin-gold:#f4c430; --cholavin-ivory:#fff8e6; }
         body { background:#f8f5f2; color:#30272a; }
@@ -82,6 +90,15 @@
     <!-- END layout-wrapper --> 
     @include('backend.layouts.theme-settings') 
     <!-- JAVASCRIPT -->
+    <script src="{{ asset('backend/assets/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/toastr/toastr.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/libs/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('backend/assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('backend/assets/libs/simplebar/simplebar.min.js') }}"></script>
     <script src="{{ asset('backend/assets/libs/node-waves/waves.min.js') }}"></script>
@@ -104,6 +121,9 @@
 
     <!-- App js -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/erp-common.js') }}?v={{ filemtime(public_path('backend/assets/js/erp-common.js')) }}"></script>
+    <script src="{{ asset('backend/assets/js/module-workspace.js') }}?v={{ filemtime(public_path('backend/assets/js/module-workspace.js')) }}"></script>
+    <script src="{{ asset('backend/assets/js/header-context.js') }}?v={{ filemtime(public_path('backend/assets/js/header-context.js')) }}"></script>
     @stack('scripts')
 </body>
 

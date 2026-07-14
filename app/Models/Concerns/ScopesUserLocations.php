@@ -19,7 +19,10 @@ trait ScopesUserLocations
         $query->where($this->qualifyColumn('shop_id'), $shopId);
 
         return $godownId
-            ? $query->where($this->qualifyColumn('godown_id'), $godownId)
+            ? $query->where(function (Builder $query) use ($godownId) {
+                $query->whereNull($this->qualifyColumn('godown_id'))
+                    ->orWhere($this->qualifyColumn('godown_id'), $godownId);
+            })
             : $query;
     }
 }

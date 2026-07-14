@@ -16,5 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(AccessControlSeeder::class);
         $this->call(SettingSeeder::class);
+        $this->call(ErpFoundationSeeder::class);
+        $this->call(MasterDataSeeder::class);
     }
 }

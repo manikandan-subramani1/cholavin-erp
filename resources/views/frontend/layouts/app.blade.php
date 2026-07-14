@@ -16,6 +16,7 @@
       content="rice shop Pallipalayam, rice shop Kumarapalayam, biriyani rice, basmati rice, rice delivery near me"
     />
     <title>@yield('title', 'Cholavin - Your rice expert')</title>
+    @include('shared.google-fonts')
 
     <!--=====FAB ICON=======-->
     <link rel="shortcut icon" href="{{ asset('frontend/assets/') }}/img/logo/favicon.png" type="image/x-icon" />
@@ -34,6 +35,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
     />
     <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/main.css" />
+    <link rel="stylesheet" href="{{ asset('shared/assets/css/cholavin-fonts.css') }}?v={{ filemtime(public_path('shared/assets/css/cholavin-fonts.css')) }}" />
     <style>
       .dynamic-home-products { background: #fff8e6; }
       .dynamic-product-card { height: 100%; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 40px rgba(94, 0, 27, .08); transform: translateY(20px); opacity: 0; animation: productRise .55s ease forwards; transition: transform .3s ease, box-shadow .3s ease; }

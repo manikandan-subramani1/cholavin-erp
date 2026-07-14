@@ -12,16 +12,7 @@ class AccessControlSeeder extends Seeder
 {
     public function run(): void
     {
-        $modules = [
-            'products' => ['view', 'create', 'update', 'delete'],
-            'enquiries' => ['view', 'update'],
-            'users' => ['view', 'create', 'update', 'delete'],
-            'roles' => ['view', 'create', 'update', 'delete'],
-            'shops' => ['view', 'create', 'update', 'delete'],
-            'godowns' => ['view', 'create', 'update', 'delete'],
-            'activity-logs' => ['view'],
-            'settings' => ['view', 'update'],
-        ];
+        $modules = config('erp_permissions');
 
         foreach ($modules as $module => $actions) {
             foreach ($actions as $action) {
@@ -39,16 +30,19 @@ class AccessControlSeeder extends Seeder
 
         $role->permissions()->sync(Permission::pluck('id'));
 
-        $admin = User::firstOrCreate(
-            ['email' => env('SUPER_ADMIN_EMAIL', 'admin@cholavin.test')],
-            [
-                'name' => 'Super Admin',
-                'username' => env('SUPER_ADMIN_USERNAME', 'superadmin'),
-                'mobile' => env('SUPER_ADMIN_MOBILE'),
-                'password' => Hash::make(env('SUPER_ADMIN_PASSWORD', 'ChangeMe@123')),
-            ]
-        );
+        $username = env('SUPER_ADMIN_USERNAME', 'superadmin');
+        $admin = User::query()->where('username', $username)->first()
+            ?? User::query()->where('role_id', $role->id)->oldest('id')->first()
+            ?? new User;
 
-        $admin->forceFill(['role_id' => $role->id, 'is_active' => true])->save();
+        $admin->forceFill([
+            'name' => 'Super Admin',
+            'username' => $username,
+            'email' => env('SUPER_ADMIN_EMAIL', 'admin@gmail.com'),
+            'mobile' => env('SUPER_ADMIN_MOBILE'),
+            'password' => Hash::make(env('SUPER_ADMIN_PASSWORD', '12345678')),
+            'role_id' => $role->id,
+            'is_active' => true,
+        ])->save();
     }
 }

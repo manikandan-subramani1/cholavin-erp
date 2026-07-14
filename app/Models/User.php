@@ -61,17 +61,22 @@ class User extends Authenticatable
 
     public function shops()
     {
-        return $this->belongsToMany(Shop::class);
+        return $this->belongsToMany(Shop::class)->withPivot(['is_default', 'is_active', 'created_by']);
     }
 
     public function godowns()
     {
-        return $this->belongsToMany(Godown::class);
+        return $this->belongsToMany(Godown::class)->withPivot(['is_default', 'is_active', 'created_by']);
     }
 
     public function permissions()
     {
         return $this->belongsToMany(Permission::class)->withPivot('allowed')->withTimestamps();
+    }
+
+    public function loginHistories()
+    {
+        return $this->hasMany(LoginHistory::class);
     }
 
     public function isSuperAdmin(): bool
@@ -120,11 +125,11 @@ class User extends Authenticatable
 
     public function canAccessShop(int $shopId): bool
     {
-        return $this->isSuperAdmin() || $this->shops()->whereKey($shopId)->exists();
+        return $this->isSuperAdmin() || $this->shops()->wherePivot('is_active', true)->whereKey($shopId)->exists();
     }
 
     public function canAccessGodown(int $godownId): bool
     {
-        return $this->isSuperAdmin() || $this->godowns()->whereKey($godownId)->exists();
+        return $this->isSuperAdmin() || $this->godowns()->wherePivot('is_active', true)->whereKey($godownId)->exists();
     }
 }

@@ -1,0 +1,40 @@
+:root {
+    --cholavin-font-sans: "Google Sans Flex", "Noto Sans Tamil", "Poppins", sans-serif;
+    --vz-font-family-primary: var(--cholavin-font-sans);
+    --vz-font-family-secondary: var(--cholavin-font-sans);
+    --vz-font-sans-serif: var(--cholavin-font-sans);
+    --vz-body-font-family: var(--cholavin-font-sans);
+    --vz-headings-font-family: var(--cholavin-font-sans);
+    --vz-vertical-menu-item-font-family: var(--cholavin-font-sans);
+    --vz-vertical-menu-sub-item-font-family: var(--cholavin-font-sans);
+    --ztc-family-font1: var(--cholavin-font-sans);
+    --ztc-family-font2: var(--cholavin-font-sans);
+    --font-sans: var(--cholavin-font-sans);
+    --default-font-family: var(--cholavin-font-sans);
+}
+
+html,
+body,
+button,
+input,
+optgroup,
+select,
+textarea {
+    font-family: var(--cholavin-font-sans);
+}
+
+.dataTables_wrapper,
+.dropdown-menu,
+.modal,
+.popover,
+.tooltip,
+.toast,
+.toastr,
+.swal2-popup,
+.apexcharts-canvas text {
+    font-family: var(--cholavin-font-sans) !important;
+}
+
+:lang(ta) {
+    font-family: "Noto Sans Tamil", "Google Sans Flex", "Poppins", sans-serif;
+}

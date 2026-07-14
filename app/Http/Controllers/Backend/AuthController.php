@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Models\ActivityLog;
+use App\Models\LoginHistory;
 use App\Models\User;
+use App\Services\Access\BusinessContextService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,12 +23,9 @@ class AuthController extends Controller
         return view('backend.auth.login');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(LoginRequest $request, BusinessContextService $contexts): RedirectResponse
     {
-        $credentials = $request->validate([
-            'login' => ['required', 'string', 'max:190'],
-            'password' => ['required', 'string'],
-        ]);
+        $credentials = $request->validated();
 
         $throttleKey = Str::lower($credentials['login']).'|'.$request->ip();
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
@@ -43,6 +43,7 @@ class AuthController extends Controller
         if (! $user || ! Auth::attempt([$field => $credentials['login'], 'password' => $credentials['password']], $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, 60);
             $this->logAttempt($request, 'login.failed', $user, ['identifier' => $credentials['login']]);
+            $this->recordLoginHistory($request, 'login.failed', $user, $credentials['login']);
             throw ValidationException::withMessages(['login' => 'The supplied credentials are incorrect.']);
         }
 
@@ -51,21 +52,30 @@ class AuthController extends Controller
             $request->session()->regenerate();
             RateLimiter::hit($throttleKey, 60);
             $this->logAttempt($request, 'login.blocked', $user);
+            $this->recordLoginHistory($request, 'login.blocked', $user, $credentials['login']);
             throw ValidationException::withMessages(['login' => 'This account is inactive. Contact the Super Admin.']);
         }
 
         $request->session()->regenerate();
         RateLimiter::clear($throttleKey);
-        $user->loadMissing(['role.permissions', 'shops:id', 'godowns:id']);
+        $user->loadMissing(['role.permissions', 'permissions', 'shops:id', 'godowns:id']);
         $user->update(['last_login_at' => now()]);
+        $context = $contexts->synchronize($user);
+        $permissionCodes = $user->isSuperAdmin() ? collect(['*']) : $user->effectivePermissionCodes();
+        $history = $this->recordLoginHistory($request, 'login.success', $user, $credentials['login']);
 
         $request->session()->put([
             'user_id' => $user->id,
             'role_id' => $user->role_id,
             'permitted_shop_ids' => $user->isSuperAdmin() ? ['*'] : $user->shops->modelKeys(),
             'permitted_godown_ids' => $user->isSuperAdmin() ? ['*'] : $user->godowns->modelKeys(),
-            'permitted_modules' => $user->isSuperAdmin() ? ['*'] : $user->role->permissions->pluck('module')->unique()->values()->all(),
-            'permitted_actions' => $user->isSuperAdmin() ? ['*'] : $user->role->permissions->pluck('code')->values()->all(),
+            'permitted_modules' => $user->isSuperAdmin()
+                ? ['*']
+                : $permissionCodes->map(fn (string $code) => str($code)->before('.')->toString())->unique()->values()->all(),
+            'permitted_actions' => $permissionCodes->all(),
+            'active_shop_id' => $context['shop_id'],
+            'active_godown_id' => $context['godown_id'],
+            'login_history_id' => $history->id,
             'login_timestamp' => now()->toIso8601String(),
         ]);
 
@@ -77,6 +87,10 @@ class AuthController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         $this->logAttempt($request, 'logout', $request->user());
+        LoginHistory::query()
+            ->whereKey($request->session()->get('login_history_id'))
+            ->whereNull('logged_out_at')
+            ->update(['event' => 'logout', 'logged_out_at' => now()]);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -89,6 +103,8 @@ class AuthController extends Controller
         ActivityLog::create([
             'user_id' => $user?->id,
             'event' => $event,
+            'module' => 'authentication',
+            'action' => str($event)->after('.')->toString(),
             'method' => $request->method(),
             'route' => $request->route()?->getName(),
             'url' => $request->fullUrl(),
@@ -96,6 +112,19 @@ class AuthController extends Controller
             'user_agent' => $request->userAgent(),
             'properties' => $properties ?: null,
             'created_at' => now(),
+        ]);
+    }
+
+    private function recordLoginHistory(Request $request, string $event, ?User $user, string $identifier): LoginHistory
+    {
+        return LoginHistory::create([
+            'user_id' => $user?->id,
+            'identifier' => $identifier,
+            'event' => $event,
+            'session_id' => $event === 'login.success' ? $request->session()->getId() : null,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'logged_in_at' => $event === 'login.success' ? now() : null,
         ]);
     }
 }

@@ -32,9 +32,10 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::before(fn ($user) => $user->isSuperAdmin() ? true : null);
 
-        foreach (['users', 'roles', 'shops', 'godowns', 'activity-logs', 'settings'] as $module) {
-            foreach (['view', 'create', 'update', 'delete'] as $action) {
-                Gate::define("{$module}.{$action}", fn ($user) => $user->hasPermission("{$module}.{$action}"));
+        foreach (config('erp_permissions', []) as $module => $actions) {
+            foreach ($actions as $action) {
+                $permissionCode = "{$module}.{$action}";
+                Gate::define($permissionCode, fn ($user) => $user->hasPermission($permissionCode));
             }
         }
 

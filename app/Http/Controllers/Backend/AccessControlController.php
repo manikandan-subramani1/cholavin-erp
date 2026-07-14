@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Access\StoreUserRequest;
+use App\Http\Requests\Access\UpdateUserRequest;
 use App\Models\ActivityLog;
 use App\Models\Godown;
 use App\Models\Permission;
@@ -12,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -30,25 +33,26 @@ class AccessControlController extends Controller
         ]);
     }
 
-    public function storeUser(Request $request): RedirectResponse
+    public function storeUser(StoreUserRequest $request): RedirectResponse
     {
-        Gate::authorize('users.create');
-        $data = $this->validateUser($request);
-        $user = User::create($data);
-        $this->syncLocations($user, $request);
+        DB::transaction(function () use ($request): void {
+            $user = User::create($request->safe()->except(['shops', 'godowns']));
+            $this->syncLocations($user, $request);
+        });
 
         return back()->with('success', 'User created successfully.');
     }
 
-    public function updateUser(Request $request, User $user): RedirectResponse
+    public function updateUser(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        Gate::authorize('users.update');
-        $data = $this->validateUser($request, $user);
+        $data = $request->safe()->except(['shops', 'godowns']);
         if (empty($data['password'])) {
             unset($data['password']);
         }
-        $user->update($data);
-        $this->syncLocations($user, $request);
+        DB::transaction(function () use ($user, $data, $request): void {
+            $user->update($data);
+            $this->syncLocations($user, $request);
+        });
 
         return back()->with('success', 'User access updated successfully.');
     }
@@ -215,24 +219,18 @@ class AccessControlController extends Controller
         return view('backend.access.activity-logs', ['logs' => ActivityLog::with('user:id,name')->latest('id')->paginate(50)]);
     }
 
-    private function validateUser(Request $request, ?User $user = null): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'username' => ['required', 'string', 'max:100', Rule::unique('users')->ignore($user)],
-            'email' => ['required', 'email', 'max:190', Rule::unique('users')->ignore($user)],
-            'mobile' => ['nullable', 'string', 'max:30', Rule::unique('users')->ignore($user)],
-            'role_id' => ['required', 'exists:roles,id'],
-            'password' => [$user ? 'nullable' : 'required', 'string', 'min:8'],
-            'is_active' => ['nullable', 'boolean'],
-            'shops' => ['nullable', 'array'], 'shops.*' => ['integer', 'exists:shops,id'],
-            'godowns' => ['nullable', 'array'], 'godowns.*' => ['integer', 'exists:godowns,id'],
-        ]) + ['is_active' => $request->boolean('is_active')];
-    }
-
     private function syncLocations(User $user, Request $request): void
     {
-        $user->shops()->sync($request->input('shops', []));
-        $user->godowns()->sync($request->input('godowns', []));
+        $shopIds = collect($request->input('shops', []))->map(fn ($id) => (int) $id)->unique()->values();
+        $godownIds = collect($request->input('godowns', []))->map(fn ($id) => (int) $id)->unique()->values();
+        $actorId = $request->user()->id;
+
+        $user->shops()->sync($shopIds->mapWithKeys(fn (int $id, int $index) => [
+            $id => ['is_default' => $index === 0, 'is_active' => true, 'created_by' => $actorId],
+        ])->all());
+
+        $user->godowns()->sync($godownIds->mapWithKeys(fn (int $id, int $index) => [
+            $id => ['is_default' => $index === 0, 'is_active' => true, 'created_by' => $actorId],
+        ])->all());
     }
 }

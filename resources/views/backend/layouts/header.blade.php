@@ -561,12 +561,13 @@
 
                 @if (($headerShops ?? collect())->isNotEmpty())
                     <div class="header-item d-none d-lg-flex align-items-center px-2">
-                        <form method="post" action="{{ route('admin.location-context.update') }}" class="d-flex gap-2 align-items-center">
-                            @csrf
+                        <div id="erp-business-context" class="d-flex gap-2 align-items-center erp-context-form"
+                            data-switch-shop-url="{{ route('admin.location-context.switch-shop') }}"
+                            data-switch-godown-url="{{ route('admin.location-context.switch-godown') }}">
                             <div>
                                 <label for="header-shop-context" class="visually-hidden">Working shop</label>
                                 <select id="header-shop-context" name="shop_id" class="form-select form-select-sm"
-                                    onchange="this.form.elements['godown_id'].value = ''; this.form.submit()">
+                                    @disabled(! auth()->user()->can('shops.switch') || $headerShops->count() <= 1)>
                                     @foreach ($headerShops as $shop)
                                         <option value="{{ $shop->id }}" @selected($activeShopId === $shop->id)>
                                             #{{ $shop->id }} — {{ $shop->name }} ({{ $shop->code }})
@@ -577,18 +578,16 @@
                             <div>
                                 <label for="header-godown-context" class="visually-hidden">Working godown</label>
                                 <select id="header-godown-context" name="godown_id" class="form-select form-select-sm"
-                                    onchange="this.form.submit()">
+                                    @disabled(! auth()->user()->can('godowns.switch') || $headerGodowns->count() <= 1)>
                                     <option value="">No godown</option>
                                     @foreach ($headerGodowns as $godown)
-                                        @if (! $godown->shop_id || $godown->shop_id === $activeShopId)
-                                            <option value="{{ $godown->id }}" @selected($activeGodownId === $godown->id)>
-                                                #{{ $godown->id }} — {{ $godown->name }} ({{ $godown->code }})
-                                            </option>
-                                        @endif
+                                        <option value="{{ $godown->id }}" @selected($activeGodownId === $godown->id)>
+                                            #{{ $godown->id }} — {{ $godown->name }} ({{ $godown->code }})
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 @endif
 
@@ -612,3 +611,26 @@
         </div>
     </div>
 </header>
+
+<div id="removeNotificationModal" class="modal fade zoomIn" tabindex="-1" aria-labelledby="removeNotificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="removeNotificationModalLabel" class="modal-title">Remove notifications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div class="avatar-lg mx-auto mb-3">
+                    <div class="avatar-title bg-danger-subtle text-danger rounded-circle fs-24">
+                        <i class="ri-notification-off-line"></i>
+                    </div>
+                </div>
+                <p class="text-muted mb-0">Remove the selected notifications from this list?</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button id="NotificationModalbtn-close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="delete-notification" type="button" class="btn btn-danger">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>

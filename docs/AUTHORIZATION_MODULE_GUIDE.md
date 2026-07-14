@@ -143,3 +143,25 @@ Super Admin manages users, roles, permission assignments, shops, godowns, and ac
 Role, direct user permission, shop, and godown changes apply on the user's next request. No logout is required. The header location selector is populated with every active location for Super Admin and only assigned active locations for other users.
 
 `LogUserActivity` records authenticated page views and mutations. `AuthController` separately records successful, failed, and blocked login attempts plus logout. Never store passwords, CAPTCHA answers, tokens, or full request payloads in activity-log properties.
+
+## Business context implementation
+
+`App\Services\Access\BusinessContextService` is the single source for permitted locations, default-context resolution, validation, switching, and switch auditing. Do not duplicate shop or godown selection logic in controllers.
+
+The authenticated AJAX endpoints are:
+
+```text
+GET  /admin/location-context/godowns
+POST /admin/location-context/shop
+POST /admin/location-context/godown
+```
+
+They require `godowns.switch` or `shops.switch`, return the standard JSON response shape, and never trust location IDs from the browser. The header uses `public/backend/assets/js/header-context.js` to update the dependent godown list and refresh context-sensitive DataTables or the current context-bound page without logging the user out.
+
+Normal-user default assignments are stored on the `shop_user` and `godown_user` pivots. Only active assignments participate in context resolution, and every assigned godown must belong to an assigned shop.
+
+## Session and login monitoring
+
+Authorized administrators use `/admin/access/sessions` to view database-backed sessions with the user, role, IP address, device string, last activity, active shop, active godown, and session status. `sessions.revoke` allows force logout but cannot revoke the administrator's current session from that screen.
+
+`login_histories` records successful, failed, blocked, logged-out, and administratively revoked sessions. `context_switch_logs` provides a dedicated immutable history of shop and godown changes, while `activity_logs` stores the matching structured audit event.

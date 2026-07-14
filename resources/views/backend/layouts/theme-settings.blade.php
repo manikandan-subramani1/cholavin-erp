@@ -14,7 +14,7 @@
             <div data-simplebar class="h-100">
                 <div class="p-4">
                     <h6 class="mb-0 fw-semibold text-uppercase">Layout</h6>
-                    <p class="text-muted">Choose your layout</p>
+                    <p class="text-muted">Choose the navigation layout.</p>
 
                     <div class="row gy-3">
                         <div class="col-4">
@@ -57,8 +57,7 @@
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center mt-2">Horizontal</h5>
-                        </div> 
-                        <!-- end col -->
+                        </div>
                     </div>
 
                     <div class="form-check form-switch form-switch-md mb-3 mt-4">
