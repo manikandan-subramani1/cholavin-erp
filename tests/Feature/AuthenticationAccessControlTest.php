@@ -164,8 +164,12 @@ class AuthenticationAccessControlTest extends TestCase
                 '<span>Administration</span>',
             ], false)
             ->assertSee('id="search-options"', false)
+            ->assertSee('id="erp-page-loader"', false)
+            ->assertSee('page-loader.js', false)
             ->assertSee('id="page-header-cart-dropdown"', false)
+            ->assertSee('id="erp-fullscreen-toggle"', false)
             ->assertSee('data-toggle="fullscreen"', false)
+            ->assertSee('persistent-fullscreen.js', false)
             ->assertSee('light-dark-mode', false)
             ->assertSee('id="page-header-notifications-dropdown"', false)
             ->assertSee('id="page-header-user-dropdown"', false)

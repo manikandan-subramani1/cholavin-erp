@@ -29,6 +29,7 @@
     <!-- Shared offline ERP dependencies -->
     <link href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap5.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('backend/assets/vendor/datatables/responsive.bootstrap5.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('backend/assets/vendor/toastr/toastr.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('backend/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- Icons Css -->
@@ -48,7 +49,7 @@
         .navbar-menu .navbar-nav .nav-link:hover,.navbar-menu .navbar-nav .nav-link.active { color:var(--cholavin-gold); background:rgba(244,196,48,.11); }
         .navbar-menu .navbar-nav .nav-link i { color:#d9a925; }.menu-title span{color:#a98d94!important}.navbar-brand-box{background:var(--cholavin-deep)!important}
         .erp-brand-logo{max-height:47px;max-width:175px;object-fit:contain}.brand-glyph{font-size:26px;color:var(--cholavin-gold)}
-        #page-topbar{border-bottom:1px solid #eadfe2;box-shadow:0 4px 18px rgba(59,0,16,.06)}.page-content{background:#f8f5f2}
+        .page-content{background:#f8f5f2}
         .btn-brand{background:var(--cholavin-red);border-color:var(--cholavin-red);color:#fff}.btn-brand:hover{background:var(--cholavin-deep);color:var(--cholavin-gold)}.btn-outline-brand{border-color:var(--cholavin-red);color:var(--cholavin-red)}
         .erp-eyebrow{display:block;color:#a77400;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
         .erp-welcome{display:flex;justify-content:space-between;align-items:center;padding:28px 32px;border-radius:16px;color:#fff;background:linear-gradient(115deg,var(--cholavin-deep),var(--cholavin-red));box-shadow:0 16px 36px rgba(94,0,27,.18)}.erp-welcome h2{color:#fff;margin:4px 0 8px}.erp-welcome p{margin:0;color:#ead9de}.erp-welcome .erp-eyebrow{color:var(--cholavin-gold)}.erp-welcome-mark{font-size:56px;color:var(--cholavin-gold);opacity:.85}
@@ -62,6 +63,8 @@
 </head>
 
 <body>
+
+    @include('backend.layouts.page-loader')
 
     <!-- Begin page -->
     <div id="layout-wrapper">
@@ -91,6 +94,7 @@
     @include('backend.layouts.theme-settings') 
     <!-- JAVASCRIPT -->
     <script src="{{ asset('backend/assets/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/select2/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('backend/assets/vendor/jquery-validation/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('backend/assets/vendor/jquery-validation/additional-methods.min.js') }}"></script>
     <script src="{{ asset('backend/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
@@ -121,6 +125,8 @@
 
     <!-- App js -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/page-loader.js') }}?v={{ filemtime(public_path('backend/assets/js/page-loader.js')) }}"></script>
+    <script src="{{ asset('backend/assets/js/persistent-fullscreen.js') }}?v={{ filemtime(public_path('backend/assets/js/persistent-fullscreen.js')) }}"></script>
     <script src="{{ asset('backend/assets/js/erp-common.js') }}?v={{ filemtime(public_path('backend/assets/js/erp-common.js')) }}"></script>
     <script src="{{ asset('backend/assets/js/module-workspace.js') }}?v={{ filemtime(public_path('backend/assets/js/module-workspace.js')) }}"></script>
     <script src="{{ asset('backend/assets/js/header-context.js') }}?v={{ filemtime(public_path('backend/assets/js/header-context.js')) }}"></script>

@@ -34,7 +34,7 @@
                 <!-- App Search-->
                 <form class="app-search d-none d-md-block">
                     <div class="position-relative">
-                        <input type="text" class="form-control" placeholder="Search..." autocomplete="off" id="search-options" value="">
+                        <input type="text" class="form-control" placeholder="Search modules and records" aria-label="Search modules and records" autocomplete="off" id="search-options" value="">
                         <span class="mdi mdi-magnify search-widget-icon"></span>
                         <span class="mdi mdi-close-circle search-widget-icon search-widget-icon-close d-none" id="search-close-options"></span>
                     </div>
@@ -136,7 +136,7 @@
                     </div>
                 </div>  
 
-                <div class="dropdown topbar-head-dropdown ms-1 header-item">
+                <div class="dropdown topbar-head-dropdown ms-1 header-item erp-demo-cart">
                     <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="page-header-cart-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                         <i class='bx bx-shopping-bag fs-22'></i>
                         <span class="position-absolute topbar-badge cartitem-badge fs-10 translate-middle badge rounded-pill bg-info">5</span>
@@ -284,7 +284,7 @@
                 </div>
 
                 <div class="ms-1 header-item d-none d-sm-flex">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" data-toggle="fullscreen">
+                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="erp-fullscreen-toggle" data-toggle="fullscreen" aria-label="Toggle persistent fullscreen workspace" title="Fullscreen workspace">
                         <i class='bx bx-fullscreen fs-22'></i>
                     </button>
                 </div>
@@ -560,13 +560,16 @@
                 </div>
 
                 @if (($headerShops ?? collect())->isNotEmpty())
-                    <div class="header-item d-none d-lg-flex align-items-center px-2">
-                        <div id="erp-business-context" class="d-flex gap-2 align-items-center erp-context-form"
+                    <div class="header-item d-none d-lg-flex align-items-center erp-context-wrap">
+                        <div id="erp-business-context" class="d-flex align-items-center erp-context-form"
                             data-switch-shop-url="{{ route('admin.location-context.switch-shop') }}"
                             data-switch-godown-url="{{ route('admin.location-context.switch-godown') }}">
-                            <div>
-                                <label for="header-shop-context" class="visually-hidden">Working shop</label>
-                                <select id="header-shop-context" name="shop_id" class="form-select form-select-sm"
+                            <div class="erp-context-field erp-context-shop">
+                                <i class="ri-building-2-line erp-context-field-icon" aria-hidden="true"></i>
+                                <label for="header-shop-context" class="erp-context-label">Business location</label>
+                                <select id="header-shop-context" name="shop_id" class="form-select form-select-sm erp-context-select"
+                                    data-placeholder="Search business location"
+                                    data-can-switch="{{ auth()->user()->can('shops.switch') ? '1' : '0' }}"
                                     @disabled(! auth()->user()->can('shops.switch') || $headerShops->count() <= 1)>
                                     @foreach ($headerShops as $shop)
                                         <option value="{{ $shop->id }}" @selected($activeShopId === $shop->id)>
@@ -575,11 +578,15 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div>
-                                <label for="header-godown-context" class="visually-hidden">Working godown</label>
-                                <select id="header-godown-context" name="godown_id" class="form-select form-select-sm"
+                            <div class="erp-context-field erp-context-godown">
+                                <i class="ri-home-gear-line erp-context-field-icon" aria-hidden="true"></i>
+                                <label for="header-godown-context" class="erp-context-label">Inventory location</label>
+                                <select id="header-godown-context" name="godown_id" class="form-select form-select-sm erp-context-select"
+                                    data-placeholder="Search inventory location"
+                                    data-allow-clear="true"
+                                    data-can-switch="{{ auth()->user()->can('godowns.switch') ? '1' : '0' }}"
                                     @disabled(! auth()->user()->can('godowns.switch') || $headerGodowns->count() <= 1)>
-                                    <option value="">No godown</option>
+                                    <option value="">All inventory locations</option>
                                     @foreach ($headerGodowns as $godown)
                                         <option value="{{ $godown->id }}" @selected($activeGodownId === $godown->id)>
                                             #{{ $godown->id }} — {{ $godown->name }} ({{ $godown->code }})
