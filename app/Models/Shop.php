@@ -22,4 +22,9 @@ class Shop extends Model
     {
         return $this->hasMany(Godown::class);
     }
+
+    public function linkedGodowns()
+    {
+        return $this->belongsToMany(Godown::class)->withTimestamps();
+    }
 }
