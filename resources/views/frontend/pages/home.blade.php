@@ -6,10 +6,6 @@
 @section('body_class', 'bg-home2')
 
 @section('content')
-@php
-    $homepageProducts = \App\Models\Product::where('is_active', true)->where('show_on_homepage', true)->orderBy('sort_order')->latest('id')->take(6)->get();
-@endphp
-@include('frontend.partials.home-products', ['products' => $homepageProducts])
 
 <!--=====HEADER END =======-->
 
@@ -23,7 +19,7 @@
       "
     >
       <div class="vl-hero3-shape aniamtion-key-1">
-        <img src="{{ asset('frontend/assets/') }}/img/shape/hero2-shape(2).png" alt="" />
+        <img src="{{ asset('frontend/assets/img/shape/hero2-shape(2).png') }}" alt="" />
       </div>
       <div class="container">
         <div class="row">
@@ -78,7 +74,7 @@
           </div>
           <div class="col-xl-4">
             <div class="hero2-shape aniamtion-key-5">
-              <img src="{{ asset('frontend/assets/') }}/img/shape/hero2-shape(1).webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/shape/hero2-shape(1).webp') }}" alt="" />
             </div>
           </div>
           <div class="space60"></div>
@@ -125,7 +121,7 @@
                     data-aos="fade-right"
                     data-aos-duration="1100"
                   >
-                    <img src="{{ asset('frontend/assets/') }}/img/shape/hm2-follow-shape.webp" alt="" />
+                    <img src="{{ asset('frontend/assets/img/shape/hm2-follow-shape.webp') }}" alt="" />
                   </div>
                 </div>
               </div>
@@ -138,17 +134,17 @@
                   <div class="swiper-wrapper">
                     <div class="swiper-slide">
                       <div class="hero2-slide-thumb">
-                        <img src="{{ asset('frontend/assets/') }}/img/hero/hero2-thumb1.webp" alt="" />
+                        <img src="{{ asset('frontend/assets/img/hero/hero2-thumb1.webp') }}" alt="" />
                       </div>
                     </div>
                     <div class="swiper-slide">
                       <div class="hero2-slide-thumb">
-                        <img src="{{ asset('frontend/assets/') }}/img/hero/hero2-thumb2.webp" alt="" />
+                        <img src="{{ asset('frontend/assets/img/hero/hero2-thumb2.webp') }}" alt="" />
                       </div>
                     </div>
                     <div class="swiper-slide">
                       <div class="hero2-slide-thumb">
-                        <img src="{{ asset('frontend/assets/') }}/img/hero/hero2-thumb3.webp" alt="" />
+                        <img src="{{ asset('frontend/assets/img/hero/hero2-thumb3.webp') }}" alt="" />
                       </div>
                     </div>
                   </div>
@@ -161,13 +157,13 @@
               >
                 <div class="hero2-slide-arrow">
                   <div class="prev_arrow">
-                    <img src="{{ asset('frontend/assets/') }}/img/icon/up-arrow-hm2.svg" alt="" />
+                    <img src="{{ asset('frontend/assets/img/icon/up-arrow-hm2.svg') }}" alt="" />
                   </div>
                   <div class="vl-hero2-shape2 aniamtion-key-5">
-                    <img src="{{ asset('frontend/assets/') }}/img/shape/hero2-shape(3).webp" alt="" />
+                    <img src="{{ asset('frontend/assets/img/shape/hero2-shape(3).webp') }}" alt="" />
                   </div>
                   <div class="next_arrow">
-                    <img src="{{ asset('frontend/assets/') }}/img/icon/down-arrow-hm2.svg" alt="" />
+                    <img src="{{ asset('frontend/assets/img/icon/down-arrow-hm2.svg') }}" alt="" />
                   </div>
                 </div>
               </div>
@@ -187,7 +183,7 @@
             <div class="about6-thumb">
               <img
                 class="thumb1"
-                src="{{ asset('frontend/assets/') }}/img/service/services2-thumb.webp"
+                src="{{ asset('frontend/assets/img/service/services2-thumb.webp') }}"
                 alt=""
                 data-aos="fade-right"
                 data-aos-duration="1000"
@@ -208,7 +204,7 @@
                   class="sub-title"
                   data-aos="fade-left"
                   data-aos-duration="800"
-                ><img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.png" alt=""> About Our Rice Business <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.png" alt=""></h3>
+                ><img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt=""> About Our Rice Business <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt=""></h3>
                 <div class="space16"></div>
                 <h2 class="title" data-aos="fade-left" data-aos-duration="900">
                   Growing Naturally, Delivering Quality Rice to Every Home
@@ -232,13 +228,13 @@
                           </div>
                           <div class="about2-box2-shape aniamtion-key-5">
                             <img
-                              src="{{ asset('frontend/assets/') }}/img/shape/about2-shape(2).webp"
+                              src="{{ asset('frontend/assets/img/shape/about2-shape(2).webp') }}"
                               alt=""
                             />
                           </div>
                           <div class="about2-box3-shape aniamtion-key-2">
                             <img
-                              src="{{ asset('frontend/assets/') }}/img/shape/about2-shape(3).webp"
+                              src="{{ asset('frontend/assets/img/shape/about2-shape(3).webp') }}"
                               alt=""
                             />
                           </div>
@@ -253,7 +249,7 @@
                           >
                             <div class="about6-icons-logo">
                               <img
-                                src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(1).svg"
+                                src="{{ asset('frontend/assets/img/icon/about6-icon(1).svg') }}"
                                 alt=""
                               />
                             </div>
@@ -277,7 +273,7 @@
                           >
                             <div class="about6-icons-logo">
                               <img
-                                src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(2).svg"
+                                src="{{ asset('frontend/assets/img/icon/about6-icon(2).svg') }}"
                                 alt=""
                               />
                             </div>
@@ -315,13 +311,13 @@
                           <ul>
                             <li>
                               <img
-                                src="{{ asset('frontend/assets/') }}/img/icon/tick-hm6.svg"
+                                src="{{ asset('frontend/assets/img/icon/tick-hm6.svg') }}"
                                 alt=""
                               />Trusted by local customers
                             </li>
                             <li>
                               <img
-                                src="{{ asset('frontend/assets/') }}/img/icon/tick-hm6.svg"
+                                src="{{ asset('frontend/assets/img/icon/tick-hm6.svg') }}"
                                 alt=""
                               />100% customer satisfaction
                             </li>
@@ -347,6 +343,7 @@
     <!--===== ABOUT END =======-->
 
     <!--===== Product area start =======-->
+    @if($homepageProducts->isNotEmpty())
     <div class="vl-product6-area sp1">
       <div class="container">
         <div class="row">
@@ -400,272 +397,105 @@
             data-aos-duration="900"
           >
             <div class="swiper-wrapper">
-              <div class="swiper-slide">
-                <div class="product6-box">
-                  <div class="product-thumb">
-                    <img
-                      class="imgs"
-                      src="{{ asset('frontend/assets/') }}/img/products/1.png"
-                      alt="Ponni rice"
-                    />
-                    <div class="product6-badge">Daily Family Choice</div>
-                    <div class="product6-grain-note">Soft texture</div>
-                    <div class="product6-overlay-copy">
-                      <span>Best For</span>
-                      <strong>Lunch, dinner, and everyday cooking</strong>
-                    </div>
-                  </div>
-                  <div class="space24"></div>
-                  <div class="product6-box-content">
-                    <div class="product6-content_text">
-                      <h3><a href="{{ route('frontend.contact') }}">Ponni Rice</a></h3>
-                      <p>
-                        A reliable household rice variety with a gentle aroma
-                        and soft finish that suits daily meals.
-                      </p>
-                    </div>
-                    <div class="space16"></div>
-                    <div class="product6-tags">
-                      <span>Daily Use</span>
-                      <span>Soft & Fluffy</span>
-                      <span>Popular Choice</span>
-                    </div>
-                    <div class="space20"></div>
-                    <div class="product6_info">
-                      <div class="product6-meta">
-                        <div>
-                          <span class="meta-label">Pack Sizes</span>
-                          <strong>10kg, 25kg, 50kg</strong>
+              @foreach($homepageProducts as $product)
+                @php
+                  $displayPrice = (float) ($product->sale_price ?: $product->price);
+                  $badge = $product->sub_title ?: $product->category?->name;
+                  $summary = filled($product->description)
+                      ? \Illuminate\Support\Str::limit(strip_tags($product->description), 120)
+                      : null;
+                  $tags = collect([
+                      $product->brand?->name,
+                      $product->category?->name,
+                      $product->grade?->name,
+                  ])->filter()->unique()->take(3);
+                  $packOrUnit = $product->variant?->name
+                      ?: ($product->unit ?: $product->unitMaster?->name);
+                  $classification = $product->category?->name ?: $product->grade?->name;
+                @endphp
+                <div class="swiper-slide">
+                  <div class="product6-box">
+                    <div class="product-thumb">
+                      <img class="imgs" src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" />
+                      @if(filled($badge))
+                        <div class="product6-badge">{{ $badge }}</div>
+                      @endif
+                      @if($displayPrice > 0)
+                        <div class="product6-grain-note">
+                          Rs. {{ number_format($displayPrice, 0) }}{{ filled($product->unit) ? ' / '.$product->unit : '' }}
                         </div>
-                        <div>
-                          <span class="meta-label">Suitable For</span>
-                          <strong>Homes & mess kitchens</strong>
+                      @endif
+                      @if(filled($summary))
+                        <div class="product6-overlay-copy">
+                          <span>Product Details</span>
+                          <strong>{{ $summary }}</strong>
                         </div>
+                      @endif
+                    </div>
+                    <div class="space24"></div>
+                    <div class="product6-box-content">
+                      <div class="product6-content_text">
+                        <h3><a href="{{ route('frontend.contact') }}">{{ $product->name }}</a></h3>
+                        @if(filled($summary))
+                          <p>{{ $summary }}</p>
+                        @endif
                       </div>
-                      <div class="product6-cta">
-                        <a href="{{ route('frontend.contact') }}">Enquire Now</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="swiper-slide">
-                <div class="product6-box">
-                  <div class="product-thumb">
-                    <img
-                      class="imgs"
-                      src="{{ asset('frontend/assets/') }}/img/products/2.png"
-                      alt="Seeraga Samba rice"
-                    />
-                    <div class="product6-badge">Biriyani Special</div>
-                    <div class="product6-grain-note">Rich aroma</div>
-                    <div class="product6-overlay-copy">
-                      <span>Best For</span>
-                      <strong>Authentic biriyani and festive cooking</strong>
-                    </div>
-                  </div>
-                  <div class="space24"></div>
-                  <div class="product6-box-content">
-                    <div class="product6-content_text">
-                      <h3><a href="{{ route('frontend.contact') }}">Seeraga Samba</a></h3>
-                      <p>
-                        A premium small-grain rice treasured for its fragrance,
-                        depth of flavor, and classic biriyani finish.
-                      </p>
-                    </div>
-                    <div class="space16"></div>
-                    <div class="product6-tags">
-                      <span>Biriyani</span>
-                      <span>Premium Aroma</span>
-                      <span>Special Occasions</span>
-                    </div>
-                    <div class="space20"></div>
-                    <div class="product6_info">
-                      <div class="product6-meta">
-                        <div>
-                          <span class="meta-label">Pack Sizes</span>
-                          <strong>5kg, 10kg, 25kg</strong>
+                      @if($tags->isNotEmpty())
+                        <div class="space16"></div>
+                        <div class="product6-tags">
+                          @foreach($tags as $tag)
+                            <span>{{ $tag }}</span>
+                          @endforeach
                         </div>
-                        <div>
-                          <span class="meta-label">Suitable For</span>
-                          <strong>Homes, catering, functions</strong>
+                      @endif
+                      <div class="space20"></div>
+                      <div class="product6_info">
+                        <div class="product6-meta">
+                          @if(filled($packOrUnit))
+                            <div>
+                              <span class="meta-label">Pack / Unit</span>
+                              <strong>{{ $packOrUnit }}</strong>
+                            </div>
+                          @endif
+                          @if(filled($classification))
+                            <div>
+                              <span class="meta-label">Category</span>
+                              <strong>{{ $classification }}</strong>
+                            </div>
+                          @endif
                         </div>
-                      </div>
-                      <div class="product6-cta">
-                        <a href="{{ route('frontend.contact') }}">Enquire Now</a>
+                        <div class="product6-cta">
+                          <a href="{{ route('frontend.contact') }}">Enquire Now</a>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="swiper-slide">
-                <div class="product6-box">
-                  <div class="product-thumb">
-                    <img
-                      class="imgs"
-                      src="{{ asset('frontend/assets/') }}/img/products/4.png"
-                      alt="Idli rice"
-                    />
-                    <div class="product6-badge">Premium Long Grain</div>
-                    <div class="product6-grain-note">Elegant finish</div>
-                    <div class="product6-overlay-copy">
-                      <span>Best For</span>
-                      <strong>Pulao, fried rice, and premium meals</strong>
-                    </div>
-                  </div>
-                  <div class="space24"></div>
-                  <div class="product6-box-content">
-                    <div class="product6-content_text">
-                      <h3><a href="{{ route('frontend.contact') }}">Basmati Rice</a></h3>
-                      <p>
-                        Long slender grains with a refined aroma, ideal when
-                        you want a more premium texture on the plate.
-                      </p>
-                    </div>
-                    <div class="space16"></div>
-                    <div class="product6-tags">
-                      <span>Long Grain</span>
-                      <span>Premium Quality</span>
-                      <span>Hotel Style</span>
-                    </div>
-                    <div class="space20"></div>
-                    <div class="product6_info">
-                      <div class="product6-meta">
-                        <div>
-                          <span class="meta-label">Pack Sizes</span>
-                          <strong>5kg, 10kg, 25kg</strong>
-                        </div>
-                        <div>
-                          <span class="meta-label">Suitable For</span>
-                          <strong>Hotels & premium orders</strong>
-                        </div>
-                      </div>
-                      <div class="product6-cta">
-                        <a href="{{ route('frontend.contact') }}">Enquire Now</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="swiper-slide">
-                <div class="product6-box">
-                  <div class="product-thumb">
-                    <img
-                      class="imgs"
-                      src="{{ asset('frontend/assets/') }}/img/products/4.png"
-                      alt="Idli rice"
-                    />
-                    <div class="product6-badge">Tiffin Favourite</div>
-                    <div class="product6-grain-note">Smooth batter</div>
-                    <div class="product6-overlay-copy">
-                      <span>Best For</span>
-                      <strong>Idli, dosa, appam, and soft batter recipes</strong>
-                    </div>
-                  </div>
-                  <div class="space24"></div>
-                  <div class="product6-box-content">
-                    <div class="product6-content_text">
-                      <h3><a href="{{ route('frontend.contact') }}">Idli Rice</a></h3>
-                      <p>
-                        Chosen for soft, fluffy breakfast batter with dependable
-                        soaking quality and familiar home-style results.
-                      </p>
-                    </div>
-                    <div class="space16"></div>
-                    <div class="product6-tags">
-                      <span>Tiffin Use</span>
-                      <span>Easy Grinding</span>
-                      <span>Home Cooking</span>
-                    </div>
-                    <div class="space20"></div>
-                    <div class="product6_info">
-                      <div class="product6-meta">
-                        <div>
-                          <span class="meta-label">Pack Sizes</span>
-                          <strong>10kg, 25kg, 50kg</strong>
-                        </div>
-                        <div>
-                          <span class="meta-label">Suitable For</span>
-                          <strong>Homes & small food businesses</strong>
-                        </div>
-                      </div>
-                      <div class="product6-cta">
-                        <a href="{{ route('frontend.contact') }}">Enquire Now</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="swiper-slide">
-                <div class="product6-box">
-                  <div class="product-thumb">
-                    <img
-                      class="imgs"
-                      src="{{ asset('frontend/assets/') }}/img/products/5.png"
-                      alt="Raw rice"
-                    />
-                    <div class="product6-badge">Bulk Supply Ready</div>
-                    <div class="product6-grain-note">Steady quality</div>
-                    <div class="product6-overlay-copy">
-                      <span>Best For</span>
-                      <strong>Shops, hostels, functions, and regular supply</strong>
-                    </div>
-                  </div>
-                  <div class="space24"></div>
-                  <div class="product6-box-content">
-                    <div class="product6-content_text">
-                      <h3><a href="{{ route('frontend.contact') }}">Raw Rice</a></h3>
-                      <p>
-                        A practical option for steady day-to-day cooking and
-                        bulk requirements where consistency matters most.
-                      </p>
-                    </div>
-                    <div class="space16"></div>
-                    <div class="product6-tags">
-                      <span>Bulk Orders</span>
-                      <span>Consistent Stock</span>
-                      <span>Regular Supply</span>
-                    </div>
-                    <div class="space20"></div>
-                    <div class="product6_info">
-                      <div class="product6-meta">
-                        <div>
-                          <span class="meta-label">Pack Sizes</span>
-                          <strong>25kg, 50kg</strong>
-                        </div>
-                        <div>
-                          <span class="meta-label">Suitable For</span>
-                          <strong>Retail, hostels, institutions</strong>
-                        </div>
-                      </div>
-                      <div class="product6-cta">
-                        <a href="{{ route('frontend.contact') }}">Enquire Now</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              @endforeach
             </div>
           </div>
-          <div class="product6-arrow">
-            <div
-              class="prev-arrow"
-              data-aos="fade-right"
-              data-aos-duration="900"
-            >
-              <img src="{{ asset('frontend/assets/') }}/img/icon/left-arrow-hm6.svg" alt="" />
+          @if($homepageProducts->count() > 1)
+            <div class="product6-arrow">
+              <div
+                class="prev-arrow"
+                data-aos="fade-right"
+                data-aos-duration="900"
+              >
+                <img src="{{ asset('frontend/assets/img/icon/left-arrow-hm6.svg') }}" alt="" />
+              </div>
+              <div
+                class="next-arrow"
+                data-aos="fade-left"
+                data-aos-duration="900"
+              >
+                <img src="{{ asset('frontend/assets/img/icon/right-arrow-hm6.svg') }}" alt="" />
+              </div>
             </div>
-            <div
-              class="next-arrow"
-              data-aos="fade-left"
-              data-aos-duration="900"
-            >
-              <img src="{{ asset('frontend/assets/') }}/img/icon/right-arrow-hm6.svg" alt="" />
-            </div>
-          </div>
+          @endif
         </div>
       </div>
     </div>
+    @endif
 
     <!--===== WhatsApp Ordersarea start =======-->
     <div class="vl-testimonial6-area sp1">
@@ -749,14 +579,14 @@
                         <div class="next-arrow mr-12">
                           <a href="#"
                             ><img
-                              src="{{ asset('frontend/assets/') }}/img/icon/arrow-left-testi06.svg"
+                              src="{{ asset('frontend/assets/img/icon/arrow-left-testi06.svg') }}"
                               alt=""
                           /></a>
                         </div>
                         <div class="prev-arrow">
                           <a href="#"
                             ><img
-                              src="{{ asset('frontend/assets/') }}/img/icon/arrow-right-testi06.svg"
+                              src="{{ asset('frontend/assets/img/icon/arrow-right-testi06.svg') }}"
                               alt=""
                           /></a>
                         </div>
@@ -810,14 +640,14 @@
                         <div class="next-arrow mr-12">
                           <a href="#"
                             ><img
-                              src="{{ asset('frontend/assets/') }}/img/icon/arrow-left-testi06.svg"
+                              src="{{ asset('frontend/assets/img/icon/arrow-left-testi06.svg') }}"
                               alt=""
                           /></a>
                         </div>
                         <div class="prev-arrow">
                           <a href="#"
                             ><img
-                              src="{{ asset('frontend/assets/') }}/img/icon/arrow-right-testi06.svg"
+                              src="{{ asset('frontend/assets/img/icon/arrow-right-testi06.svg') }}"
                               alt=""
                           /></a>
                         </div>
@@ -871,14 +701,14 @@
                         <div class="next-arrow mr-12">
                           <a href="#"
                             ><img
-                              src="{{ asset('frontend/assets/') }}/img/icon/arrow-left-testi06.svg"
+                              src="{{ asset('frontend/assets/img/icon/arrow-left-testi06.svg') }}"
                               alt=""
                           /></a>
                         </div>
                         <div class="prev-arrow">
                           <a href="#"
                             ><img
-                              src="{{ asset('frontend/assets/') }}/img/icon/arrow-right-testi06.svg"
+                              src="{{ asset('frontend/assets/img/icon/arrow-right-testi06.svg') }}"
                               alt=""
                           /></a>
                         </div>
@@ -892,7 +722,7 @@
           <div class="col-xl-6 col-lg-6">
             <div class="testimonial6-thumb">
               <img
-                  src="{{ asset('frontend/assets/') }}/img/hero/2.png"
+                  src="{{ asset('frontend/assets/img/hero/2.png') }}"
                   alt=""
                 />
               </div>
@@ -912,9 +742,9 @@
             <div class="vl-services2-header">
               <div class="vl-services2-topleft">
                 <h3 data-aos="fade-left" data-aos-duration="900">
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
                   Contact
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
                 </h3>
                 <div class="space24"></div>
                 <h2 class=" " data-aos="fade-right" data-aos-duration="1000">
@@ -1063,7 +893,7 @@
                   </div>
                 </div>
                 <div class="contact-box-inr-shape">
-                  <img src="{{ asset('frontend/assets/') }}/img/contact/contact-box-inr-shape.webp" alt="">
+                  <img src="{{ asset('frontend/assets/img/contact/contact-box-inr-shape.webp') }}" alt="">
                 </div>
               </div> 
             </div>
@@ -1195,7 +1025,7 @@
                   </div>
                 </div>
                 <div class="contact-box-inr-shape">
-                  <img src="{{ asset('frontend/assets/') }}/img/contact/contact-box-inr-shape.webp" alt="">
+                  <img src="{{ asset('frontend/assets/img/contact/contact-box-inr-shape.webp') }}" alt="">
                 </div>
               </div> 
             </div>

@@ -43,13 +43,15 @@ class ErpModulesTest extends TestCase
 
     public function test_reference_master_crud_is_ajax_and_module_scoped(): void
     {
-        $response = $this->actingAs($this->admin)->postJson('/admin/masters/units', [
-            'name' => 'Box', 'code' => 'BOX', 'description' => 'Box unit', 'is_active' => true,
+        $response = $this->actingAs($this->admin)->postJson('/admin/units', [
+            'name' => 'Box', 'code' => 'BOX', 'decimal_places' => 0, 'base_unit' => 'Piece', 'conversion_value' => 1, 'status' => 'Active',
         ])->assertCreated()->assertJsonPath('status', true);
 
         $id = $response->json('data.id');
         $this->assertDatabaseHas('reference_masters', ['id' => $id, 'type' => 'unit', 'code' => 'BOX']);
-        $this->actingAs($this->admin)->putJson('/admin/masters/units/'.$id, ['name' => 'Carton', 'code' => 'BOX', 'is_active' => true])->assertOk();
+        $this->actingAs($this->admin)->putJson('/admin/units/'.$id, [
+            'name' => 'Carton', 'code' => 'BOX', 'decimal_places' => 0, 'base_unit' => 'Piece', 'conversion_value' => 1, 'status' => 'Active',
+        ])->assertOk();
     }
 
     public function test_purchase_and_sale_documents_update_stock_atomically(): void
@@ -142,17 +144,55 @@ class ErpModulesTest extends TestCase
             $this->actingAs($this->admin)->get('/admin/reports/'.$report, ['X-Requested-With' => 'XMLHttpRequest'])->assertOk()->assertJsonStructure(['data']);
         }
         foreach (array_keys(config('erp_modules.reference')) as $module) {
-            $response = $this->actingAs($this->admin)->get('/admin/masters/'.$module)
+            $moduleConfig = config('erp_modules.reference.'.$module);
+            $record = ReferenceMaster::firstOrCreate(
+                ['type' => $moduleConfig['type'], 'code' => 'PAGE-'.strtoupper($module)],
+                ['name' => 'Page rendering record', 'is_active' => true],
+            );
+            $response = $this->actingAs($this->admin)->get(route('admin.'.$module.'.index'))
                 ->assertOk()
-                ->assertViewIs('backend.masters.'.$module.'.index')
-                ->assertSee('name="_token"', false)
+                ->assertViewIs('backend.'.$module.'.index')
+                ->assertSee('module-filter-accordion', false)
+                ->assertSee('initializeDataTable', false)
                 ->assertDontSee('cdn.datatables.net', false)
                 ->assertDontSee('code.jquery.com', false);
 
+            $dataTableQuery = http_build_query([
+                'draw' => 1,
+                'start' => 0,
+                'length' => 10,
+                'columns' => [[
+                    'data' => 'DT_RowIndex',
+                    'name' => 'DT_RowIndex',
+                    'searchable' => 'false',
+                    'orderable' => 'false',
+                    'search' => ['value' => '', 'regex' => 'false'],
+                ]],
+                'search' => ['value' => '', 'regex' => 'false'],
+            ]);
+            $this->actingAs($this->admin)
+                ->get(route('admin.'.$module.'.index').'?'.$dataTableQuery, ['X-Requested-With' => 'XMLHttpRequest'])
+                ->assertOk()
+                ->assertJsonStructure(['draw', 'recordsTotal', 'recordsFiltered', 'data']);
+
+            $this->actingAs($this->admin)->get(route('admin.'.$module.'.create'))
+                ->assertOk()
+                ->assertViewIs('backend.'.$module.'.create')
+                ->assertSee('id="form-validate"', false)
+                ->assertSee("$('#form-validate').validate", false)
+                ->assertSee('name="_token"', false);
+
+            $this->actingAs($this->admin)->get(route('admin.'.$module.'.edit', $record->id))
+                ->assertOk()
+                ->assertViewIs('backend.'.$module.'.edit')
+                ->assertViewHas('recordId', (string) $record->id)
+                ->assertSee('id="form-validate"', false)
+                ->assertSee("$('#form-validate').validate", false)
+                ->assertSee('name="_token"', false);
+
             if ($module === 'categories') {
                 $response->assertSee('backend/assets/vendor/jquery/jquery.min.js', false)
-                    ->assertSee('backend/assets/vendor/datatables/jquery.dataTables.min.js', false)
-                    ->assertSee('backend/assets/js/module-workspace.js', false);
+                    ->assertSee('backend/assets/vendor/datatables/jquery.dataTables.min.js', false);
             }
         }
         $this->actingAs($this->admin)->get('/admin/parties/customers')->assertOk()->assertSee('party-workspace', false)->assertSee('party-transactions-table', false);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\ResponseHelper;
 use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\LogUserActivity;
 use App\Http\Middleware\SyncUserAccessContext;
@@ -17,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectGuestsTo(fn () => route('admin.login'));
+        $middleware->redirectGuestsTo(fn () => route('admin.auth.index'));
         $middleware->alias([
             'active' => EnsureActiveUser::class,
             'activity' => LogUserActivity::class,
@@ -27,13 +28,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (ValidationException $exception, Request $request) {
             if ($request->expectsJson()) {
-                return \App\Helpers\ResponseHelper::error('Validation failed.', $exception->errors(), 422);
+                return ResponseHelper::error('Validation failed.', $exception->errors(), 422);
             }
         });
 
         $exceptions->render(function (HttpExceptionInterface $exception, Request $request) {
             if ($request->expectsJson()) {
-                return \App\Helpers\ResponseHelper::error(
+                return ResponseHelper::error(
                     $exception->getMessage() ?: 'The requested operation could not be completed.',
                     [],
                     $exception->getStatusCode()

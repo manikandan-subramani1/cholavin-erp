@@ -41,7 +41,7 @@
 
 
   <!-- ===== HERO START =======-->
-  <div class="vl-hero-inner-area parallaxie" style="background-image: url({{ asset('frontend/assets/') }}/img/hero/about-us-inr-herothumb.webp); background-position: center; background-size: cover; background-repeat: no-repeat;">
+  <div class="vl-hero-inner-area parallaxie" style="background-image: url({{ asset('frontend/assets/img/hero/about-us-inr-herothumb.webp') }}); background-position: center; background-size: cover; background-repeat: no-repeat;">
     <div class="container">
       <div class="row">
         <div class="col-xl-6">
@@ -50,7 +50,7 @@
             <div class="space16"></div>
             <ul>
               <li><a href="{{ route('frontend.home') }}">Home</a></li>
-              <li><img src="{{ asset('frontend/assets/') }}/img/icon/arrow-right-testi06 - Copy.svg" alt=""></li>
+              <li><img src="{{ asset('frontend/assets/img/icon/arrow-right-testi06 - Copy.svg') }}" alt=""></li>
               <li><a class="aboutus_titlefix" href="#"> Contact Us</a></li>
             </ul>
           </div>
@@ -193,7 +193,7 @@
                   </div>
                 </div>
                 <div class="contact-box-inr-shape">
-                  <img src="{{ asset('frontend/assets/') }}/img/contact/contact-box-inr-shape.webp" alt="">
+                  <img src="{{ asset('frontend/assets/img/contact/contact-box-inr-shape.webp') }}" alt="">
                 </div>
               </div> 
             </div>
@@ -325,7 +325,7 @@
                   </div>
                 </div>
                 <div class="contact-box-inr-shape">
-                  <img src="{{ asset('frontend/assets/') }}/img/contact/contact-box-inr-shape.webp" alt="">
+                  <img src="{{ asset('frontend/assets/img/contact/contact-box-inr-shape.webp') }}" alt="">
                 </div>
               </div> 
             </div>

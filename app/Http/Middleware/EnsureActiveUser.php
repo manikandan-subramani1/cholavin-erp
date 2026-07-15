@@ -16,7 +16,7 @@ class EnsureActiveUser
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('admin.login')->withErrors(['login' => 'Your account or role is inactive.']);
+            return redirect()->route('admin.auth.index')->withErrors(['login' => 'Your account or role is inactive.']);
         }
 
         return $next($request);

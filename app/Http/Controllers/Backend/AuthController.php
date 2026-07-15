@@ -95,7 +95,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login');
+        return redirect()->route('admin.auth.index');
     }
 
     private function logAttempt(Request $request, string $event, ?User $user, array $properties = []): void

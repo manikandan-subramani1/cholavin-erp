@@ -1649,7 +1649,7 @@ The Cholavin ERP should contain the following primary modules.
 - Login logs
 - Data import and export
 
-Implementation status: the Section 27 modules are implemented through shared reference-master, commercial-document, inventory, accounting, reporting, notification, delivery, and maintenance engines. They are not empty placeholder modules. See `docs/ERP_MODULE_IMPLEMENTATION.md` for the implementation map, business invariants, and provider-dependent channel boundary.
+Implementation status: Section 27 reference/master workspaces use independent controllers, Form Requests, controller-group routes, and Blade folders. Each listing uses Yajra AJAX with accordion filters; create/edit forms use jQuery Validation and AJAX; and exports use the shared PDF infrastructure. Commercial-document, inventory, accounting, reporting, notification, delivery, and maintenance engines remain shared only where they represent one genuine business workflow. See `docs/ERP_MODULE_IMPLEMENTATION.md` and `docs/MODULE_FOLDER_CONVENTION.md`.
 
 ---
 

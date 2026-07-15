@@ -1,6 +1,5 @@
 @php
     $user = auth()->user();
-    $masterModule = request()->routeIs('admin.masters.*') ? request()->route('module') : null;
     $documentModule = request()->routeIs('admin.documents.*') ? request()->route('module') : null;
     $reportKey = request()->routeIs('admin.reports.*') ? request()->route('report') : null;
     $partyType = request()->routeIs('admin.parties.*') ? request()->route('type') : null;
@@ -9,10 +8,10 @@
     $menuItem = static fn (string $label, string $url, string $icon, bool $allowed, bool $active = false): array => compact('label', 'url', 'icon', 'allowed', 'active');
     $masterItem = fn (string $key, string $icon = 'ri-database-2-line'): array => $menuItem(
         config("erp_modules.reference.{$key}.title", str($key)->replace('-', ' ')->title()),
-        route('admin.masters.index', $key),
+        route("admin.{$key}.index"),
         $icon,
         $user->can("{$key}.view"),
-        $masterModule === $key,
+        request()->routeIs("admin.{$key}.*"),
     );
     $documentItem = fn (string $key, ?string $label = null, string $icon = 'ri-file-list-3-line'): array => $menuItem(
         $label ?: config("erp_modules.documents.{$key}.title", str($key)->replace('-', ' ')->title()),

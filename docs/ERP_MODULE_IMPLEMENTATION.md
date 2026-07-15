@@ -1,6 +1,6 @@
 # Cholavin ERP Section 27 implementation
 
-Section 27 is implemented as shared business engines and configured modules, not as empty controller and Blade copies. This keeps authorization, numbering, totals, stock, accounting, PDF output, and active shop/godown behavior consistent.
+Section 27 uses independent module controllers, Form Requests, controller-group routes, and Blade folders for reference/master workspaces. They use AJAX CRUD, Yajra server-side tables, accordion filters, jQuery Validation, authorization, active-shop scoping, and PDF export. Shared services remain appropriate for genuine cross-module infrastructure such as reference storage, authorization context, PDF rendering, inventory posting, accounting posting, and standard JSON responses.
 
 ## Implemented module map
 
@@ -35,7 +35,7 @@ Section 27 is implemented as shared business engines and configured modules, not
 
 ## Reusable implementation
 
-- `config/erp_modules.php` registers reference and commercial document modules.
+- `config/erp_modules.php` currently registers legacy reference metadata and commercial document workflows; independent reference/master pages must not use it as a generic controller or field-definition engine.
 - `CommercialDocumentService` owns document totals, lifecycle, stock effects, and posting orchestration.
 - `InventoryService` owns balance locking, average cost, batches, expiry, and movements.
 - `AccountingPostingService` owns automatic double-entry vouchers.
@@ -47,4 +47,3 @@ Section 27 is implemented as shared business engines and configured modules, not
 ## Provider-dependent channels
 
 SMTP uses Company Settings and powers password recovery. Invoice sharing provides direct email and WhatsApp handoff without storing third-party credentials. Automated SMS/WhatsApp delivery requires the chosen provider's endpoint and credentials; the notification table already records channel, recipient, sent/failed time, and failure details so a provider adapter can be connected without changing business tables.
-

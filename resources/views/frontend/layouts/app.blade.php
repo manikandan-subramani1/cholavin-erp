@@ -19,25 +19,24 @@
     @include('shared.google-fonts')
 
     <!--=====FAB ICON=======-->
-    <link rel="shortcut icon" href="{{ asset('frontend/assets/') }}/img/logo/favicon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{ asset('frontend/assets/img/logo/favicon.png') }}" type="image/x-icon" />
 
     <!--===== CSS LINK =======-->
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/plugins/bootstrap.min.css" />
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/plugins/aos.css" />
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/plugins/fontawesome.css" />
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/plugins/magnific-popup.css" />
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/plugins/owlcarousel.min.css" />
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/plugins/slick-slider.css" />
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/plugins/nice-select.css" />
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/plugins/swiper.min.css" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/plugins/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/plugins/aos.css') }}" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/plugins/fontawesome.css') }}" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/plugins/magnific-popup.css') }}" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/plugins/owlcarousel.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/plugins/slick-slider.css') }}" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/plugins/nice-select.css') }}" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/plugins/swiper.min.css') }}" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
     />
-    <link rel="stylesheet" href="{{ asset('frontend/assets/') }}/css/main.css" />
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/main.css') }}" />
     <link rel="stylesheet" href="{{ asset('shared/assets/css/cholavin-fonts.css') }}?v={{ filemtime(public_path('shared/assets/css/cholavin-fonts.css')) }}" />
     <style>
-      .dynamic-home-products { background: #fff8e6; }
       .dynamic-product-card { height: 100%; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 40px rgba(94, 0, 27, .08); transform: translateY(20px); opacity: 0; animation: productRise .55s ease forwards; transition: transform .3s ease, box-shadow .3s ease; }
       .dynamic-product-card:hover { transform: translateY(-8px); box-shadow: 0 24px 55px rgba(94, 0, 27, .16); }
       .product-media { position: relative; aspect-ratio: 4 / 3; background: #fff8e6; overflow: hidden; }
@@ -55,7 +54,7 @@
     @stack('styles')
 
     <!--=====  JS SCRIPT LINK =======-->
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/jquery-3-7-1.min.js"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/jquery-3-7-1.min.js') }}"></script>
   </head>
 <body class="@yield('body_class')">
     <!--===== PRELODER STARTS=======-->
@@ -595,28 +594,28 @@
 
     
 <!--===== JS SCRIPT LINK =======-->
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/bootstrap.min.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/fontawesome.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/aos.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/counter.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/magnific-popup.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/owlcarousel.min.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/nice-select.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/waypoints.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/slick-slider.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/swiper.min.js"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/fontawesome.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/aos.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/counter.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/magnific-popup.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/owlcarousel.min.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/nice-select.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/waypoints.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/slick-slider.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/swiper.min.js') }}"></script>
 
     <!-- GSAP ANIMATION -->
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/gsap.min.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/ScrollTrigger.min.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/SmoothScroll.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/Splitetext.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/plugins/parallaxie.js"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/gsap.min.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/ScrollTrigger.min.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/SmoothScroll.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/Splitetext.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/plugins/parallaxie.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script src="{{ asset('frontend/assets/') }}/js/main.js"></script>
-    <script src="{{ asset('frontend/assets/') }}/js/google-translate.js"></script>
+    <script src="{{ asset('frontend/assets/js/main.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/google-translate.js') }}"></script>
     <script data-loader-fallback>
       window.addEventListener('load', function () {
         setTimeout(function () {
@@ -770,7 +769,7 @@
         var contactTag = document.querySelector(".contact2-header h3");
         if (contactTag) {
           contactTag.innerHTML =
-            '<img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" /> Contact Us <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />';
+            '<img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" /> Contact Us <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />';
         }
 
         var contactTitle = document.querySelector(".contact2-header h2");
@@ -1032,4 +1031,3 @@
     @stack('scripts')
   </body>
 </html>
-

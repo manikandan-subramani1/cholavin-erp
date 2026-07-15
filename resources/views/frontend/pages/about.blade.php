@@ -347,7 +347,7 @@
     <div
       class="vl-hero-inner-area parallaxie"
       style="
-        background-image: url({{ asset('frontend/assets/') }}/img/hero/about-us-inr-herothumb.webp);
+        background-image: url({{ asset('frontend/assets/img/hero/about-us-inr-herothumb.webp') }});
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;
@@ -386,7 +386,7 @@
             <div class="about6-thumb">
               <img
                 class="thumb1"
-                src="{{ asset('frontend/assets/') }}/img/service/services2-thumb.webp"
+                src="{{ asset('frontend/assets/img/service/services2-thumb.webp') }}"
                 alt="Cholavin - Your rice expert store"
                 data-aos="fade-right"
                 data-aos-duration="1000"
@@ -408,9 +408,9 @@
                   data-aos="fade-left"
                   data-aos-duration="900"
                 >
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
                   About Our Rice Business
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
                 </h3>
                 <div class="space16"></div>
                 <h2 class="title" data-aos="fade-left" data-aos-duration="900">
@@ -436,13 +436,13 @@
                           </div>
                           <div class="about2-box2-shape aniamtion-key-5">
                             <img
-                              src="{{ asset('frontend/assets/') }}/img/shape/about2-shape(2).webp"
+                              src="{{ asset('frontend/assets/img/shape/about2-shape(2).webp') }}"
                               alt=""
                             />
                           </div>
                           <div class="about2-box3-shape aniamtion-key-2">
                             <img
-                              src="{{ asset('frontend/assets/') }}/img/shape/about2-shape(3).webp"
+                              src="{{ asset('frontend/assets/img/shape/about2-shape(3).webp') }}"
                               alt=""
                             />
                           </div>
@@ -457,7 +457,7 @@
                           >
                             <div class="about6-icons-logo">
                               <img
-                                src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(1).svg"
+                                src="{{ asset('frontend/assets/img/icon/about6-icon(1).svg') }}"
                                 alt=""
                               />
                             </div>
@@ -481,7 +481,7 @@
                           >
                             <div class="about6-icons-logo">
                               <img
-                                src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(2).svg"
+                                src="{{ asset('frontend/assets/img/icon/about6-icon(2).svg') }}"
                                 alt=""
                               />
                             </div>
@@ -520,13 +520,13 @@
                           <ul>
                             <li>
                               <img
-                                src="{{ asset('frontend/assets/') }}/img/icon/tick-hm6.svg"
+                                src="{{ asset('frontend/assets/img/icon/tick-hm6.svg') }}"
                                 alt=""
                               />Trusted by local customers &amp; businesses
                             </li>
                             <li>
                               <img
-                                src="{{ asset('frontend/assets/') }}/img/icon/tick-hm6.svg"
+                                src="{{ asset('frontend/assets/img/icon/tick-hm6.svg') }}"
                                 alt=""
                               />100% customer satisfaction guaranteed
                             </li>
@@ -607,9 +607,9 @@
         <div class="row">
           <div class="col-xl-12 text-center mb-50">
             <h3 class="sub-title" data-aos="fade-left" data-aos-duration="900">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
               What Drives Us
-              <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
             </h3>
             <div class="space16"></div>
             <h2 class="title" data-aos="fade-up" data-aos-duration="900">
@@ -623,7 +623,7 @@
           >
             <div class="mv-card">
               <div class="mv-icon">
-                <img src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(1).svg" alt="" />
+                <img src="{{ asset('frontend/assets/img/icon/about6-icon(1).svg') }}" alt="" />
               </div>
               <h3>Our Mission</h3>
               <p>
@@ -640,7 +640,7 @@
           >
             <div class="mv-card">
               <div class="mv-icon">
-                <img src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(2).svg" alt="" />
+                <img src="{{ asset('frontend/assets/img/icon/about6-icon(2).svg') }}" alt="" />
               </div>
               <h3>Our Vision</h3>
               <p>
@@ -657,7 +657,7 @@
           >
             <div class="mv-card">
               <div class="mv-icon">
-                <img src="{{ asset('frontend/assets/') }}/img/icon/tick-hm6.svg" alt="" />
+                <img src="{{ asset('frontend/assets/img/icon/tick-hm6.svg') }}" alt="" />
               </div>
               <h3>Our Promise</h3>
               <p>
@@ -679,9 +679,9 @@
         <div class="row align-items-center">
           <div class="col-xl-5 col-lg-5 mb-40 mb-lg-0">
             <h3 class="sub-title" data-aos="fade-left" data-aos-duration="900">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
               Our Journey
-              <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
             </h3>
             <div class="space16"></div>
             <h2 class="title" data-aos="fade-right" data-aos-duration="900">
@@ -761,9 +761,9 @@
         <div class="row">
           <div class="col-xl-12 text-center mb-50">
             <h3 class="sub-title" data-aos="fade-left" data-aos-duration="900">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
               Our Products
-              <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
             </h3>
             <div class="space16"></div>
             <h2 class="title" data-aos="fade-up" data-aos-duration="900">
@@ -960,9 +960,9 @@
         <div class="row">
           <div class="col-xl-12 text-center mb-50">
             <h3 class="sub-title" data-aos="fade-left" data-aos-duration="900">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
               Why Cholavin?
-              <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
             </h3>
             <div class="space16"></div>
             <h2 class="title" data-aos="fade-up" data-aos-duration="900">
@@ -975,7 +975,7 @@
             data-aos-duration="800"
           >
             <div class="why-card">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(1).svg" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/about6-icon(1).svg') }}" alt="" />
               <h4>5+ Years Experience</h4>
               <p>Trusted by families and businesses since we opened.</p>
             </div>
@@ -986,7 +986,7 @@
             data-aos-duration="900"
           >
             <div class="why-card">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(2).svg" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/about6-icon(2).svg') }}" alt="" />
               <h4>Doorstep Delivery</h4>
               <p>Fast delivery to Pallipalayam and Kumarapalayam.</p>
             </div>
@@ -997,7 +997,7 @@
             data-aos-duration="1000"
           >
             <div class="why-card">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/tick-hm6.svg" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/tick-hm6.svg') }}" alt="" />
               <h4>Hygienic Packing</h4>
               <p>Clean storage and safe packaging in every single order.</p>
             </div>
@@ -1008,7 +1008,7 @@
             data-aos-duration="1100"
           >
             <div class="why-card">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(1).svg" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/about6-icon(1).svg') }}" alt="" />
               <h4>Bulk &amp; Trade Ready</h4>
               <p>
                 We supply shops, hotels, schools, hostels, and institutions.
@@ -1021,7 +1021,7 @@
             data-aos-duration="800"
           >
             <div class="why-card">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(2).svg" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/about6-icon(2).svg') }}" alt="" />
               <h4>Easy WhatsApp Orders</h4>
               <p>
                 Place your order in seconds via WhatsApp – no complicated
@@ -1035,7 +1035,7 @@
             data-aos-duration="900"
           >
             <div class="why-card">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/tick-hm6.svg" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/tick-hm6.svg') }}" alt="" />
               <h4>Honest Pricing</h4>
               <p>
                 Transparent rates with no hidden charges – what we quote is what
@@ -1049,7 +1049,7 @@
             data-aos-duration="1000"
           >
             <div class="why-card">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(1).svg" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/about6-icon(1).svg') }}" alt="" />
               <h4>Multiple Pack Sizes</h4>
               <p>
                 From 5kg home packs to 50kg institutional bags – we have every
@@ -1063,7 +1063,7 @@
             data-aos-duration="1100"
           >
             <div class="why-card">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/about6-icon(2).svg" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/about6-icon(2).svg') }}" alt="" />
               <h4>Easy Returns</h4>
               <p>Not satisfied? We make it right – no questions asked.</p>
             </div>
@@ -1080,9 +1080,9 @@
         <div class="row">
           <div class="col-xl-12 text-center mb-50">
             <h3 class="sub-title" data-aos="fade-left" data-aos-duration="900">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
               What Our Customers Say
-              <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
             </h3>
             <div class="space16"></div>
             <h2 class="title" data-aos="fade-up" data-aos-duration="900">
@@ -1167,9 +1167,9 @@
         <div class="row align-items-center">
           <div class="col-xl-6 col-lg-6 mb-40 mb-lg-0">
             <h3 class="sub-title" data-aos="fade-left" data-aos-duration="900">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
               Where We Deliver
-              <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
             </h3>
             <div class="space16"></div>
             <h2 class="title" data-aos="fade-right" data-aos-duration="900">
@@ -1223,7 +1223,7 @@
                     <div class="service6-logos mb-3">
                       <div class="inons">
                         <img
-                          src="{{ asset('frontend/assets/') }}/img/icon/service6-icon(1).svg"
+                          src="{{ asset('frontend/assets/img/icon/service6-icon(1).svg') }}"
                           alt=""
                         />
                       </div>
@@ -1251,7 +1251,7 @@
                     <div class="service6-logos mb-3">
                       <div class="inons">
                         <img
-                          src="{{ asset('frontend/assets/') }}/img/icon/service6-icon(2).svg"
+                          src="{{ asset('frontend/assets/img/icon/service6-icon(2).svg') }}"
                           alt=""
                         />
                       </div>
@@ -1279,7 +1279,7 @@
                     <div class="service6-logos mb-3">
                       <div class="inons">
                         <img
-                          src="{{ asset('frontend/assets/') }}/img/icon/service6-icon(3).svg"
+                          src="{{ asset('frontend/assets/img/icon/service6-icon(3).svg') }}"
                           alt=""
                         />
                       </div>
@@ -1307,7 +1307,7 @@
                     <div class="service6-logos mb-3">
                       <div class="inons">
                         <img
-                          src="{{ asset('frontend/assets/') }}/img/icon/service6-icon(1).svg"
+                          src="{{ asset('frontend/assets/img/icon/service6-icon(1).svg') }}"
                           alt=""
                         />
                       </div>
@@ -1342,9 +1342,9 @@
         <div class="row align-items-center">
           <div class="col-xl-12 text-center mb-50">
             <h3 class="sub-title" data-aos="fade-left" data-aos-duration="900">
-              <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
               Got Questions?
-              <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+              <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
             </h3>
             <div class="space16"></div>
             <h2 class="title" data-aos="fade-up" data-aos-duration="900">
@@ -1503,7 +1503,7 @@
           <div class="col-xl-6 col-lg-6">
             <div class="faq6-thumb image-anime reveal">
               <img
-                src="{{ asset('frontend/assets/') }}/img/faq/faq6-thumb.png"
+                src="{{ asset('frontend/assets/img/faq/faq6-thumb.png') }}"
                 alt="Cholavin Rice FAQ"
               />
             </div>

@@ -29,7 +29,7 @@
                 </div>
                 <button class="btn btn-auth w-100">Send reset link</button>
             </form>
-            <a class="d-block text-center mt-3" href="{{ route('admin.login') }}">Back to sign in</a>
+            <a class="d-block text-center mt-3" href="{{ route('admin.auth.index') }}">Back to sign in</a>
         </div>
     </div>
 </main>

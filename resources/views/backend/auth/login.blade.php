@@ -29,7 +29,7 @@
             <h2>Welcome back</h2>
             <p class="lead">Sign in with your username, email address, or mobile number.</p>
             @if ($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
-            <form action="{{ route('admin.login.store') }}" method="post">
+            <form action="{{ route('admin.auth.login') }}" method="post">
                 @csrf
                 <div class="mb-3"><label for="login" class="form-label">Username / Email / Mobile</label><input type="text" name="login" value="{{ old('login') }}" class="form-control @error('login') is-invalid @enderror" id="login" placeholder="Enter your login ID" required autofocus autocomplete="username"></div>
                 <div class="mb-2"><label for="password" class="form-label">Password</label><input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="Enter your password" required autocomplete="current-password"></div>

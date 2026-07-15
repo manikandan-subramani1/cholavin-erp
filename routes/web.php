@@ -2,128 +2,439 @@
 
 use App\Http\Controllers\Backend\AccessControlController;
 use App\Http\Controllers\Backend\AuthController;
-use App\Http\Controllers\Backend\DashboardController;
-use App\Http\Controllers\Backend\LocationContextController;
-use App\Http\Controllers\Backend\SettingController;
-use App\Http\Controllers\Backend\ThermalReceiptController;
-use App\Http\Controllers\Backend\UserSessionController;
-use App\Http\Controllers\Backend\ReferenceMasterController;
-use App\Http\Controllers\Backend\PartyController;
+use App\Http\Controllers\Backend\BankAccountController;
+use App\Http\Controllers\Backend\BrandController;
+use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\CommercialDocumentController;
+use App\Http\Controllers\Backend\ContactEnquiryController as BackendContactEnquiryController;
+use App\Http\Controllers\Backend\CustomerGroupController;
+use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\DeliveryController;
+use App\Http\Controllers\Backend\DeliveryRouteController;
+use App\Http\Controllers\Backend\DriverController;
+use App\Http\Controllers\Backend\FinancialYearController;
+use App\Http\Controllers\Backend\GradeController;
+use App\Http\Controllers\Backend\HsnSacCodeController;
+use App\Http\Controllers\Backend\InvoiceSequenceController;
+use App\Http\Controllers\Backend\InvoiceTemplateController;
+use App\Http\Controllers\Backend\LocationContextController;
 use App\Http\Controllers\Backend\LookupController;
+use App\Http\Controllers\Backend\NotificationController;
+use App\Http\Controllers\Backend\NotificationTemplateController;
+use App\Http\Controllers\Backend\NumberSequenceController;
+use App\Http\Controllers\Backend\PartyController;
+use App\Http\Controllers\Backend\PasswordResetController;
+use App\Http\Controllers\Backend\PaymentController;
+use App\Http\Controllers\Backend\PaymentMethodController;
+use App\Http\Controllers\Backend\PriceListController;
+use App\Http\Controllers\Backend\ProductController as BackendProductController;
+use App\Http\Controllers\Backend\ReportController;
+use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\StockController;
 use App\Http\Controllers\Backend\StockTransferController;
-use App\Http\Controllers\Backend\PaymentController;
-use App\Http\Controllers\Backend\VoucherController;
-use App\Http\Controllers\Backend\DeliveryController;
-use App\Http\Controllers\Backend\NotificationController;
-use App\Http\Controllers\Backend\ReportController;
-use App\Http\Controllers\Backend\PasswordResetController;
+use App\Http\Controllers\Backend\SubcategoryController;
+use App\Http\Controllers\Backend\SupplierGroupController;
 use App\Http\Controllers\Backend\SystemMaintenanceController;
-use App\Http\Controllers\Frontend\ContactEnquiryController;
-use App\Http\Controllers\Frontend\ProductController;
+use App\Http\Controllers\Backend\TaxConfigurationController;
+use App\Http\Controllers\Backend\TaxRateController;
+use App\Http\Controllers\Backend\ThermalReceiptController;
+use App\Http\Controllers\Backend\UnitController;
+use App\Http\Controllers\Backend\UserSessionController;
+use App\Http\Controllers\Backend\VariantController;
+use App\Http\Controllers\Backend\VehicleController;
+use App\Http\Controllers\Backend\VoucherController;
+use App\Http\Controllers\Frontend\ContactEnquiryController as FrontendContactEnquiryController;
+use App\Http\Controllers\Frontend\ProductController as FrontendProductController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'frontend.pages.home')->name('frontend.home');
 Route::view('/about-us', 'frontend.pages.about')->name('frontend.about');
-Route::get('/products', [ProductController::class, 'index'])->name('frontend.products');
 Route::view('/delivery', 'frontend.pages.delivery')->name('frontend.delivery');
 Route::view('/contact-us', 'frontend.pages.contact')->name('frontend.contact');
-Route::post('/contact-enquiry', [ContactEnquiryController::class, 'store'])->name('frontend.enquiry.store');
-Route::get('/admin/reset-password/{token}', [PasswordResetController::class, 'reset'])->middleware('guest')->name('password.reset');
-Route::post('/admin/reset-password', [PasswordResetController::class, 'update'])->middleware('guest')->name('password.update');
+
+Route::controller(FrontendProductController::class)->name('frontend.')->group(function () {
+    Route::get('/', 'home')->name('home');
+    Route::get('/products', 'index')->name('products');
+});
+
+Route::controller(FrontendContactEnquiryController::class)->name('frontend.enquiry.')->group(function () {
+    Route::post('/contact-enquiry', 'store')->name('store');
+});
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::middleware('guest')->group(function () {
-        Route::get('/login', [AuthController::class, 'create'])->name('login');
-        Route::post('/login', [AuthController::class, 'store'])->name('login.store');
-        Route::get('/forgot-password', [PasswordResetController::class, 'request'])->name('password.request');
-        Route::post('/forgot-password', [PasswordResetController::class, 'email'])->name('password.email');
+    Route::controller(AuthController::class)->middleware('guest')->name('auth.')->group(function () {
+        Route::get('/login', 'create')->name('index');
+        Route::post('/login', 'store')->name('login');
+    });
+
+    Route::controller(PasswordResetController::class)->middleware('guest')->name('password.')->group(function () {
+        Route::get('/forgot-password', 'request')->name('request');
+        Route::post('/forgot-password', 'email')->name('email');
+        Route::get('/reset-password/{token}', 'reset')->name('reset');
+        Route::post('/reset-password', 'update')->name('update');
     });
 
     Route::middleware(['auth', 'active', 'access.context', 'activity'])->group(function () {
-        Route::get('/dashboard', DashboardController::class)->name('dashboard');
-        Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
-        Route::get('/location-context/godowns', [LocationContextController::class, 'godowns'])->name('location-context.godowns');
-        Route::post('/location-context/shop', [LocationContextController::class, 'switchShop'])->name('location-context.switch-shop');
-        Route::post('/location-context/godown', [LocationContextController::class, 'switchGodown'])->name('location-context.switch-godown');
+        Route::controller(DashboardController::class)->group(function () {
+            Route::get('/dashboard', '__invoke')->name('dashboard');
+        });
 
-        Route::resource('products', App\Http\Controllers\Backend\ProductController::class)->except(['show']);
-        Route::get('masters/{module}/pdf', [ReferenceMasterController::class, 'pdf'])->name('masters.pdf');
-        Route::get('masters/{module}', [ReferenceMasterController::class, 'index'])->name('masters.index');
-        Route::post('masters/{module}', [ReferenceMasterController::class, 'store'])->name('masters.store');
-        Route::put('masters/{module}/{master}', [ReferenceMasterController::class, 'update'])->name('masters.update');
-        Route::delete('masters/{module}/{master}', [ReferenceMasterController::class, 'destroy'])->name('masters.destroy');
-        Route::get('parties/{type}/pdf', [PartyController::class, 'pdf'])->name('parties.pdf');
-        Route::get('parties/{type}', [PartyController::class, 'index'])->name('parties.index');
-        Route::post('parties/{type}', [PartyController::class, 'store'])->name('parties.store');
-        Route::get('parties/{type}/{party}/transactions', [PartyController::class, 'transactions'])->name('parties.transactions');
-        Route::get('parties/{type}/{party}', [PartyController::class, 'show'])->name('parties.show');
-        Route::put('parties/{type}/{party}', [PartyController::class, 'update'])->name('parties.update');
-        Route::delete('parties/{type}/{party}', [PartyController::class, 'destroy'])->name('parties.destroy');
-        Route::get('lookups/products', [LookupController::class, 'products'])->name('lookups.products');
-        Route::get('lookups/parties', [LookupController::class, 'parties'])->name('lookups.parties');
-        Route::get('documents/{module}/pdf', [CommercialDocumentController::class, 'pdf'])->name('documents.pdf');
-        Route::get('documents/{module}/{document}/print', [CommercialDocumentController::class, 'print'])->name('documents.print');
-        Route::get('documents/{module}', [CommercialDocumentController::class, 'index'])->name('documents.index');
-        Route::get('documents/{module}/{document}', [CommercialDocumentController::class, 'show'])->name('documents.show');
-        Route::post('documents/{module}', [CommercialDocumentController::class, 'store'])->name('documents.store');
-        Route::put('documents/{module}/{document}', [CommercialDocumentController::class, 'update'])->name('documents.update');
-        Route::delete('documents/{module}/{document}', [CommercialDocumentController::class, 'destroy'])->name('documents.destroy');
-        Route::get('inventory/stock/pdf',[StockController::class,'pdf'])->name('stock.pdf');
-        Route::get('inventory/stock',[StockController::class,'index'])->name('stock.index');
-        Route::get('inventory/movements',[StockController::class,'movements'])->name('stock.movements');
-        Route::get('inventory/transfers',[StockTransferController::class,'index'])->name('stock-transfers.index');
-        Route::post('inventory/transfers',[StockTransferController::class,'store'])->name('stock-transfers.store');
-        Route::get('accounts/payments',[PaymentController::class,'index'])->name('payments.index');
-        Route::post('accounts/payments',[PaymentController::class,'store'])->name('payments.store');
-        Route::get('accounts/vouchers',[VoucherController::class,'index'])->name('vouchers.index');
-        Route::post('accounts/vouchers',[VoucherController::class,'store'])->name('vouchers.store');
-        Route::get('deliveries',[DeliveryController::class,'index'])->name('deliveries.index');
-        Route::get('deliveries/{delivery}',[DeliveryController::class,'show'])->name('deliveries.show');
-        Route::post('deliveries',[DeliveryController::class,'store'])->name('deliveries.store');
-        Route::put('deliveries/{delivery}',[DeliveryController::class,'update'])->name('deliveries.update');
-        Route::get('notifications',[NotificationController::class,'index'])->name('notifications.index');
-        Route::post('notifications/generate',[NotificationController::class,'generate'])->name('notifications.generate');
-        Route::patch('notifications/{notification}/read',[NotificationController::class,'read'])->name('notifications.read');
-        Route::get('reports/{report}/pdf',[ReportController::class,'pdf'])->name('reports.pdf');
-        Route::get('reports/{report}',[ReportController::class,'index'])->name('reports.index');
-        Route::get('enquiries', [App\Http\Controllers\Backend\ContactEnquiryController::class, 'index'])->name('enquiries.index');
-        Route::patch('enquiries/{enquiry}/status', [App\Http\Controllers\Backend\ContactEnquiryController::class, 'updateStatus'])->name('enquiries.status');
+        Route::controller(AuthController::class)->group(function () {
+            Route::post('/logout', 'destroy')->name('logout');
+        });
 
-        Route::get('access/users', [AccessControlController::class, 'users'])->name('users.index');
-        Route::post('access/users', [AccessControlController::class, 'storeUser'])->name('users.store');
-        Route::put('access/users/{user}', [AccessControlController::class, 'updateUser'])->name('users.update');
-        Route::delete('access/users/{user}', [AccessControlController::class, 'destroyUser'])->name('users.destroy');
-        Route::get('access/users/{user}/permissions', [AccessControlController::class, 'userPermissions'])->name('users.permissions');
-        Route::put('access/users/{user}/permissions', [AccessControlController::class, 'updateUserPermissions'])->name('users.permissions.update');
+        Route::controller(LocationContextController::class)->prefix('location-context')->name('location-context.')->group(function () {
+            Route::get('/godowns', 'godowns')->name('godowns');
+            Route::post('/shop', 'switchShop')->name('switch-shop');
+            Route::post('/godown', 'switchGodown')->name('switch-godown');
+        });
 
-        Route::get('access/roles', [AccessControlController::class, 'roles'])->name('roles.index');
-        Route::post('access/roles', [AccessControlController::class, 'storeRole'])->name('roles.store');
-        Route::put('access/roles/{role}', [AccessControlController::class, 'updateRole'])->name('roles.update');
-        Route::delete('access/roles/{role}', [AccessControlController::class, 'destroyRole'])->name('roles.destroy');
+        Route::controller(BackendProductController::class)->prefix('products')->name('products.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{product}/edit', 'edit')->name('edit');
+            Route::put('/{product}', 'update')->name('update');
+            Route::delete('/{product}', 'destroy')->name('destroy');
+        });
 
-        Route::get('access/locations', [AccessControlController::class, 'locations'])->name('locations.index');
-        Route::post('access/shops', [AccessControlController::class, 'storeShop'])->name('shops.store');
-        Route::put('access/shops/{shop}', [AccessControlController::class, 'updateShop'])->name('shops.update');
-        Route::delete('access/shops/{shop}', [AccessControlController::class, 'destroyShop'])->name('shops.destroy');
-        Route::post('access/godowns', [AccessControlController::class, 'storeGodown'])->name('godowns.store');
-        Route::put('access/godowns/{godown}', [AccessControlController::class, 'updateGodown'])->name('godowns.update');
-        Route::delete('access/godowns/{godown}', [AccessControlController::class, 'destroyGodown'])->name('godowns.destroy');
+        Route::controller(FinancialYearController::class)->prefix('financial-years')->name('financial-years.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
 
-        Route::get('access/activity-logs', [AccessControlController::class, 'activityLogs'])->name('activity-logs.index');
-        Route::get('access/sessions', [UserSessionController::class, 'index'])->name('sessions.index');
-        Route::delete('access/sessions/{sessionId}', [UserSessionController::class, 'destroy'])->name('sessions.destroy');
-        Route::delete('access/users/{user}/sessions', [UserSessionController::class, 'destroyUser'])->name('users.sessions.destroy');
-        Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
-        Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
-        Route::get('maintenance', [SystemMaintenanceController::class, 'index'])->name('maintenance.index');
-        Route::post('maintenance/backups', [SystemMaintenanceController::class, 'backup'])->name('maintenance.backups.store');
-        Route::get('maintenance/backups/{name}', [SystemMaintenanceController::class, 'download'])->where('name', '[A-Za-z0-9._-]+')->name('maintenance.backups.download');
-        Route::get('maintenance/export/{dataset}', [SystemMaintenanceController::class, 'export'])->whereIn('dataset', ['reference-masters', 'products', 'parties'])->name('maintenance.export');
-        Route::post('maintenance/import', [SystemMaintenanceController::class, 'import'])->name('maintenance.import');
+        Route::controller(InvoiceSequenceController::class)->prefix('invoice-sequences')->name('invoice-sequences.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
 
-        Route::get('sales/thermal-receipt/sample', [ThermalReceiptController::class, 'index'])->name('sales.thermal-receipt.index');
-        Route::get('sales/thermal-receipt/sample/pdf', [ThermalReceiptController::class, 'downloadPdf'])->name('sales.thermal-receipt.pdf');
+        Route::controller(TaxConfigurationController::class)->prefix('tax-configurations')->name('tax-configurations.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(BankAccountController::class)->prefix('bank-accounts')->name('bank-accounts.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(PaymentMethodController::class)->prefix('payment-methods')->name('payment-methods.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(CategoryController::class)->prefix('categories')->name('categories.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(SubcategoryController::class)->prefix('subcategories')->name('subcategories.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(BrandController::class)->prefix('brands')->name('brands.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(UnitController::class)->prefix('units')->name('units.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(VariantController::class)->prefix('variants')->name('variants.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(GradeController::class)->prefix('grades')->name('grades.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(PriceListController::class)->prefix('price-lists')->name('price-lists.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(TaxRateController::class)->prefix('tax-rates')->name('tax-rates.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(HsnSacCodeController::class)->prefix('hsn-sac-codes')->name('hsn-sac-codes.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(CustomerGroupController::class)->prefix('customer-groups')->name('customer-groups.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(SupplierGroupController::class)->prefix('supplier-groups')->name('supplier-groups.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(VehicleController::class)->prefix('vehicles')->name('vehicles.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(DriverController::class)->prefix('drivers')->name('drivers.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(DeliveryRouteController::class)->prefix('delivery-routes')->name('delivery-routes.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(InvoiceTemplateController::class)->prefix('invoice-templates')->name('invoice-templates.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(NumberSequenceController::class)->prefix('number-sequences')->name('number-sequences.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(NotificationTemplateController::class)->prefix('notification-templates')->name('notification-templates.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(PartyController::class)->prefix('parties/{type}')->name('parties.')->group(function () {
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{party}/transactions', 'transactions')->name('transactions');
+            Route::get('/{party}', 'show')->name('show');
+            Route::put('/{party}', 'update')->name('update');
+            Route::delete('/{party}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(LookupController::class)->prefix('lookups')->name('lookups.')->group(function () {
+            Route::get('/products', 'products')->name('products');
+            Route::get('/parties', 'parties')->name('parties');
+        });
+
+        Route::controller(CommercialDocumentController::class)->prefix('documents/{module}')->name('documents.')->group(function () {
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{document}/print', 'print')->name('print');
+            Route::get('/', 'index')->name('index');
+            Route::get('/{document}', 'show')->name('show');
+            Route::post('/', 'store')->name('store');
+            Route::put('/{document}', 'update')->name('update');
+            Route::delete('/{document}', 'destroy')->name('destroy');
+        });
+
+        Route::controller(StockController::class)->prefix('inventory')->name('stock.')->group(function () {
+            Route::get('/stock/pdf', 'pdf')->name('pdf');
+            Route::get('/stock', 'index')->name('index');
+            Route::get('/movements', 'movements')->name('movements');
+        });
+
+        Route::controller(StockTransferController::class)->prefix('inventory/transfers')->name('stock-transfers.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+        });
+
+        Route::controller(PaymentController::class)->prefix('accounts/payments')->name('payments.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+        });
+
+        Route::controller(VoucherController::class)->prefix('accounts/vouchers')->name('vouchers.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+        });
+
+        Route::controller(DeliveryController::class)->prefix('deliveries')->name('deliveries.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{delivery}', 'show')->name('show');
+            Route::post('/', 'store')->name('store');
+            Route::put('/{delivery}', 'update')->name('update');
+        });
+
+        Route::controller(NotificationController::class)->prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/generate', 'generate')->name('generate');
+            Route::patch('/{notification}/read', 'read')->name('read');
+        });
+
+        Route::controller(ReportController::class)->prefix('reports/{report}')->name('reports.')->group(function () {
+            Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/', 'index')->name('index');
+        });
+
+        Route::controller(BackendContactEnquiryController::class)->prefix('enquiries')->name('enquiries.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::patch('/{enquiry}/status', 'updateStatus')->name('status');
+        });
+
+        Route::controller(AccessControlController::class)->prefix('access/users')->name('users.')->group(function () {
+            Route::get('/', 'users')->name('index');
+            Route::post('/', 'storeUser')->name('store');
+            Route::put('/{user}', 'updateUser')->name('update');
+            Route::delete('/{user}', 'destroyUser')->name('destroy');
+            Route::get('/{user}/permissions', 'userPermissions')->name('permissions');
+            Route::put('/{user}/permissions', 'updateUserPermissions')->name('permissions.update');
+        });
+
+        Route::controller(AccessControlController::class)->prefix('access/roles')->name('roles.')->group(function () {
+            Route::get('/', 'roles')->name('index');
+            Route::post('/', 'storeRole')->name('store');
+            Route::put('/{role}', 'updateRole')->name('update');
+            Route::delete('/{role}', 'destroyRole')->name('destroy');
+        });
+
+        Route::controller(AccessControlController::class)->prefix('access')->group(function () {
+            Route::get('/locations', 'locations')->name('locations.index');
+            Route::post('/shops', 'storeShop')->name('shops.store');
+            Route::put('/shops/{shop}', 'updateShop')->name('shops.update');
+            Route::delete('/shops/{shop}', 'destroyShop')->name('shops.destroy');
+            Route::post('/godowns', 'storeGodown')->name('godowns.store');
+            Route::put('/godowns/{godown}', 'updateGodown')->name('godowns.update');
+            Route::delete('/godowns/{godown}', 'destroyGodown')->name('godowns.destroy');
+            Route::get('/activity-logs', 'activityLogs')->name('activity-logs.index');
+        });
+
+        Route::controller(UserSessionController::class)->prefix('access')->group(function () {
+            Route::get('/sessions', 'index')->name('sessions.index');
+            Route::delete('/sessions/{sessionId}', 'destroy')->name('sessions.destroy');
+            Route::delete('/users/{user}/sessions', 'destroyUser')->name('users.sessions.destroy');
+        });
+
+        Route::controller(SettingController::class)->prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::put('/', 'update')->name('update');
+        });
+
+        Route::controller(SystemMaintenanceController::class)->prefix('maintenance')->name('maintenance.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/backups', 'backup')->name('backups.store');
+            Route::get('/backups/{name}', 'download')->where('name', '[A-Za-z0-9._-]+')->name('backups.download');
+            Route::get('/export/{dataset}', 'export')->whereIn('dataset', ['reference-masters', 'products', 'parties'])->name('export');
+            Route::post('/import', 'import')->name('import');
+        });
+
+        Route::controller(ThermalReceiptController::class)->prefix('sales/thermal-receipt/sample')->name('sales.thermal-receipt.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/pdf', 'downloadPdf')->name('pdf');
+        });
     });
 });

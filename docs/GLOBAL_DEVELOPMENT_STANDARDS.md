@@ -124,6 +124,14 @@ Every request requires the appropriate combination of authentication, active-acc
 
 Database selection, DataTable columns, visible table headings, Excel headings, and PDF headings must remain consistent.
 
+## 13. Independent module ownership
+
+- Every ERP module owns its controller, model, Form Requests, policy, service/actions, routes, and `resources/views/backend/<module>/` folder.
+- Each page owns its relevant fields and headings. Do not use a generic controller, generic master Blade, type-switched field partial, or a `{module}` parameter to make unrelated modules depend on one implementation.
+- `index.blade.php`, `create.blade.php`, and `edit.blade.php` are separate pages with one purpose each. Create and edit pages must not switch modes by inspecting the route.
+- Reuse is limited to genuinely mechanical infrastructure such as layouts, components, AJAX/error helpers, `ResponseHelper`, `PdfService`, scopes, and audited business-context helpers.
+- Group each module's routes with `Route::controller(ModuleController::class)->prefix(...)->name(...)->group(...)`; keep the HTTP verb, URL, action, and name explicit inside that group.
+
 ## Final review checklist
 
 - Yajra server-side listing with shared filtered query.

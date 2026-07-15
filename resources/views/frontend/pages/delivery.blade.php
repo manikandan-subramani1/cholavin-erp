@@ -8,7 +8,7 @@
     <div
       class="vl-hero6-area parallaxie delivery-hero"
       style="
-        background-image: url({{ asset('frontend/assets/') }}/img/hero/hero6-thumb-bg1.png);
+        background-image: url({{ asset('frontend/assets/img/hero/hero6-thumb-bg1.png') }});
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
@@ -16,7 +16,7 @@
     >
       <div class="hero6-bg1">
         <div class="bg-shape-imgs-1">
-          <img src="{{ asset('frontend/assets/') }}/img/shape/hero-hm6-circle.png" alt="" />
+          <img src="{{ asset('frontend/assets/img/shape/hero-hm6-circle.png') }}" alt="" />
         </div>
         <div class="container">
           <div class="row align-items-center">
@@ -24,9 +24,9 @@
               <div class="vl-hero6-info">
                 <div class="hero6-heading">
                   <h3 data-aos="fade-left" data-aos-duration="900">
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
                   Rice Delivery And Return Support
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
                 </h3>
                   <div class="space16"></div>
                   <h2
@@ -124,9 +124,9 @@
           <div class="col-xl-6 col-lg-6">
             <div class="service6-top-left">
               <h3 data-aos="fade-left" data-aos-duration="900">
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
                   How We Handle It
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
                 </h3>
               <div class="space16"></div>
               <h2
@@ -199,9 +199,9 @@
         <div class="service6-top">
           <div class="service6-top-left">
             <h3 data-aos="fade-left" data-aos-duration="900">
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
                   Timeline
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
                 </h3>
             <div class="space16"></div>
             <h2
@@ -449,9 +449,9 @@
         <div class="service6-top">
           <div class="service6-top-left"> 
                   <h3 data-aos="fade-left" data-aos-duration="900">
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
                   Why Customers Choose Us
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
                 </h3> 
             <div class="space16"></div>
             <h2
@@ -564,9 +564,9 @@
             <div class="service6-top">
               <div class="service6-top-left">
                 <h3 data-aos="fade-left" data-aos-duration="900">
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/left_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/left_icon_hm2_about.webp') }}" alt="" />
                   FAQ
-                  <img src="{{ asset('frontend/assets/') }}/img/icon/right_icon_hm2_about.webp" alt="" />
+                  <img src="{{ asset('frontend/assets/img/icon/right_icon_hm2_about.webp') }}" alt="" />
                 </h3>
                 <div class="space16"></div>
                 <h2
