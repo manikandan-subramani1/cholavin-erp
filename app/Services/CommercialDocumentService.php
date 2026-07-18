@@ -25,6 +25,7 @@ class CommercialDocumentService
             ->withCount('items')
             ->accessibleBy($request->user())
             ->where('type', $type)
+            ->when(session('active_financial_year_id'), fn ($query) => $query->where('financial_year_id', session('active_financial_year_id')))
             ->when($search, fn ($query) => $query->where(fn ($query) => $query->where('number', 'like', "%{$search}%")->orWhere('reference_number', 'like', "%{$search}%")->orWhereHas('party', fn ($query) => $query->where('name', 'like', "%{$search}%"))))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
             ->when($request->filled('party_id'), fn ($query) => $query->where('party_id', $request->integer('party_id')))
@@ -71,6 +72,7 @@ class CommercialDocumentService
     {
         return [
             'shop_id' => session('active_shop_id'), 'godown_id' => session('active_godown_id'),
+            'financial_year_id' => $document?->financial_year_id ?? session('active_financial_year_id'),
             'party_id' => $data['party_id'] ?? null, 'type' => $module['type'],
             'number' => $document?->number ?? $this->nextNumber($module['type']),
             'document_date' => $data['document_date'], 'due_date' => $data['due_date'] ?? null,
@@ -111,7 +113,12 @@ class CommercialDocumentService
     private function nextNumber(string $type): string
     {
         $prefix = str($type)->upper()->replace('_', '')->substr(0, 4)->toString();
-        $lastId = (int) CommercialDocument::query()->where('shop_id', session('active_shop_id'))->where('type', $type)->lockForUpdate()->max('id');
+        $lastId = (int) CommercialDocument::query()
+            ->where('shop_id', session('active_shop_id'))
+            ->where('financial_year_id', session('active_financial_year_id'))
+            ->where('type', $type)
+            ->lockForUpdate()
+            ->max('id');
         return $prefix.'-'.now()->format('ym').'-'.str_pad((string) ($lastId + 1), 5, '0', STR_PAD_LEFT);
     }
 }

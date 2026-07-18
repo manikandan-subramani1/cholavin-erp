@@ -1,33 +1,29 @@
-(function (window) {
+(function (window, $) {
     'use strict';
 
+    if (!$) return;
+
     function csrfToken() {
-        var meta = document.querySelector('meta[name="csrf-token"]');
-        return meta ? meta.content : '';
+        return $('meta[name="csrf-token"]').attr('content') || '';
     }
 
-    if (window.jQuery) {
-        window.jQuery.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': csrfToken(),
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        });
-    }
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': csrfToken(),
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    });
 
-    document.addEventListener('DOMContentLoaded', function () {
+    $(function () {
         var token = csrfToken();
 
-        document.querySelectorAll('form').forEach(function (form) {
-            var method = (form.getAttribute('method') || 'GET').toUpperCase();
-            if (method === 'GET' || form.querySelector('input[name="_token"]')) return;
+        $('form').each(function () {
+            var $form = $(this);
+            var method = ($form.attr('method') || 'GET').toUpperCase();
+            if (method === 'GET' || $form.find('input[name="_token"]').length) return;
 
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = '_token';
-            input.value = token;
-            form.appendChild(input);
+            $('<input>', {type: 'hidden', name: '_token', value: token}).appendTo($form);
         });
 
         enhanceIndexPages();
@@ -35,55 +31,53 @@
     });
 
     function enhanceIndexPages() {
-        var container = document.querySelector('.page-content .container-fluid');
-        if (!container || container.querySelector('.party-workspace')) return;
+        var $container = $('.page-content .container-fluid').first();
+        if (!$container.length || $container.find('.party-workspace').length) return;
 
-        var tables = Array.prototype.filter.call(container.querySelectorAll('.card table.table'), function (table) {
-            return !table.closest('.modal')
-                && !table.closest('.receipt-paper')
-                && !table.classList.contains('erp-dashboard-table');
+        var $tables = $container.find('.card table.table').filter(function () {
+            var $table = $(this);
+            return !$table.closest('.modal').length
+                && !$table.closest('.receipt-paper').length
+                && !$table.hasClass('erp-dashboard-table');
         });
-        if (!tables.length) return;
+        if (!$tables.length) return;
 
-        container.classList.add('erp-index-page');
-        var toolbar = container.querySelector('.page-title-box');
-        if (toolbar) {
-            toolbar.classList.add('erp-index-toolbar');
-            var heading = toolbar.querySelector('h1, h2, h3, h4');
-            if (heading && !toolbar.querySelector('.erp-eyebrow')) {
-                var eyebrow = document.createElement('span');
-                eyebrow.className = 'erp-eyebrow';
-                eyebrow.textContent = 'Cholavin ERP';
-                heading.parentNode.insertBefore(eyebrow, heading);
+        $container.addClass('erp-index-page');
+        var $toolbar = $container.find('.page-title-box').first();
+        if ($toolbar.length) {
+            $toolbar.addClass('erp-index-toolbar');
+            var $heading = $toolbar.find('h1, h2, h3, h4').first();
+            if ($heading.length && !$toolbar.find('.erp-eyebrow').length) {
+                $('<span>', {class: 'erp-eyebrow', text: 'Cholavin ERP'}).insertBefore($heading);
             }
         }
 
-        tables.forEach(function (table) {
-            table.classList.add('erp-index-table');
-            var body = table.closest('.card-body');
-            var card = table.closest('.card');
-            if (body) body.classList.add('erp-index-table-body');
-            if (card) card.classList.add('erp-index-card');
+        $tables.each(function () {
+            var $table = $(this).addClass('erp-index-table');
+            $table.closest('.card-body').addClass('erp-index-table-body');
+            $table.closest('.card').addClass('erp-index-card');
         });
 
-        Array.prototype.forEach.call(container.querySelectorAll('.card'), function (card) {
-            if (card.classList.contains('erp-index-card')) return;
-            if (card.querySelector('form, select, input[type="date"], input[type="search"]')) {
-                card.classList.add('erp-index-filter-card');
+        $container.find('.card').each(function () {
+            var $card = $(this);
+            if ($card.hasClass('erp-index-card')) return;
+            if ($card.find('form, select, input[type="date"], input[type="search"]').length) {
+                $card.addClass('erp-index-filter-card');
             }
         });
 
-        Array.prototype.forEach.call(container.querySelectorAll('.dataTables_filter input'), function (input) {
-            input.placeholder = input.placeholder || 'Search records...';
-            input.setAttribute('aria-label', 'Search table records');
+        $container.find('.dataTables_filter input').each(function () {
+            var $input = $(this);
+            $input.attr({
+                placeholder: $input.attr('placeholder') || 'Search records...',
+                'aria-label': 'Search table records'
+            });
         });
     }
 
-    if (window.jQuery) {
-        window.jQuery(document).on('init.dt.erp-index draw.dt.erp-index', function () {
-            window.setTimeout(enhanceIndexPages, 0);
-        });
-    }
+    $(document).on('init.dt.erp-index draw.dt.erp-index', function () {
+        window.setTimeout(enhanceIndexPages, 0);
+    });
 
     function notify(type, message) {
         if (window.toastr && typeof window.toastr[type] === 'function') {
@@ -95,6 +89,44 @@
             console.error(message);
         }
     }
+
+    function responseSucceeded(response) {
+        return response && (response.success === true || response.status === true);
+    }
+
+    function responseRedirect(response) {
+        return response && (response.redirect || (response.data && response.data.redirect)) || null;
+    }
+
+    function showLoader() {
+        if (window.CholavinPageLoader) window.CholavinPageLoader.show(true);
+    }
+
+    function hideLoader() {
+        if (window.CholavinPageLoader) window.CholavinPageLoader.hide();
+    }
+
+    function startButton(button) {
+        var $ = window.jQuery;
+        var $button = button && button.jquery ? button : $(button);
+        if (!$button.length || $button.data('cholavin-loading')) return;
+        $button.data('cholavin-loading', true);
+        $button.data('cholavin-original-html', $button.html());
+        $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Processing...');
+    }
+
+    function stopButton(button) {
+        var $ = window.jQuery;
+        var $button = button && button.jquery ? button : $(button);
+        if (!$button.length) return;
+        var original = $button.data('cholavin-original-html');
+        $button.prop('disabled', false);
+        if (original !== undefined) $button.html(original);
+        $button.removeData('cholavin-loading cholavin-original-html');
+    }
+
+    window.AppLoader = {show: showLoader, hide: hideLoader};
+    window.ButtonLoader = {start: startButton, stop: stopButton};
 
     if (window.jQuery && window.jQuery.fn.dataTable) {
         window.jQuery.fn.dataTable.ext.errMode = 'none';
@@ -136,11 +168,62 @@
                 var normalized = field.replace(/\./g, '\\.');
                 var $input = $form.find('[name="' + normalized + '"], [name="' + normalized + '[]"]').first();
                 $input.addClass('is-invalid');
-                $('<span class="invalid-feedback" data-ajax-error></span>').text(messages[0]).insertAfter($input);
+                var $feedback = $('<span class="invalid-feedback" data-ajax-error></span>').text(messages[0]);
+                var $select2 = $input.next('.select2');
+                ($select2.length ? $feedback.insertAfter($select2) : $feedback.insertAfter($input));
             });
         }
 
         notify('error', response.message || 'Something went wrong. Please try again.');
+    };
+
+    window.AjaxErrorHandler = {handle: window.handleAjaxError};
+
+    window.CholavinAjax = {
+        request: function (options) {
+            var $ = window.jQuery;
+            if (!$) throw new Error('jQuery is required for AJAX requests.');
+
+            var settings = $.extend({
+                method: 'GET',
+                data: {},
+                processData: true,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                showLoader: true,
+                disableButton: null,
+                form: null
+            }, options || {});
+
+            if (settings.showLoader) showLoader();
+            if (settings.disableButton) startButton(settings.disableButton);
+
+            return $.ajax({
+                url: settings.url,
+                type: settings.method,
+                data: settings.data,
+                processData: settings.processData,
+                contentType: settings.contentType,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            }).done(function (response) {
+                if (!responseSucceeded(response)) {
+                    notify('error', response.message || 'The operation could not be completed.');
+                    return;
+                }
+                if (typeof settings.onSuccess === 'function') settings.onSuccess(response);
+            }).fail(function (xhr) {
+                if (xhr.statusText === 'abort') return;
+                window.handleAjaxError(xhr, settings.form);
+                if (typeof settings.onError === 'function') settings.onError(xhr);
+            }).always(function () {
+                if (settings.showLoader) hideLoader();
+                if (settings.disableButton) stopButton(settings.disableButton);
+                if (typeof settings.onComplete === 'function') settings.onComplete();
+            });
+        }
     };
 
     window.reloadDataTable = function (selector) {
@@ -159,35 +242,58 @@
         options = options || {};
         var $form = $(form);
         var $button = $form.find('[type="submit"]').first();
-        var original = $button.html();
 
-        return $.ajax({
+        return window.CholavinAjax.request({
             url: $form.attr('action'),
-            type: ($form.attr('method') || 'POST').toUpperCase(),
+            method: ($form.attr('method') || 'POST').toUpperCase(),
             data: new FormData(form),
             processData: false,
             contentType: false,
-            headers: {'X-CSRF-TOKEN': csrfToken()},
-            beforeSend: function () {
-                $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Processing...');
-            },
-            success: function (response) {
-                if (!response.status) {
-                    notify('error', response.message || 'The operation could not be completed.');
-                    return;
-                }
-
+            form: $form,
+            disableButton: $button,
+            onSuccess: function (response) {
                 if (options.reset !== false) form.reset();
                 $form.find('.is-invalid').removeClass('is-invalid');
                 if (options.modal) $(options.modal).modal('hide');
                 if (options.table) window.reloadDataTable(options.table);
+                if (response.refresh && response.refresh.datatable && window.activeDataTable) {
+                    window.activeDataTable.ajax.reload(null, false);
+                }
                 notify('success', response.message);
                 if (typeof options.onSuccess === 'function') options.onSuccess(response);
-            },
-            error: function (xhr) { window.handleAjaxError(xhr, $form); },
-            complete: function () { $button.prop('disabled', false).html(original); }
+                if (!options.onSuccess) {
+                    var redirect = responseRedirect(response);
+                    if (redirect && window.CholavinNavigation) window.CholavinNavigation.visit(redirect);
+                }
+            }
         });
     };
+
+    if (window.jQuery) {
+        window.jQuery(document).on('submit.cholavin-ajax', '.ajax-form', function (event) {
+            event.preventDefault();
+            var form = this;
+            var $form = window.jQuery(form);
+            if ($form.data('ajax-submitting')) return;
+            if (typeof $form.valid === 'function' && !$form.valid()) return;
+
+            $form.data('ajax-submitting', true);
+            window.submitFormUsingAjax(form, {
+                reset: $form.data('reset') !== false,
+                modal: $form.data('modal'),
+                table: $form.data('table'),
+                onSuccess: function (response) {
+                    var redirect = responseRedirect(response);
+                    if (redirect && window.CholavinNavigation) {
+                        window.CholavinNavigation.visit(redirect);
+                    }
+                    $form.trigger('cholavin:success', [response]);
+                }
+            }).always(function () {
+                $form.removeData('ajax-submitting');
+            });
+        });
+    }
 
     window.initializeDataTable = function (options) {
         var $ = window.jQuery;
@@ -208,10 +314,12 @@
         });
         var initialOrder = Array.isArray(options.order) ? options.order : [];
 
-        return $(options.selector).DataTable({
+        var table = $(options.selector).DataTable({
             processing: true,
             serverSide: true,
             responsive: true,
+            stateSave: options.stateSave !== false,
+            searchDelay: options.searchDelay || 500,
             searching: true,
             ordering: true,
             pageLength: options.pageLength || 10,
@@ -236,5 +344,7 @@
                 zeroRecords: 'No matching records found.'
             }
         });
+        window.activeDataTable = table;
+        return table;
     };
-})(window);
+})(window, window.jQuery);

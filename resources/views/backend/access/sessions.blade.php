@@ -10,8 +10,11 @@
     <div><span class="erp-eyebrow">Access control</span><h4 class="mb-0">Session Monitoring</h4></div>
 </div>
 
-<div class="card erp-panel mb-3">
-    <div class="card-body">
+<div id="sessions-module" data-index-url="{{ route('admin.sessions.index') }}">
+<div class="accordion mb-3" id="session-filter-accordion">
+    <div class="accordion-item erp-panel">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#session-filter-panel"><i class="ri-filter-3-line me-2"></i>Filters</button></h2>
+        <div id="session-filter-panel" class="accordion-collapse collapse" data-bs-parent="#session-filter-accordion"><div class="accordion-body">
         <form id="session-filters" class="row g-3">
             <div class="col-md-4">
                 <label for="session-user-filter" class="form-label">User</label>
@@ -28,6 +31,7 @@
             </div>
             <div class="col-md-2 align-self-end"><button id="reset-session-filters" type="button" class="btn btn-secondary w-100">Reset</button></div>
         </form>
+        </div></div>
     </div>
 </div>
 
@@ -35,45 +39,13 @@
     <div class="card-header"><h5 class="mb-0">Authenticated sessions</h5></div>
     <div class="card-body table-responsive">
         <table id="sessions-table" class="table table-hover align-middle context-data-table w-100">
-            <thead><tr><th>S.No</th><th>User</th><th>Role</th><th>IP address</th><th>Device / Browser</th><th>Shop</th><th>Godown</th><th>Last activity</th><th>Status</th><th>Action</th></tr></thead>
+            <thead><tr><th>S.No</th><th>User</th><th>Role</th><th>IP address</th><th>Device / Browser</th><th>Shop</th><th>Godown</th><th>Financial year</th><th>Last activity</th><th>Status</th><th>Action</th></tr></thead>
         </table>
     </div>
+</div>
 </div>
 @endsection
 
 @push('scripts')
-<script>
-$(function () {
-    $.ajaxSetup({headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content}});
-    const table = initializeDataTable({
-        selector: '#sessions-table',
-        url: '{{ route('admin.sessions.index') }}',
-        order: [[7, 'desc']],
-        filters: function () { return {user_id: $('#session-user-filter').val(), status: $('#session-status-filter').val()}; },
-        columns: [
-            {data: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'user_name', name: 'users.name'}, {data: 'role_name', name: 'roles.name'},
-            {data: 'ip_address', name: 'sessions.ip_address'}, {data: 'user_agent', name: 'sessions.user_agent'},
-            {data: 'shop_name', name: 'shops.name'}, {data: 'godown_name', name: 'godowns.name'},
-            {data: 'last_activity', name: 'sessions.last_activity'}, {data: 'status', orderable: false, searchable: false},
-            {data: 'action', orderable: false, searchable: false}
-        ]
-    });
-
-    $('#session-user-filter, #session-status-filter').on('change', function () { table.ajax.reload(); });
-    $('#reset-session-filters').on('click', function () { document.getElementById('session-filters').reset(); table.ajax.reload(); });
-    $(document).on('click', '.revoke-session', function () {
-        const url = this.dataset.url;
-        Swal.fire({title: 'Force logout this session?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Force logout'})
-            .then(function (result) {
-                if (!result.isConfirmed) return;
-                $.ajax({url: url, type: 'DELETE'})
-                    .done(function (response) { Swal.fire('Session revoked', response.message, 'success'); table.ajax.reload(null, false); })
-                    .fail(function (xhr) {
-                        Swal.fire('Unable to revoke session', xhr.responseJSON?.message || 'Please try again.', 'error');
-                    });
-            });
-    });
-});
-</script>
+<script src="{{ asset('backend/assets/js/modules/access-sessions.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/access-sessions.js')) }}"></script>
 @endpush

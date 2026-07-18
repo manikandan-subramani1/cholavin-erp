@@ -20,7 +20,7 @@ class Godown extends Model
 
     public function shops()
     {
-        return $this->belongsToMany(Shop::class)->withTimestamps();
+        return $this->belongsToMany(Shop::class, 'shop_godown')->withTimestamps();
     }
 
     public function users()

@@ -1,119 +1,34 @@
 @php
-    $paymentContext = in_array(request('type'), ['customer_collection', 'supplier_payment', 'expense'], true)
-        ? request('type')
-        : null;
-    $paymentHeading = match ($paymentContext) {
-        'customer_collection' => 'Payment-In',
-        'supplier_payment' => 'Payment-Out',
-        'expense' => 'Expense Entries',
-        default => 'Receipts and Payments',
-    };
+    $paymentContext = in_array(request('type'), ['customer_collection', 'supplier_payment', 'expense'], true) ? request('type') : null;
+    $paymentHeading = match ($paymentContext) {'customer_collection' => 'Payment-In', 'supplier_payment' => 'Payment-Out', 'expense' => 'Expense Entries', default => 'Receipts and Payments'};
 @endphp
-
 @extends('backend.layouts.app')
 @section('title', $paymentHeading.' | Cholavin ERP')
-
 @section('content')
-    <div class="page-title-box d-flex justify-content-between">
-        <div>
-            <span class="erp-eyebrow">Payments & Accounts</span>
-            <h4>{{ $paymentHeading }}</h4>
-        </div>
-        @can('payments.create')
-            <button id="add-payment" class="btn btn-primary">New Entry</button>
-        @endcan
+<div id="payments-module" data-index-url="{{ route('admin.payments.index') }}" data-pdf-url="{{ route('admin.payments.pdf') }}" data-context="{{ $paymentContext }}">
+    <div class="card erp-panel mb-3"><div class="card-body d-flex justify-content-between align-items-center gap-3"><div><span class="erp-eyebrow">Payments & Accounts</span><h4 class="mb-0">{{ $paymentHeading }}</h4></div><div>@can('payments.export')<button id="payments-pdf" class="btn btn-secondary" type="button"><i class="ri-file-pdf-2-line me-1"></i>PDF</button>@endcan @can('payments.create')<button id="add-payment" class="btn btn-primary" type="button">New Entry</button>@endcan</div></div></div>
+    <div class="erp-module-kpis" data-module-summary-root>
+        <article><i class="ri-file-list-3-line"></i><span><small>Total Entries</small><strong data-summary-key="records" data-summary-format="number">{{ number_format($paymentSummary['records']) }}</strong><em>Current filtered scope</em></span></article>
+        <article><i class="ri-arrow-down-circle-line"></i><span><small>Money In</small><strong data-summary-key="money_in" data-summary-format="money">₹{{ number_format($paymentSummary['money_in'], 2) }}</strong><em>Receipts and collections</em></span></article>
+        <article><i class="ri-arrow-up-circle-line"></i><span><small>Money Out</small><strong data-summary-key="money_out" data-summary-format="money">₹{{ number_format($paymentSummary['money_out'], 2) }}</strong><em>Payments to parties</em></span></article>
+        <article><i class="ri-wallet-3-line"></i><span><small>Expenses</small><strong data-summary-key="expenses" data-summary-format="money">₹{{ number_format($paymentSummary['expenses'], 2) }}</strong><em>Operating expenses</em></span></article>
     </div>
-
-    <div class="card erp-panel">
-        <div class="card-body">
-            <table id="payments-table" class="table w-100">
-                <thead>
-                    <tr>
-                        <th>S.No</th><th>Number</th><th>Date</th><th>Type</th><th>Party</th><th>Method</th><th>Reference</th><th>Amount</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-
-    <div id="payment-modal" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="payment-form" action="{{ route('admin.payments.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5>Payment Entry</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label>Type</label>
-                            <select name="type" class="form-select">
-                                @foreach(['cash_receipt', 'cash_payment', 'bank_receipt', 'bank_payment', 'supplier_payment', 'customer_collection', 'expense', 'income'] as $type)
-                                    <option value="{{ $type }}" @selected($paymentContext === $type)>{{ str($type)->replace('_', ' ')->title() }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3"><label>Date</label><input name="payment_date" type="date" value="{{ now()->toDateString() }}" class="form-control" required></div>
-                        <div class="mb-3"><label>Party ID (optional)</label><input name="party_id" type="number" class="form-control"></div>
-                        <div class="mb-3"><label>Document ID (optional)</label><input name="commercial_document_id" type="number" class="form-control"></div>
-                        <div class="mb-3">
-                            <label>Method</label>
-                            <select name="payment_method_id" class="form-select">
-                                <option value="">None</option>
-                                @foreach($methods as $method)
-                                    <option value="{{ $method->id }}">{{ $method->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3"><label>Amount</label><input name="amount" type="number" min="0.01" step="0.01" class="form-control" required></div>
-                        <div class="mb-3"><label>Reference</label><input name="reference_number" class="form-control"></div>
-                        <div><label>Notes</label><textarea name="notes" class="form-control"></textarea></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button class="btn btn-success">Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <div class="accordion mb-3" id="payment-filter-accordion"><div class="accordion-item erp-panel"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#payment-filter-panel"><i class="ri-filter-3-line me-2"></i>Filters</button></h2><div id="payment-filter-panel" class="accordion-collapse collapse" data-bs-parent="#payment-filter-accordion"><div class="accordion-body"><form id="payment-filters" class="row g-3">
+        <div class="col-lg-3"><label class="form-label" for="payment-search">Search</label><input id="payment-search" type="search" class="form-control" placeholder="Number or reference"></div>
+        <div class="col-lg-2"><label class="form-label" for="payment-type-filter">Type</label><select id="payment-type-filter" class="form-select"><option value="">All</option>@foreach(['cash_receipt','cash_payment','bank_receipt','bank_payment','supplier_payment','customer_collection','expense','income'] as $type)<option value="{{ $type }}" @selected($paymentContext === $type)>{{ str($type)->replace('_',' ')->title() }}</option>@endforeach</select></div>
+        <div class="col-lg-2"><label class="form-label" for="payment-party-filter">Party</label><select id="payment-party-filter" class="form-select"><option value="">All</option>@foreach($parties as $party)<option value="{{ $party->id }}">{{ $party->name }}</option>@endforeach</select></div>
+        <div class="col-lg-2"><label class="form-label" for="payment-from-filter">From</label><input id="payment-from-filter" type="date" class="form-control"></div><div class="col-lg-2"><label class="form-label" for="payment-to-filter">To</label><input id="payment-to-filter" type="date" class="form-control"></div><div class="col-lg-1 align-self-end"><button id="reset-payment-filters" class="btn btn-secondary w-100" type="button"><i class="ri-refresh-line"></i></button></div>
+    </form></div></div></div></div>
+    <div class="card erp-panel"><div class="card-body table-responsive"><table id="payments-table" class="table table-hover align-middle w-100"><thead><tr><th>S.No</th><th>Number</th><th>Date</th><th>Type</th><th>Party</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead></table></div></div>
+    <div id="payment-modal" class="modal fade erp-form-modal" tabindex="-1" aria-labelledby="payment-modal-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down"><div class="modal-content"><div class="modal-header"><div><span class="erp-eyebrow">Accounting entry</span><h5 id="payment-modal-title" class="modal-title">Payment Entry</h5></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><form id="payment-form" action="{{ route('admin.payments.store') }}" method="POST" novalidate>@csrf<div class="modal-body"><div class="row g-3">
+        <div class="col-md-6 form-group"><label class="form-label">Type <span class="text-danger">*</span></label><select name="type" class="form-select">@foreach(['cash_receipt','cash_payment','bank_receipt','bank_payment','supplier_payment','customer_collection','expense','income'] as $type)<option value="{{ $type }}" @selected($paymentContext === $type)>{{ str($type)->replace('_',' ')->title() }}</option>@endforeach</select></div>
+        <div class="col-md-6 form-group"><label class="form-label">Date <span class="text-danger">*</span></label><input name="payment_date" type="date" value="{{ now()->toDateString() }}" class="form-control"></div>
+        <div class="col-12 form-group"><label class="form-label">Party</label><select name="party_id" class="form-select"><option value="">None</option>@foreach($parties as $party)<option value="{{ $party->id }}">{{ $party->name }} — {{ $party->code }}</option>@endforeach</select></div>
+        <div class="col-md-6 form-group"><label class="form-label">Document</label><select name="commercial_document_id" class="form-select"><option value="">None</option>@foreach($documents as $document)<option value="{{ $document->id }}">{{ $document->number }}</option>@endforeach</select></div>
+        <div class="col-md-6 form-group"><label class="form-label">Method</label><select name="payment_method_id" class="form-select"><option value="">None</option>@foreach($methods as $method)<option value="{{ $method->id }}">{{ $method->name }}</option>@endforeach</select></div>
+        <div class="col-md-6 form-group"><label class="form-label">Amount <span class="text-danger">*</span></label><input name="amount" type="number" min="0.01" step="0.01" class="form-control"></div>
+        <div class="col-md-6 form-group"><label class="form-label">Reference</label><input name="reference_number" class="form-control"></div><div class="col-12 form-group"><label class="form-label">Notes</label><textarea name="notes" class="form-control" rows="3"></textarea></div>
+    </div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Entry</button></div></form></div></div></div>
+</div>
 @endsection
-
-@push('scripts')
-    <script>
-        $(function () {
-            const paymentContext = @json($paymentContext);
-            const table = initializeDataTable({
-                selector: '#payments-table',
-                url: @json(route('admin.payments.index', array_filter(['type' => $paymentContext]))),
-                columns: [
-                    {data: 'DT_RowIndex', orderable: false, searchable: false},
-                    {data: 'number'},
-                    {data: 'payment_date'},
-                    {data: 'type'},
-                    {data: 'party.name', defaultContent: '—', orderable: false, searchable: false},
-                    {data: 'method.name', defaultContent: '—', orderable: false, searchable: false},
-                    {data: 'reference_number', defaultContent: '—'},
-                    {data: 'amount'},
-                ],
-                order: [[2, 'desc']],
-            });
-            const modal = new bootstrap.Modal('#payment-modal');
-
-            $('#add-payment').on('click', function () {
-                if (paymentContext) {
-                    $('#payment-form [name="type"]').val(paymentContext);
-                }
-                modal.show();
-            });
-
-            $('#payment-form').validate({
-                submitHandler: form => submitFormUsingAjax(form, {
-                    table: '#payments-table',
-                    onSuccess: () => modal.hide(),
-                }),
-            });
-        });
-    </script>
-@endpush
+@push('scripts')<script src="{{ asset('backend/assets/js/modules/payments.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/payments.js')) }}"></script>@endpush

@@ -41,4 +41,21 @@ return Application::configure(basePath: dirname(__DIR__))
                 );
             }
         });
+
+        $exceptions->render(function (\Throwable $exception, Request $request) {
+            if (! $request->expectsJson()) {
+                return null;
+            }
+
+            $reference = 'ERR-'.now()->format('Ymd-His').'-'.str()->upper(str()->random(5));
+            report($exception);
+
+            return ResponseHelper::error(
+                app()->hasDebugModeEnabled() ? $exception->getMessage() : 'The operation could not be completed. Please try again.',
+                [],
+                500,
+                null,
+                $reference,
+            );
+        });
     })->create();

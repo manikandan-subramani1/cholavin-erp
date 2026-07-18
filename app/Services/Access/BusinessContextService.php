@@ -5,6 +5,7 @@ namespace App\Services\Access;
 use App\Models\ActivityLog;
 use App\Models\ContextSwitchLog;
 use App\Models\Godown;
+use App\Models\ReferenceMaster;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -12,6 +13,19 @@ use Illuminate\Validation\ValidationException;
 
 class BusinessContextService
 {
+    public function permittedFinancialYears(User $user): Collection
+    {
+        $query = $user->isSuperAdmin()
+            ? ReferenceMaster::query()
+            : $user->financialYears()->wherePivot('is_active', true);
+
+        return $query
+            ->where('reference_masters.type', 'financial_year')
+            ->where('reference_masters.is_active', true)
+            ->orderByDesc('reference_masters.code')
+            ->get(['reference_masters.id', 'reference_masters.name', 'reference_masters.code', 'reference_masters.metadata']);
+    }
+
     public function permittedShops(User $user): Collection
     {
         if ($user->isSuperAdmin()) {
@@ -28,7 +42,7 @@ class BusinessContextService
             ->get(['shops.id', 'shops.name', 'shops.code']);
     }
 
-    public function permittedGodowns(User $user, int $shopId): Collection
+    public function permittedGodowns(User $user, ?int $shopId = null): Collection
     {
         $query = $user->isSuperAdmin()
             ? Godown::query()
@@ -36,30 +50,74 @@ class BusinessContextService
 
         return $query
             ->where('godowns.is_active', true)
-            ->where('godowns.shop_id', $shopId)
+            ->when($shopId, fn ($query) => $query->where(function ($query) use ($shopId): void {
+                $query->where('godowns.shop_id', $shopId)
+                    ->orWhereHas('shops', fn ($shops) => $shops->where('shops.id', $shopId));
+            }))
             ->orderBy('godowns.name')
             ->get(['godowns.id', 'godowns.shop_id', 'godowns.name', 'godowns.code']);
+    }
+
+    public function permittedShopsForGodown(User $user, int $godownId): Collection
+    {
+        $godown = $this->permittedGodowns($user)->firstWhere('id', $godownId);
+        if (! $godown) {
+            return collect();
+        }
+
+        $shopIds = $godown->shops()->pluck('shops.id');
+        if ($godown->shop_id) {
+            $shopIds->push((int) $godown->shop_id);
+        }
+
+        return $this->permittedShops($user)
+            ->whereIn('id', $shopIds->unique()->all())
+            ->values();
     }
 
     public function resolveDefaultContext(User $user): array
     {
         $shops = $this->permittedShops($user);
+        $financialYears = $this->permittedFinancialYears($user);
+        $financialYearId = $this->resolveFinancialYearId($user, $financialYears);
+        if ($user->isSuperAdmin() && session('all_shops_context') === true) {
+            return [
+                'shop_id' => null,
+                'godown_id' => null,
+                'financial_year_id' => $financialYearId,
+                'shops' => $shops,
+                'godowns' => $this->permittedGodowns($user),
+                'financial_years' => $financialYears,
+            ];
+        }
+
         $requestedShopId = (int) session('active_shop_id');
         $shopId = $shops->contains('id', $requestedShopId)
             ? $requestedShopId
             : $this->defaultShopId($user, $shops);
 
-        $godowns = $shopId ? $this->permittedGodowns($user, $shopId) : collect();
+        $allGodowns = $this->permittedGodowns($user);
+        $godownsForShop = $shopId ? $this->permittedGodowns($user, $shopId) : $allGodowns;
         $requestedGodownId = (int) session('active_godown_id');
-        $godownId = $godowns->contains('id', $requestedGodownId)
+        $godownId = $godownsForShop->contains('id', $requestedGodownId)
             ? $requestedGodownId
-            : $this->defaultGodownId($user, $godowns);
+            : $this->defaultGodownId($user, $godownsForShop);
+
+        $shopsForGodown = $godownId
+            ? $this->permittedShopsForGodown($user, $godownId)
+            : $shops;
+
+        if ($godownId && ! $shopsForGodown->contains('id', $shopId)) {
+            $shopId = $this->defaultShopId($user, $shopsForGodown);
+        }
 
         return [
             'shop_id' => $shopId ?: null,
             'godown_id' => $godownId ?: null,
-            'shops' => $shops,
-            'godowns' => $godowns,
+            'financial_year_id' => $financialYearId,
+            'shops' => $shopsForGodown,
+            'godowns' => $allGodowns,
+            'financial_years' => $financialYears,
         ];
     }
 
@@ -70,52 +128,111 @@ class BusinessContextService
         session()->put([
             'active_shop_id' => $context['shop_id'],
             'active_godown_id' => $context['godown_id'],
+            'active_financial_year_id' => $context['financial_year_id'],
         ]);
 
         return $context;
     }
 
-    public function switchShop(User $user, int $shopId): array
+    public function switchShop(User $user, ?int $shopId): array
     {
+        if (! $shopId) {
+            abort_unless($user->isSuperAdmin(), 403, 'Only Super Admin can use the all-shops context.');
+            $fromShopId = $this->activeShopId();
+            $fromGodownId = $this->activeGodownId();
+            session()->put(['active_shop_id' => null, 'active_godown_id' => null, 'all_shops_context' => true]);
+            $this->recordSwitch($user, $fromShopId, null, $fromGodownId, null);
+
+            return $this->responseData($user, null, null);
+        }
+
         $shops = $this->permittedShops($user);
         if (! $shops->contains('id', $shopId)) {
             abort(403, 'You do not have access to the selected shop.');
         }
 
-        $fromShopId = $this->activeShopId();
         $fromGodownId = $this->activeGodownId();
-        $godowns = $this->permittedGodowns($user, $shopId);
-        $godownId = $godowns->contains('id', $fromGodownId)
-            ? $fromGodownId
-            : $this->defaultGodownId($user, $godowns);
+        if ($fromGodownId && ! $this->permittedShopsForGodown($user, $fromGodownId)->contains('id', $shopId)) {
+            abort(403, 'The selected shop is not linked to the active godown.');
+        }
 
-        session()->put([
-            'active_shop_id' => $shopId,
-            'active_godown_id' => $godownId ?: null,
-        ]);
+        $fromShopId = $this->activeShopId();
 
-        $this->recordSwitch($user, $fromShopId, $shopId, $fromGodownId, $godownId);
+        session()->put('active_shop_id', $shopId);
+        session()->forget('all_shops_context');
 
-        return $this->responseData($shopId, $godownId, $godowns);
+        $this->recordSwitch($user, $fromShopId, $shopId, $fromGodownId, $fromGodownId);
+
+        return $this->responseData($user, $shopId, $fromGodownId);
     }
 
     public function switchGodown(User $user, ?int $godownId): array
     {
-        $shopId = $this->activeShopId();
-        if (! $shopId) {
-            throw ValidationException::withMessages(['shop_id' => 'Select an active shop first.']);
-        }
-
-        $godowns = $this->permittedGodowns($user, $shopId);
+        $godowns = $this->permittedGodowns($user);
         if ($godownId && ! $godowns->contains('id', $godownId)) {
             abort(403, 'You do not have access to the selected godown.');
         }
 
-        $fromGodownId = $this->activeGodownId();
-        session()->put('active_godown_id', $godownId);
-        $this->recordSwitch($user, $shopId, $shopId, $fromGodownId, $godownId);
+        if (! $godownId && $user->isSuperAdmin()) {
+            $fromShopId = $this->activeShopId();
+            $fromGodownId = $this->activeGodownId();
+            session()->put(['active_shop_id' => null, 'active_godown_id' => null, 'all_shops_context' => true]);
+            $this->recordSwitch($user, $fromShopId, null, $fromGodownId, null);
 
-        return $this->responseData($shopId, $godownId, $godowns);
+            return $this->responseData($user, null, null);
+        }
+
+        $shops = $godownId
+            ? $this->permittedShopsForGodown($user, $godownId)
+            : $this->permittedShops($user);
+
+        if ($godownId && $shops->isEmpty()) {
+            throw ValidationException::withMessages([
+                'godown_id' => 'No permitted shop is linked to the selected godown.',
+            ]);
+        }
+
+        $fromShopId = $this->activeShopId();
+        $fromGodownId = $this->activeGodownId();
+        $shopId = $shops->contains('id', $fromShopId)
+            ? $fromShopId
+            : $this->defaultShopId($user, $shops);
+
+        session()->put([
+            'active_shop_id' => $shopId,
+            'active_godown_id' => $godownId,
+        ]);
+        session()->forget('all_shops_context');
+        $this->recordSwitch($user, $fromShopId, $shopId, $fromGodownId, $godownId);
+
+        return $this->responseData($user, $shopId, $godownId);
+    }
+
+    public function switchFinancialYear(User $user, int $financialYearId): array
+    {
+        $financialYears = $this->permittedFinancialYears($user);
+        abort_unless($financialYears->contains('id', $financialYearId), 403, 'You do not have access to the selected financial year.');
+
+        $fromId = $this->activeFinancialYearId();
+        session()->put('active_financial_year_id', $financialYearId);
+
+        if ($fromId !== $financialYearId) {
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'event' => 'financial-year.switched',
+                'module' => 'financial-years',
+                'action' => 'switch',
+                'shop_id' => $this->activeShopId(),
+                'godown_id' => $this->activeGodownId(),
+                'financial_year_id' => $financialYearId,
+                'old_values' => ['financial_year_id' => $fromId],
+                'new_values' => ['financial_year_id' => $financialYearId],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+        }
+
+        return $this->responseData($user, $this->activeShopId(), $this->activeGodownId());
     }
 
     public function activeShopId(): ?int
@@ -126,6 +243,39 @@ class BusinessContextService
     public function activeGodownId(): ?int
     {
         return session('active_godown_id') ? (int) session('active_godown_id') : null;
+    }
+
+    public function activeFinancialYearId(): ?int
+    {
+        return session('active_financial_year_id') ? (int) session('active_financial_year_id') : null;
+    }
+
+    private function resolveFinancialYearId(User $user, Collection $financialYears): ?int
+    {
+        $requestedId = $this->activeFinancialYearId();
+        if ($requestedId && $financialYears->contains('id', $requestedId)) {
+            return $requestedId;
+        }
+
+        if (! $user->isSuperAdmin()) {
+            $defaultId = $user->financialYears()
+                ->wherePivot('is_active', true)
+                ->wherePivot('is_default', true)
+                ->value('reference_masters.id');
+            if ($defaultId && $financialYears->contains('id', (int) $defaultId)) {
+                return (int) $defaultId;
+            }
+        }
+
+        $today = now()->toDateString();
+        $current = $financialYears->first(function (ReferenceMaster $year) use ($today): bool {
+            $start = data_get($year->metadata, 'start_date');
+            $end = data_get($year->metadata, 'end_date');
+
+            return $start && $end && $start <= $today && $end >= $today;
+        });
+
+        return $current?->id ?? $financialYears->first()?->id;
     }
 
     private function defaultShopId(User $user, Collection $shops): ?int
@@ -160,15 +310,32 @@ class BusinessContextService
         return $godowns->first()?->id;
     }
 
-    private function responseData(int $shopId, ?int $godownId, Collection $godowns): array
+    private function responseData(User $user, ?int $shopId, ?int $godownId): array
     {
+        $shops = $godownId
+            ? $this->permittedShopsForGodown($user, $godownId)
+            : $this->permittedShops($user);
+        $godowns = $this->permittedGodowns($user);
+        $financialYears = $this->permittedFinancialYears($user);
+
         return [
             'active_shop_id' => $shopId,
             'active_godown_id' => $godownId,
+            'active_financial_year_id' => $this->activeFinancialYearId(),
+            'shops' => $shops->map(fn (Shop $shop) => [
+                'id' => $shop->id,
+                'name' => $shop->name,
+                'code' => $shop->code,
+            ])->values(),
             'godowns' => $godowns->map(fn (Godown $godown) => [
                 'id' => $godown->id,
                 'name' => $godown->name,
                 'code' => $godown->code,
+            ])->values(),
+            'financial_years' => $financialYears->map(fn (ReferenceMaster $year) => [
+                'id' => $year->id,
+                'name' => $year->name,
+                'code' => $year->code,
             ])->values(),
             'reload' => true,
         ];
@@ -198,6 +365,7 @@ class BusinessContextService
             'action' => 'switch',
             'shop_id' => $toShopId,
             'godown_id' => $toGodownId,
+            'financial_year_id' => $this->activeFinancialYearId(),
             'method' => request()->method(),
             'route' => request()->route()?->getName(),
             'url' => request()->fullUrl(),

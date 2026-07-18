@@ -1,0 +1,669 @@
+/* Final module-wise UI layer. Loaded after the vendor and legacy ERP styles. */
+:root {
+    --erp-primary: #800020;
+    --erp-primary-dark: #4a0012;
+    --erp-gold: #d4af37;
+    --erp-gold-soft: #fff8e1;
+    --erp-canvas: #f5f6fa;
+    --erp-surface: #fff;
+    --erp-text: #242424;
+    --erp-muted: #747474;
+    --erp-border: #e7e8ed;
+    --erp-success: #15803d;
+    --erp-warning: #d97706;
+    --erp-danger: #b42318;
+    --erp-radius: 12px;
+    --erp-shadow: 0 8px 28px rgba(51, 30, 37, .06);
+}
+
+html,
+body { background: var(--erp-canvas); color: var(--erp-text); }
+
+body { font-size: 13px; }
+
+body.ajax-loading::before,
+body.erp-ajax-active::before {
+    position: fixed;
+    z-index: 1095;
+    top: 0;
+    left: 0;
+    width: 38%;
+    height: 3px;
+    content: '';
+    animation: erp-progress 1.15s ease-in-out infinite;
+    background: linear-gradient(90deg, var(--erp-gold), var(--erp-primary));
+}
+
+@keyframes erp-progress {
+    from { transform: translateX(-110%); }
+    to { transform: translateX(370%); }
+}
+
+/* App shell */
+body #page-topbar.erp-topbar {
+    z-index: 1032;
+    height: auto;
+    min-height: 66px;
+    border-bottom: 1px solid var(--erp-border);
+    background: rgba(255, 255, 255, .97);
+    box-shadow: 0 2px 12px rgba(45, 25, 31, .04);
+    backdrop-filter: blur(14px);
+}
+
+body #page-topbar .navbar-header {
+    min-height: 66px;
+    padding: 8px 20px;
+}
+
+body .erp-global-search {
+    width: clamp(220px, 27vw, 390px);
+    min-height: 42px;
+    border: 1px solid #e3e4e9;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+body .erp-global-search:focus-within {
+    border-color: rgba(128, 0, 32, .42);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(128, 0, 32, .08);
+}
+
+body .erp-icon-button {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    color: #4c3440;
+}
+
+body .erp-icon-button:hover,
+body .erp-icon-button:focus { color: var(--erp-primary); background: #f9eef2; }
+
+body .erp-quick-create-button {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 9px;
+    color: #fff;
+    background: var(--erp-primary);
+    box-shadow: 0 5px 14px rgba(128, 0, 32, .16);
+}
+
+body .erp-context-bar {
+    min-height: 58px;
+    padding: 7px 20px;
+    border-top: 1px solid #f0edf0;
+    background: #fff;
+}
+
+body .erp-context-form { justify-content: flex-end; gap: 10px; }
+
+body .erp-context-field {
+    min-width: 200px;
+    min-height: 43px;
+    padding: 5px 10px 5px 40px;
+    border: 1px solid var(--erp-border);
+    border-radius: 9px;
+    background: #fff;
+}
+
+body .erp-context-field-icon { color: var(--erp-primary); }
+body .erp-context-label { color: #95878d; font-size: 9px; letter-spacing: .1em; }
+
+body .app-menu.navbar-menu {
+    width: 230px;
+    border: 0;
+    background: linear-gradient(180deg, #520016 0%, #35000e 100%) !important;
+    box-shadow: 7px 0 24px rgba(48, 0, 13, .12);
+}
+
+body .navbar-brand-box {
+    width: 230px;
+    height: 66px;
+    border-bottom: 1px solid rgba(255, 255, 255, .09);
+    background: #520016;
+}
+
+body .navbar-menu .navbar-nav { padding: 8px 9px 28px; }
+body .navbar-menu .navbar-nav .menu-title { padding: 17px 12px 6px; }
+body .navbar-menu .navbar-nav .menu-title span { color: #bfaab0 !important; font-size: 9px; letter-spacing: .15em; }
+
+body .navbar-menu .navbar-nav .nav-link {
+    min-height: 41px;
+    margin: 2px 0;
+    padding: 9px 11px;
+    color: #eadde1;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+body .navbar-menu .navbar-nav .nav-link i { color: #e5bf37; font-size: 17px; }
+
+body .navbar-menu .navbar-nav .nav-link:hover,
+body .navbar-menu .navbar-nav .nav-link.active,
+body .navbar-menu .navbar-nav .menu-link[aria-expanded='true'] {
+    color: #fff;
+    background: linear-gradient(90deg, rgba(212, 175, 55, .25), rgba(255, 255, 255, .08));
+}
+
+body .navbar-menu .navbar-nav .nav-link.active { box-shadow: inset 3px 0 0 var(--erp-gold); }
+body .navbar-menu .menu-dropdown .nav-sm > .nav-item > .nav-link { margin-left: 21px; color: #d8c7cd; }
+
+body .main-content { margin-left: 230px; }
+
+body .page-content {
+    min-height: calc(100vh - 52px);
+    padding: 82px 0 28px;
+    background: var(--erp-canvas);
+}
+
+body.erp-has-context .page-content { padding-top: 148px; }
+
+body #erp-main-content { max-width: 1760px; padding-inline: 22px; }
+
+/* Shared module command area */
+body .page-title-box,
+body .party-page-toolbar,
+body .erp-page-command-card,
+body #erp-main-content > div > .card.erp-panel:first-child {
+    min-height: 82px;
+    margin-bottom: 16px !important;
+    padding: 17px 20px;
+    border: 1px solid var(--erp-border) !important;
+    border-radius: var(--erp-radius) !important;
+    background: #fff;
+    box-shadow: var(--erp-shadow);
+}
+
+body #erp-main-content > div > .card.erp-panel:first-child .card-body { padding: 0; }
+
+body .page-title-box h4,
+body .party-page-toolbar h4,
+body .erp-page-command-card h4 { margin: 2px 0 0; color: #32252a; font-size: 20px; font-weight: 720; }
+
+body .erp-eyebrow {
+    color: #9a6b00;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+}
+
+/* Cards, KPIs and quick actions */
+body .card,
+body .erp-panel,
+body .erp-surface {
+    border-color: var(--erp-border);
+    border-radius: var(--erp-radius);
+    box-shadow: var(--erp-shadow);
+}
+
+body .erp-stat-card {
+    min-height: 104px;
+    padding: 18px;
+    overflow: hidden;
+    border: 1px solid var(--erp-border);
+    background: #fff;
+}
+
+body .erp-stat-card::after {
+    position: absolute;
+    right: -14px;
+    bottom: -22px;
+    width: 76px;
+    height: 76px;
+    content: '';
+    border-radius: 50%;
+    background: rgba(128, 0, 32, .045);
+}
+
+body .erp-stat-card small { color: var(--erp-muted); font-size: 10px; font-weight: 650; }
+body .erp-stat-card strong { display: block; margin-top: 8px; color: #2d2528; font-size: 24px; }
+
+body .erp-dashboard-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    margin: -6px 0 22px;
+}
+
+body .erp-dashboard-quick-actions a {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 11px;
+    min-height: 66px;
+    padding: 11px 12px;
+    color: var(--erp-text);
+    border: 1px solid var(--erp-border);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 5px 16px rgba(45, 25, 31, .04);
+}
+
+body .erp-dashboard-quick-actions a:hover { transform: translateY(-2px); border-color: rgba(128, 0, 32, .28); }
+body .erp-dashboard-quick-actions a > i { display: grid; width: 38px; height: 38px; place-items: center; flex: 0 0 auto; color: var(--erp-primary); border-radius: 9px; background: #f9eaf0; font-size: 18px; }
+body .erp-dashboard-quick-actions span { min-width: 0; }
+body .erp-dashboard-quick-actions strong,
+body .erp-dashboard-quick-actions small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body .erp-dashboard-quick-actions strong { font-size: 11px; }
+body .erp-dashboard-quick-actions small { margin-top: 2px; color: var(--erp-muted); font-size: 9px; }
+body .erp-dashboard-quick-actions kbd { margin-left: auto; color: #8d7a80; border: 1px solid #e9e3e5; background: #faf8f9; font-size: 8px; }
+body .erp-dashboard-quick-actions .is-purchase > i { color: #2563eb; background: #edf4ff; }
+body .erp-dashboard-quick-actions .is-payment > i { color: #15803d; background: #ecf9f0; }
+body .erp-dashboard-quick-actions .is-stock > i { color: #7c3aed; background: #f3eeff; }
+body .erp-dashboard-quick-actions .is-report > i { color: #d97706; background: #fff5e6; }
+
+/* Dashboard prototype: compact greeting, five-column KPIs and operational panels. */
+body .erp-dashboard-hero {
+    min-height: 94px;
+    padding: 18px 20px;
+    color: var(--erp-text);
+    border: 1px solid var(--erp-border);
+    border-radius: var(--erp-radius);
+    background: #fff;
+    box-shadow: var(--erp-shadow);
+}
+body .erp-dashboard-hero::before,
+body .erp-dashboard-hero-mark { display: none; }
+body .erp-dashboard-hero .erp-eyebrow { color: #9a6b00; }
+body .erp-dashboard-hero h2 { margin-top: 3px; color: #33282c; font-size: 21px; }
+body .erp-dashboard-hero p { max-width: 780px; margin: 5px 0 0; color: var(--erp-muted); font-size: 10px; }
+body .erp-dashboard-controls { min-width: 200px; margin: 0; }
+body .erp-dashboard-controls label { color: #75676c; }
+body .erp-dashboard-controls small { color: #8d7d82; }
+body .erp-dashboard-kpi-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
+body .erp-dashboard-kpi-grid > div { width: auto; }
+body .erp-analysis-card { min-height: 112px; border-radius: 10px; box-shadow: 0 5px 18px rgba(45, 25, 31, .045); }
+body .erp-analysis-card .erp-analysis-copy strong { font-size: 19px; }
+
+/* Customer and supplier workspace summaries are backed by live scoped data. */
+body .erp-party-kpis {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+body .erp-party-kpis article {
+    display: flex;
+    min-width: 0;
+    min-height: 108px;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid var(--erp-border);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(45, 25, 31, .04);
+}
+body .erp-party-kpi-icon { display: grid; width: 34px; height: 34px; place-items: center; flex: 0 0 auto; color: #2563eb; border-radius: 9px; background: #edf4ff; font-size: 16px; }
+body .erp-party-kpi-icon.is-active { color: var(--erp-success); background: #eaf8ef; }
+body .erp-party-kpi-icon.is-balance { color: #7c3aed; background: #f2edff; }
+body .erp-party-kpi-icon.is-overdue { color: var(--erp-danger); background: #fff0ef; }
+body .erp-party-kpi-icon.is-business { color: var(--erp-warning); background: #fff5e5; }
+body .erp-party-kpi-icon.is-payment { color: #0891b2; background: #eaf9fc; }
+body .erp-party-kpis small,
+body .erp-party-kpis strong,
+body .erp-party-kpis em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body .erp-party-kpis small { color: var(--erp-muted); font-size: 9px; font-weight: 700; }
+body .erp-party-kpis strong { margin-top: 7px; color: #31262a; font-size: 17px; }
+body .erp-party-kpis em { margin-top: 4px; color: #9a8f92; font-size: 8px; font-style: normal; }
+
+body .erp-settings-launchpad {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+}
+body .erp-settings-launchpad a {
+    display: flex;
+    min-width: 0;
+    min-height: 92px;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    color: var(--erp-text);
+    border: 1px solid var(--erp-border);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(45, 25, 31, .04);
+}
+body .erp-settings-launchpad a:hover { transform: translateY(-2px); border-color: rgba(128, 0, 32, .28); }
+body .erp-settings-launchpad i { display: grid; width: 36px; height: 36px; place-items: center; flex: 0 0 auto; color: var(--erp-primary); border-radius: 9px; background: #faedf1; font-size: 17px; }
+body .erp-settings-launchpad strong,
+body .erp-settings-launchpad small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body .erp-settings-launchpad strong { font-size: 10px; }
+body .erp-settings-launchpad small { margin-top: 4px; color: var(--erp-muted); font-size: 8px; }
+
+body .erp-billing-shortcuts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    padding: 13px 15px;
+    overflow-x: auto;
+    border: 1px solid #f0dfb7;
+    border-radius: 10px;
+    background: #fffaf0;
+}
+body .erp-billing-shortcuts > div { min-width: 190px; margin-right: auto; }
+body .erp-billing-shortcuts > div strong,
+body .erp-billing-shortcuts > div small { display: block; }
+body .erp-billing-shortcuts > div strong { color: var(--erp-primary); font-size: 10px; }
+body .erp-billing-shortcuts > div small { margin-top: 3px; color: var(--erp-muted); font-size: 8px; }
+body .erp-billing-shortcuts a,
+body .erp-billing-shortcuts button { display: inline-flex; min-width: max-content; min-height: 35px; align-items: center; gap: 6px; padding: 5px 9px; color: #4b3d42; border: 1px solid #eadfcd; border-radius: 7px; background: #fff; font-size: 9px; }
+body .erp-billing-shortcuts kbd { color: #6d28d9; border: 0; background: #f0e9ff; font-size: 9px; }
+
+body .erp-report-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+body .erp-report-kpis article { display: flex; min-height: 86px; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--erp-border); border-radius: 10px; background: #fff; box-shadow: 0 5px 18px rgba(45, 25, 31, .04); }
+body .erp-report-kpis i { display: grid; width: 38px; height: 38px; place-items: center; color: var(--erp-primary); border-radius: 9px; background: #faedf1; font-size: 18px; }
+body .erp-report-kpis article:nth-child(2) i { color: var(--erp-success); background: #eaf8ef; }
+body .erp-report-kpis article:nth-child(3) i { color: var(--erp-danger); background: #fff0ef; }
+body .erp-report-kpis article:nth-child(4) i { color: #7c3aed; background: #f2edff; }
+body .erp-report-kpis small,
+body .erp-report-kpis strong { display: block; }
+body .erp-report-kpis small { color: var(--erp-muted); font-size: 9px; font-weight: 700; }
+body .erp-report-kpis strong { margin-top: 5px; color: #30252a; font-size: 18px; }
+
+body .erp-stock-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+body .erp-stock-kpis article { display: flex; min-width: 0; min-height: 94px; align-items: center; gap: 11px; padding: 14px; border: 1px solid var(--erp-border); border-radius: 10px; background: #fff; box-shadow: 0 5px 18px rgba(45, 25, 31, .04); }
+body .erp-stock-kpis i { display: grid; width: 38px; height: 38px; place-items: center; flex: 0 0 auto; color: #2563eb; border-radius: 9px; background: #edf4ff; font-size: 18px; }
+body .erp-stock-kpis article:nth-child(2) i { color: #7c3aed; background: #f2edff; }
+body .erp-stock-kpis article:nth-child(3) i { color: var(--erp-success); background: #eaf8ef; }
+body .erp-stock-kpis article:nth-child(4) i { color: var(--erp-warning); background: #fff5e5; }
+body .erp-stock-kpis article:nth-child(5) i { color: var(--erp-danger); background: #fff0ef; }
+body .erp-stock-kpis small,
+body .erp-stock-kpis strong,
+body .erp-stock-kpis em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body .erp-stock-kpis small { color: var(--erp-muted); font-size: 9px; font-weight: 700; }
+body .erp-stock-kpis strong { margin-top: 5px; color: #30252a; font-size: 17px; }
+body .erp-stock-kpis em { margin-top: 3px; color: #9a8f92; font-size: 8px; font-style: normal; }
+
+body .erp-module-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+body .erp-module-kpis article { display: flex; min-width: 0; min-height: 88px; align-items: center; gap: 11px; padding: 14px; border: 1px solid var(--erp-border); border-radius: 10px; background: #fff; box-shadow: 0 5px 18px rgba(45, 25, 31, .04); }
+body .erp-module-kpis i { display: grid; width: 37px; height: 37px; place-items: center; flex: 0 0 auto; color: var(--erp-primary); border-radius: 9px; background: #faedf1; font-size: 17px; }
+body .erp-module-kpis article:nth-child(2) i { color: var(--erp-success); background: #eaf8ef; }
+body .erp-module-kpis article:nth-child(3) i { color: #7c3aed; background: #f2edff; }
+body .erp-module-kpis article:nth-child(4) i { color: var(--erp-warning); background: #fff5e5; }
+body .erp-module-kpis small,
+body .erp-module-kpis strong,
+body .erp-module-kpis em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body .erp-module-kpis small { color: var(--erp-muted); font-size: 9px; font-weight: 700; }
+body .erp-module-kpis strong { margin-top: 4px; color: #30252a; font-size: 17px; }
+body .erp-module-kpis em { margin-top: 3px; color: #9a8f92; font-size: 8px; font-style: normal; }
+
+body .erp-dashboard-feed > a,
+body .erp-dashboard-feed > div:not(.erp-dashboard-empty) { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 58px; padding: 10px 15px; color: var(--erp-text); border-bottom: 1px solid #f0edf0; }
+body .erp-dashboard-feed > :last-child { border-bottom: 0; }
+body .erp-dashboard-feed > a:hover { background: #fffaf0; }
+body .erp-feed-icon { display: grid; width: 32px; height: 32px; place-items: center; color: #2563eb; border-radius: 9px; background: #edf4ff; }
+body .erp-feed-icon.is-activity { color: var(--erp-success); background: #eaf8ef; }
+body .erp-dashboard-feed strong,
+body .erp-dashboard-feed small { display: block; }
+body .erp-dashboard-feed strong { font-size: 10px; }
+body .erp-dashboard-feed small { max-width: 440px; margin-top: 3px; overflow: hidden; color: var(--erp-muted); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+body .erp-dashboard-feed time { color: #96898e; font-size: 8px; white-space: nowrap; }
+
+body .erp-pos-catalog { margin-bottom: 16px; overflow: hidden; border: 1px solid var(--erp-border); border-radius: 11px; background: #fff; box-shadow: var(--erp-shadow); }
+body .erp-pos-catalog-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--erp-border); }
+body .erp-pos-catalog-head h5 { margin: 3px 0 0; font-size: 14px; }
+body .erp-pos-search { display: flex; width: min(310px, 100%); min-height: 38px; align-items: center; gap: 8px; padding: 0 11px; border: 1px solid #dedfe4; border-radius: 8px; background: #fafafa; }
+body .erp-pos-search input { width: 100%; border: 0; outline: 0; background: transparent; font-size: 10px; }
+body .erp-pos-product-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; max-height: 390px; padding: 14px; overflow-y: auto; }
+body .erp-pos-product { min-width: 0; padding: 9px; text-align: left; border: 1px solid var(--erp-border); border-radius: 9px; background: #fff; }
+body .erp-pos-product:hover { transform: translateY(-2px); border-color: rgba(128, 0, 32, .3); box-shadow: 0 8px 18px rgba(45, 25, 31, .08); }
+body .erp-pos-product img { width: 100%; height: 86px; object-fit: contain; border-radius: 7px; background: #faf8f8; }
+body .erp-pos-product span,
+body .erp-pos-product strong,
+body .erp-pos-product small,
+body .erp-pos-product em,
+body .erp-pos-product b { display: block; }
+body .erp-pos-product span { padding-top: 8px; }
+body .erp-pos-product strong { overflow: hidden; color: #342a2e; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+body .erp-pos-product small { margin-top: 2px; color: var(--erp-muted); font-size: 8px; }
+body .erp-pos-product em { margin-top: 6px; color: var(--erp-primary); font-size: 11px; font-style: normal; font-weight: 800; }
+body .erp-pos-product b { margin-top: 3px; color: var(--erp-success); font-size: 8px; font-weight: 650; }
+
+body .party-workspace { display: block; min-height: 0; overflow: visible; border: 0; background: transparent; }
+body .party-list-panel { width: 100%; overflow: hidden; border: 1px solid var(--erp-border); border-radius: 11px; background: #fff; box-shadow: var(--erp-shadow); }
+body .party-list-tools { padding: 13px 15px; border-bottom: 1px solid var(--erp-border); }
+body .party-list-table-wrap { max-height: none; overflow: auto; }
+body #parties-table thead th { padding: 11px 12px; color: #66585d; background: #fafafa; font-size: 9px; text-transform: uppercase; }
+body #parties-table tbody td { padding: 12px; border-bottom: 1px solid #f0f0f2; font-size: 10px; }
+body #parties-table tbody tr { cursor: pointer; }
+body #parties-table tbody tr:hover,
+body #parties-table tbody tr.is-selected { background: #fffaf0; }
+body #party-detail-modal .modal-dialog { width: min(920px, 94vw); }
+body #party-detail-modal .party-detail-panel { min-height: 100%; border: 0; background: #f7f8fb; }
+body #party-detail-modal .party-profile-card { border-radius: 0; }
+
+body .erp-workspace-tabs { display: inline-flex; gap: 4px; margin-bottom: 12px; padding: 4px; border: 1px solid var(--erp-border); border-radius: 9px; background: #fff; }
+body .erp-workspace-tabs a { display: inline-flex; min-height: 36px; align-items: center; gap: 7px; padding: 7px 12px; color: #6f6065; border-radius: 7px; font-size: 10px; font-weight: 700; }
+body .erp-workspace-tabs a.active { color: #fff; background: var(--erp-primary); }
+
+body .erp-financial-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+body .erp-financial-kpis article { display: flex; min-width: 0; min-height: 96px; align-items: center; gap: 10px; padding: 14px; border: 1px solid var(--erp-border); border-radius: 10px; background: #fff; box-shadow: 0 5px 18px rgba(45, 25, 31, .04); }
+body .erp-financial-kpis i { display: grid; width: 36px; height: 36px; place-items: center; flex: 0 0 auto; color: var(--erp-primary); border-radius: 9px; background: #faedf1; font-size: 17px; }
+body .erp-financial-kpis .is-income i,
+body .erp-financial-kpis .is-profit i { color: var(--erp-success); background: #eaf8ef; }
+body .erp-financial-kpis .is-expense i,
+body .erp-financial-kpis .is-payable i { color: var(--erp-danger); background: #fff0ef; }
+body .erp-financial-kpis .is-receivable i { color: #7c3aed; background: #f2edff; }
+body .erp-financial-kpis .is-stock i { color: #2563eb; background: #edf4ff; }
+body .erp-financial-kpis small,
+body .erp-financial-kpis strong,
+body .erp-financial-kpis em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body .erp-financial-kpis small { color: var(--erp-muted); font-size: 9px; font-weight: 700; }
+body .erp-financial-kpis strong { margin-top: 5px; color: #30252a; font-size: 15px; }
+body .erp-financial-kpis em { margin-top: 3px; color: #9a8f92; font-size: 7px; font-style: normal; }
+
+/* Filters and forms */
+body .accordion.erp-smart-filter-panel,
+body .accordion-item.erp-panel { border: 1px solid var(--erp-border); border-radius: 10px; overflow: hidden; background: #fff; }
+body .accordion-button { min-height: 48px; color: #3e3035; background: #fff; font-size: 12px; font-weight: 700; }
+body .accordion-button:not(.collapsed) { color: var(--erp-primary); background: #fff9f4; box-shadow: inset 0 -1px 0 var(--erp-border); }
+body .form-label { margin-bottom: 6px; color: #3e3438; font-size: 11px; font-weight: 650; }
+body .form-control,
+body .form-select,
+body .select2-container--default .select2-selection--single,
+body .select2-container--default .select2-selection--multiple { min-height: 42px; border-color: #dcdde3; border-radius: 8px; background-color: #fff; font-size: 12px; }
+body .form-control:focus,
+body .form-select:focus { border-color: rgba(128, 0, 32, .55); box-shadow: 0 0 0 3px rgba(128, 0, 32, .08); }
+
+body .btn { min-height: 38px; border-radius: 8px; font-size: 11px; font-weight: 700; }
+body .btn-primary,
+body .btn-success { border-color: var(--erp-primary); background: var(--erp-primary); }
+body .btn-primary:hover,
+body .btn-success:hover { border-color: var(--erp-primary-dark); background: var(--erp-primary-dark); }
+body .btn-secondary { color: #5a454c; border-color: #e3d8dc; background: #fff; }
+
+/* Full-width module tables */
+body .erp-table-workspace { overflow: hidden; border: 1px solid var(--erp-border); background: #fff; }
+body .erp-table-workspace > .card-body { padding: 0; }
+body .erp-datatable-shell { padding: 15px 16px 12px; }
+body table.dataTable { margin-top: 12px !important; margin-bottom: 12px !important; border-collapse: separate !important; border-spacing: 0; }
+body table.dataTable thead th { padding: 11px 12px !important; color: #66585d; border-top: 1px solid #ececef !important; border-bottom: 1px solid #e4e5e9 !important; background: #fafafa; font-size: 9px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+body table.dataTable tbody td { padding: 12px !important; color: #42373b; border-bottom: 1px solid #f0f0f2; font-size: 11px; vertical-align: middle; }
+body table.dataTable tbody tr { transition: background-color .15s ease, box-shadow .15s ease; }
+body table.erp-clickable-table tbody tr { cursor: pointer; }
+body table.dataTable tbody tr:hover,
+body table.dataTable tbody tr.is-selected { background: #fffaf0; }
+body table.dataTable tbody tr.is-selected { box-shadow: inset 3px 0 0 var(--erp-primary); }
+body .dataTables_filter input,
+body .dataTables_length select { min-height: 36px; border: 1px solid #dedfe4; border-radius: 8px; }
+body .dataTables_info { color: var(--erp-muted); font-size: 10px; }
+body .page-link { color: var(--erp-primary); border-color: #e4dadd; }
+body .page-item.active .page-link { border-color: var(--erp-primary); background: var(--erp-primary); }
+
+/* Detail and form drawers retain Bootstrap modal semantics. */
+body .erp-form-modal { padding: 0 !important; }
+body .erp-form-modal .modal-dialog {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(720px, 92vw);
+    max-width: none;
+    height: 100dvh;
+    margin: 0;
+    transform: translateX(100%) !important;
+}
+body .erp-form-modal.show .modal-dialog { transform: translateX(0) !important; }
+body .erp-form-modal .modal-content { height: 100%; max-height: 100%; border: 0; border-radius: 14px 0 0 14px; box-shadow: -18px 0 52px rgba(44, 17, 25, .2); }
+body .erp-form-modal .modal-header { flex: 0 0 auto; min-height: 70px; padding: 15px 20px; border-bottom: 1px solid var(--erp-border); }
+body .erp-form-modal .modal-body { min-height: 0; padding: 20px; overflow: auto !important; overscroll-behavior: contain; background: #fbfbfc; }
+body .erp-form-modal .modal-footer { flex: 0 0 auto; min-height: 66px; padding: 12px 20px; border-top: 1px solid var(--erp-border); background: #fff; }
+body .erp-record-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; overflow: hidden; border: 1px solid var(--erp-border); border-radius: 10px; background: var(--erp-border); }
+body .erp-record-detail-item { min-width: 0; padding: 14px; background: #fff; }
+body .erp-record-detail-item span,
+body .erp-record-detail-item strong { display: block; }
+body .erp-record-detail-item span { margin-bottom: 5px; color: #8b7d82; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+body .erp-record-detail-item strong { overflow-wrap: anywhere; color: #31262a; font-size: 12px; }
+body .erp-record-detail-actions { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 6px; }
+
+/* Footer and responsive navigation */
+body .erp-footer { padding: 0; color: #81757a; background: transparent; }
+body .erp-footer-content { display: flex; min-height: 48px; align-items: center; justify-content: space-between; padding-inline: 6px; font-size: 10px; }
+
+@media (max-width: 1199.98px) {
+    body .erp-dashboard-quick-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    body .erp-dashboard-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    body .erp-party-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    body .erp-settings-launchpad { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    body .erp-report-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    body .erp-stock-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    body .erp-module-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    body .erp-pos-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    body .erp-financial-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    body .erp-context-field { min-width: 175px; }
+}
+
+@media (max-width: 991.98px) {
+    body .app-menu.navbar-menu { width: 264px; }
+    body .main-content { margin-left: 0; }
+    body .page-content { padding-top: 82px; padding-bottom: 82px; }
+    body #erp-main-content { padding-inline: 14px; }
+    body .erp-context-bar { position: fixed; z-index: 1050; inset: 0; display: none; padding: 20px; background: #fff; }
+    body .erp-context-bar.is-open { display: block; }
+    body .erp-context-form { display: grid; gap: 14px; margin-top: 24px; }
+    body .erp-context-field { width: 100%; }
+}
+
+/* Match the reference shell: one compact desktop header row. */
+@media (min-width: 1200px) {
+    html[data-layout='vertical'] body #page-topbar { left: 230px; }
+    body #page-topbar > .layout-width { display: flex; min-width: 0; align-items: center; }
+    body #page-topbar .navbar-header { display: contents; }
+    body #page-topbar .erp-header-start { order: 1; flex: 1 1 260px; min-width: 230px; padding-left: 16px; }
+    body #page-topbar .erp-context-bar { order: 2; flex: 0 1 620px; min-width: 430px; min-height: 66px; padding: 7px 6px; border: 0; }
+    body #page-topbar .erp-context-form { flex-wrap: nowrap; }
+    body #page-topbar .erp-context-field { min-width: 0; flex: 1 1 0; }
+    body #page-topbar .erp-context-shop,
+    body #page-topbar .erp-context-godown { max-width: 230px; }
+    body #page-topbar .erp-context-financial-year { max-width: 185px; }
+    body #page-topbar .erp-header-actions { order: 3; flex: 0 0 auto; padding-right: 14px; }
+    body.erp-has-context .page-content { padding-top: 82px; }
+}
+
+@media (max-width: 767.98px) {
+    body #page-topbar .navbar-header { padding-inline: 10px; }
+    body .erp-global-search { width: min(56vw, 330px); }
+    body .erp-quick-create-button span,
+    body .erp-quick-create-button > .ri-arrow-down-s-line { display: none; }
+    body .erp-quick-create-button { width: 38px; padding: 0; justify-content: center; }
+    body .page-title-box,
+    body .party-page-toolbar,
+    body .erp-page-command-card,
+    body #erp-main-content > div > .card.erp-panel:first-child { align-items: flex-start !important; flex-direction: column; padding: 15px; }
+    body .erp-dashboard-quick-actions { display: flex; margin-right: -14px; padding-right: 14px; overflow-x: auto; scroll-snap-type: x mandatory; }
+    body .erp-dashboard-quick-actions a { min-width: 215px; scroll-snap-align: start; }
+    body .erp-dashboard-kpi-grid,
+    body .erp-party-kpis,
+    body .erp-settings-launchpad,
+    body .erp-report-kpis,
+    body .erp-stock-kpis,
+    body .erp-module-kpis { display: flex; margin-right: -14px; padding-right: 14px; overflow-x: auto; scroll-snap-type: x mandatory; }
+    body .erp-dashboard-kpi-grid > div,
+    body .erp-party-kpis article,
+    body .erp-settings-launchpad a,
+    body .erp-report-kpis article,
+    body .erp-stock-kpis article,
+    body .erp-module-kpis article { min-width: 220px; scroll-snap-align: start; }
+    body .erp-datatable-shell { padding-inline: 10px; overflow-x: auto; }
+    body .erp-record-detail-grid { grid-template-columns: 1fr; }
+    body .erp-pos-catalog-head { align-items: stretch; flex-direction: column; }
+    body .erp-pos-search { width: 100%; }
+    body .erp-pos-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    body .erp-financial-kpis { display: flex; margin-right: -14px; padding-right: 14px; overflow-x: auto; }
+    body .erp-financial-kpis article { min-width: 220px; }
+}
+
+@media (max-width: 575.98px) {
+    body .erp-global-search { width: 46vw; }
+    body .erp-search-shortcut { display: none; }
+    body .erp-form-modal .modal-dialog { width: 100vw; }
+    body .erp-form-modal .modal-content { border-radius: 0; }
+    body .erp-form-modal .modal-body { padding: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+@media print {
+    #page-topbar,
+    .app-menu,
+    .erp-mobile-nav,
+    .erp-footer { display: none !important; }
+    body .main-content { margin: 0 !important; }
+    body .page-content { padding: 0 !important; }
+}
+
+/* Preserve every option in the bundled theme customizer. */
+body .customizer-setting {
+    z-index: 1040;
+    right: 22px;
+    bottom: 22px;
+}
+
+body .customizer-setting .btn {
+    color: var(--erp-primary);
+    border: 1px solid rgba(212, 175, 55, .65);
+    background: var(--erp-gold-soft);
+    box-shadow: 0 10px 28px rgba(74, 0, 18, .16) !important;
+}
+
+body #theme-settings-offcanvas { z-index: 1060; }
+body #theme-settings-offcanvas .offcanvas-header { background: linear-gradient(135deg, var(--erp-primary-dark), var(--erp-primary)) !important; }
+
+@media (min-width: 992px) {
+    html[data-layout='vertical'][data-sidebar-size='sm'] body .app-menu.navbar-menu,
+    html[data-layout='vertical'][data-sidebar-size='sm'] body .navbar-brand-box { width: 76px; }
+    html[data-layout='vertical'][data-sidebar-size='sm'] body .main-content { margin-left: 76px; }
+    html[data-layout='vertical'][data-sidebar-size='sm'] body #page-topbar { left: 76px; }
+
+    html[data-layout='vertical'][data-sidebar-size='md'] body .app-menu.navbar-menu,
+    html[data-layout='vertical'][data-sidebar-size='md'] body .navbar-brand-box { width: 180px; }
+    html[data-layout='vertical'][data-sidebar-size='md'] body .main-content { margin-left: 180px; }
+    html[data-layout='vertical'][data-sidebar-size='md'] body #page-topbar { left: 180px; }
+
+    html[data-layout='horizontal'] body .app-menu.navbar-menu { width: 100%; box-shadow: 0 5px 18px rgba(48, 0, 13, .1); }
+    html[data-layout='horizontal'] body #page-topbar { left: 0; }
+    html[data-layout='horizontal'] body .main-content { margin-left: 0; }
+    html[data-layout='horizontal'] body .page-content { padding-top: 142px; }
+    html[data-layout='horizontal'] body.erp-has-context .page-content { padding-top: 198px; }
+}
+
+html[data-sidebar='light'] body .app-menu.navbar-menu,
+html[data-sidebar='light'] body .navbar-brand-box { background: #fff !important; }
+html[data-sidebar='light'] body .navbar-menu .navbar-nav .nav-link { color: #5e5055; }
+html[data-sidebar='light'] body .navbar-menu .navbar-nav .menu-title span { color: #998c91 !important; }
+html[data-sidebar='light'] body .navbar-menu .navbar-nav .nav-link:hover,
+html[data-sidebar='light'] body .navbar-menu .navbar-nav .nav-link.active,
+html[data-sidebar='light'] body .navbar-menu .navbar-nav .menu-link[aria-expanded='true'] { color: var(--erp-primary); background: #fff3e6; }

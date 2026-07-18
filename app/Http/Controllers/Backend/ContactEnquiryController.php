@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Enquiries\UpdateEnquiryStatusRequest;
 use App\Models\ContactEnquiry;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -13,7 +15,11 @@ class ContactEnquiryController extends Controller
     {
         $this->authorize('viewAny', ContactEnquiry::class);
         if ($request->ajax()) {
-            $query = ContactEnquiry::query()->latest('id');
+            $query = ContactEnquiry::query()
+                ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
+                ->when($request->filled('from_date'), fn ($query) => $query->whereDate('created_at', '>=', $request->date('from_date')))
+                ->when($request->filled('to_date'), fn ($query) => $query->whereDate('created_at', '<=', $request->date('to_date')))
+                ->latest('id');
 
             return DataTables::eloquent($query)
                 ->addIndexColumn()
@@ -38,13 +44,9 @@ class ContactEnquiryController extends Controller
         return view('backend.enquiries.index');
     }
 
-    public function updateStatus(Request $request, ContactEnquiry $enquiry)
+    public function updateStatus(UpdateEnquiryStatusRequest $request, ContactEnquiry $enquiry)
     {
-        $this->authorize('update', $enquiry);
-        $data = $request->validate([
-            'status' => ['required', 'in:contacted,not_contacted'],
-            'reason' => ['required', 'string', 'max:1000'],
-        ]);
+        $data = $request->validated();
 
         $enquiry->update([
             'status' => $data['status'],
@@ -52,6 +54,6 @@ class ContactEnquiryController extends Controller
             'contacted_at' => $data['status'] === 'contacted' ? now() : null,
         ]);
 
-        return response()->json(['message' => 'Enquiry status updated successfully.']);
+        return ResponseHelper::success('Enquiry status updated successfully.', ['id' => $enquiry->id]);
     }
 }

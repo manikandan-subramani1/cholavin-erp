@@ -9,7 +9,7 @@
 @section('title', $module['title'] . ' | Cholavin ERP')
 
 @section('content')
-<div class="d-grid gap-3">
+<div id="reference-master-module" class="d-grid gap-3" data-index-url="{{ route('admin.'.$module['slug'].'.index') }}" data-pdf-url="{{ route('admin.'.$module['slug'].'.pdf') }}">
     <div class="card erp-panel mb-0">
         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div><span class="erp-eyebrow">{{ $module['group'] }}</span><h4 class="mb-0">{{ $module['title'] }}</h4></div>
@@ -44,7 +44,7 @@
     <div class="card erp-panel mb-0">
         <div class="card-body table-responsive">
             <table id="module-table" class="table table-hover align-middle w-100">
-                <thead><tr><th>S.No</th>@foreach($tableFields as $field)<th>{{ $field['label'] }}</th>@endforeach<th>Status</th><th class="text-end">Action</th></tr></thead>
+                <thead><tr><th data-column="DT_RowIndex">S.No</th>@foreach($tableFields as $field)<th data-column="{{ $field['name'] }}">{{ $field['label'] }}</th>@endforeach<th data-column="record_status">Status</th><th data-column="action" class="text-end">Action</th></tr></thead>
             </table>
         </div>
     </div>
@@ -52,57 +52,5 @@
 @endsection
 
 @push('scripts')
-<script>
-$(function () {
-    const table = initializeDataTable({
-        selector: '#module-table',
-        url: @json(route('admin.price-lists.index')),
-        filters: () => ({
-            status: $('#filter-status').val(),
-            from_date: $('#filter-from').val(),
-            to_date: $('#filter-to').val()
-        }),
-        columns: [
-            {data: 'DT_RowIndex', orderable: false, searchable: false},
-            @foreach($tableFields as $field)
-            {data: @json($field['name']), orderable: false, searchable: false},
-            @endforeach
-            {data: 'record_status', orderable: false, searchable: false},
-            {data: 'action', orderable: false, searchable: false}
-        ],
-        order: []
-    });
-
-    let searchTimer;
-    $('#filter-search').on('input', function () {
-        clearTimeout(searchTimer);
-        const value = this.value;
-        searchTimer = setTimeout(() => table.search(value).draw(), 250);
-    });
-    $('#filter-status,#filter-from,#filter-to').on('change', () => table.ajax.reload(null, false));
-    $('#reset-filters').on('click', function () {
-        document.getElementById('module-filters').reset();
-        table.search('').ajax.reload(null, false);
-    });
-    $(document).on('click', '.delete-record', function () {
-        const url = this.dataset.url;
-        Swal.fire({title: 'Delete this record?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Delete'}).then(result => {
-            if (!result.isConfirmed) return;
-            $.ajax({url, type: 'DELETE'}).done(response => {
-                toastr.success(response.message);
-                table.ajax.reload(null, false);
-            }).fail(xhr => handleAjaxError(xhr));
-        });
-    });
-    $('#download-pdf').on('click', () => {
-        const params = new URLSearchParams({
-            search: $('#filter-search').val() || '',
-            status: $('#filter-status').val() || '',
-            from_date: $('#filter-from').val() || '',
-            to_date: $('#filter-to').val() || ''
-        });
-        window.location.href = @json(route('admin.price-lists.pdf')) + '?' + params;
-    });
-});
-</script>
+<script src="{{ asset('backend/assets/js/modules/reference-master-index.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/reference-master-index.js')) }}"></script>
 @endpush

@@ -43,8 +43,17 @@ class PartyController extends Controller
         return view('backend.parties.index', [
             'partyType' => $type,
             'title' => $title,
+            'workspaceMetrics' => $this->parties->metrics($partyType),
             'groups' => ReferenceMaster::query()->ofType($partyType.'_group')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
+    }
+
+    public function metrics(string $type): JsonResponse
+    {
+        [$partyType] = $this->type($type);
+        Gate::authorize($type.'.view');
+
+        return ResponseHelper::success('Party summary loaded.', $this->parties->metrics($partyType));
     }
 
     public function show(Request $request, string $type, Party $party): JsonResponse
@@ -133,6 +142,12 @@ class PartyController extends Controller
 
     private function guardParty(Party $party, string $partyType): void
     {
-        abort_unless($party->shop_id === (int) session('active_shop_id') && in_array($party->type, [$partyType, 'both'], true), 404);
+        $user = request()->user();
+        $activeShopId = session('active_shop_id') ? (int) session('active_shop_id') : null;
+        $shopIsVisible = $user?->isSuperAdmin() && ! $activeShopId
+            ? true
+            : $party->shop_id === $activeShopId;
+
+        abort_unless($shopIsVisible && in_array($party->type, [$partyType, 'both'], true), 404);
     }
 }

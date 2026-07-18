@@ -1,0 +1,12 @@
+(function (window, $) {
+    'use strict'; if (!$ || !$('#payments-module').length) return;
+    var module = $('#payments-module'); var form = $('#payment-form'); var modal = bootstrap.Modal.getOrCreateInstance($('#payment-modal').get(0)); var initialSearch = new URLSearchParams(window.location.search).get('search') || '';
+    function filters() { return {type: $('#payment-type-filter').val(), party_id: $('#payment-party-filter').val(), from_date: $('#payment-from-filter').val(), to_date: $('#payment-to-filter').val()}; }
+    var table = initializeDataTable({selector: '#payments-table', url: module.data('index-url'), filters: filters, columns: [{data:'DT_RowIndex'},{data:'number'},{data:'payment_date'},{data:'type'},{data:'party.name',defaultContent:'—',orderable:false,searchable:false},{data:'method.name',defaultContent:'—',orderable:false,searchable:false},{data:'reference_number',defaultContent:'—'},{data:'amount'}], order:[[2,'desc']]});
+    if(initialSearch){$('#payment-search').val(initialSearch);table.search(initialSearch).draw();}
+    form.validate({ignore: [], rules: {type:{required:true},payment_date:{required:true,date:true},amount:{required:true,number:true,min:0.01},reference_number:{maxlength:100},notes:{maxlength:1000}}, errorElement:'span',errorClass:'error text-danger',highlight:function(el){$(el).addClass('is-invalid');},unhighlight:function(el){$(el).removeClass('is-invalid');},submitHandler:function(el){submitFormUsingAjax(el,{reset:true,onSuccess:function(){modal.hide();table.ajax.reload(null,false);}});}});
+    $('#add-payment').on('click',function(){form.trigger('reset');if(module.data('context'))form.find('[name="type"]').val(module.data('context'));modal.show();});
+    var timer;$('#payment-search').on('input',function(){var value=$(this).val();clearTimeout(timer);timer=setTimeout(function(){table.search(value).draw();},300);});$('#payment-type-filter,#payment-party-filter,#payment-from-filter,#payment-to-filter').on('change',function(){table.ajax.reload(null,false);});
+    $('#reset-payment-filters').on('click',function(){$('#payment-filters').trigger('reset');if(module.data('context'))$('#payment-type-filter').val(module.data('context'));table.search('').ajax.reload(null,false);});
+    $('#payments-pdf').on('click',function(){var params=filters();params.search=$('#payment-search').val();window.location.href=module.data('pdf-url')+'?'+new URLSearchParams(params).toString();});
+})(window,window.jQuery);

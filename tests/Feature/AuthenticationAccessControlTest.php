@@ -9,8 +9,8 @@ use App\Models\Shop;
 use App\Models\User;
 use Database\Seeders\AccessControlSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AuthenticationAccessControlTest extends TestCase
@@ -42,6 +42,23 @@ class AuthenticationAccessControlTest extends TestCase
         $this->assertSame(['*'], session('permitted_actions'));
         $this->assertDatabaseHas('activity_logs', ['user_id' => $user->id, 'event' => 'login.success']);
         $this->assertDatabaseHas('login_histories', ['user_id' => $user->id, 'event' => 'login.success']);
+    }
+
+    public function test_user_can_login_through_ajax_and_receives_default_context(): void
+    {
+        $user = User::where('username', 'superadmin')->firstOrFail();
+
+        $this->postJson('/admin/login', [
+            'login' => 'admin@gmail.com',
+            'password' => '12345678',
+        ])
+            ->assertOk()
+            ->assertJsonPath('status', true)
+            ->assertJsonPath('data.user.id', $user->id)
+            ->assertJsonPath('data.user.is_super_admin', true)
+            ->assertJsonPath('data.redirect', route('admin.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_inactive_user_cannot_login(): void
@@ -145,12 +162,13 @@ class AuthenticationAccessControlTest extends TestCase
             ->assertSee('id="sidebarInventory"', false)
             ->assertSee('id="sidebarReports"', false)
             ->assertSee('id="sidebarAdministration"', false)
-            ->assertSee('id="customizer-layout01"', false)
-            ->assertSee('value="vertical"', false)
-            ->assertSee('id="customizer-layout02"', false)
-            ->assertSee('value="horizontal"', false)
             ->assertSeeInOrder([
-                '<span>Home</span>',
+                '<span>Dashboard</span>',
+                '<span>Customer Workspace</span>',
+                '<span>Supplier Workspace</span>',
+                '<span>Inventory Workspace</span>',
+                '<span>Accounting Workspace</span>',
+                '<span>Delivery Workspace</span>',
                 '<span>Parties</span>',
                 '<span>Items</span>',
                 '<span>Sale</span>',
@@ -164,17 +182,28 @@ class AuthenticationAccessControlTest extends TestCase
                 '<span>Administration</span>',
             ], false)
             ->assertSee('id="search-options"', false)
-            ->assertSee('id="erp-page-loader"', false)
+            ->assertSee('id="global-search-results"', false)
+            ->assertSee('header-search.js', false)
+            ->assertDontSee('how to setup', false)
+            ->assertSee('id="customizer-layout01"', false)
+            ->assertSee('id="customizer-layout02"', false)
+            ->assertSee('id="theme-settings-offcanvas"', false)
+            ->assertDontSee('id="page-header-cart-dropdown"', false)
             ->assertSee('page-loader.js', false)
-            ->assertSee('id="page-header-cart-dropdown"', false)
+            ->assertSee('id="erp-quick-create-toggle"', false)
+            ->assertSee('id="erp-calculator-toggle"', false)
+            ->assertSee('header-context.js', false)
+            ->assertSee('id="erp-mobile-create"', false)
+            ->assertSee('erp-prototype.css', false)
+            ->assertSee('erp-ui.js', false)
             ->assertSee('id="erp-fullscreen-toggle"', false)
             ->assertSee('data-toggle="fullscreen"', false)
             ->assertSee('persistent-fullscreen.js', false)
             ->assertSee('light-dark-mode', false)
-            ->assertSee('id="page-header-notifications-dropdown"', false)
+            ->assertSee('id="notificationDropdown"', false)
             ->assertSee('id="page-header-user-dropdown"', false)
             ->assertSee('id="removeNotificationModal"', false)
-            ->assertSee('id="delete-notification"', false);
+            ->assertDontSee('id="delete-notification"', false);
     }
 
     public function test_super_admin_can_switch_shop_and_godown_context_without_logout(): void
@@ -218,6 +247,55 @@ class AuthenticationAccessControlTest extends TestCase
             ->assertJsonMissing(['id' => $blockedGodown->id]);
 
         $this->actingAs($user)->postJson('/admin/location-context/shop', ['shop_id' => $blockedShop->id])
+            ->assertForbidden();
+    }
+
+    public function test_selecting_a_godown_only_returns_related_assigned_shops(): void
+    {
+        $role = Role::create(['name' => 'Godown Context Operator', 'slug' => 'godown-context-operator', 'is_active' => true]);
+        $role->permissions()->attach(Permission::whereIn('code', ['shops.switch', 'godowns.switch'])->pluck('id'));
+        $user = User::create([
+            'role_id' => $role->id,
+            'name' => 'Godown Context Operator',
+            'username' => 'godown-context-operator',
+            'email' => 'godown-context-operator@example.test',
+            'password' => 'password123',
+            'is_active' => true,
+        ]);
+        $primaryShop = Shop::create(['name' => 'Primary Linked Shop', 'code' => 'PRIMARY-LINK', 'is_active' => true]);
+        $secondaryShop = Shop::create(['name' => 'Secondary Linked Shop', 'code' => 'SECONDARY-LINK', 'is_active' => true]);
+        $unrelatedShop = Shop::create(['name' => 'Unrelated Assigned Shop', 'code' => 'UNRELATED', 'is_active' => true]);
+        $godown = Godown::create(['shop_id' => $primaryShop->id, 'name' => 'Shared Godown', 'code' => 'SHARED-G', 'is_active' => true]);
+        $godown->shops()->sync([$primaryShop->id, $secondaryShop->id]);
+        $user->shops()->attach([
+            $primaryShop->id => ['is_default' => true, 'is_active' => true],
+            $secondaryShop->id => ['is_default' => false, 'is_active' => true],
+            $unrelatedShop->id => ['is_default' => false, 'is_active' => true],
+        ]);
+        $user->godowns()->attach($godown, ['is_default' => true, 'is_active' => true]);
+
+        $this->actingAs($user)
+            ->getJson('/admin/location-context/shops?godown_id='.$godown->id)
+            ->assertOk()
+            ->assertJsonFragment(['id' => $primaryShop->id, 'name' => $primaryShop->name, 'code' => $primaryShop->code])
+            ->assertJsonFragment(['id' => $secondaryShop->id, 'name' => $secondaryShop->name, 'code' => $secondaryShop->code])
+            ->assertJsonMissing(['id' => $unrelatedShop->id]);
+
+        $this->withSession([
+            'active_shop_id' => $unrelatedShop->id,
+            'active_godown_id' => null,
+        ])->actingAs($user)
+            ->postJson('/admin/location-context/godown', ['godown_id' => $godown->id])
+            ->assertOk()
+            ->assertJsonPath('data.active_godown_id', $godown->id)
+            ->assertJsonPath('data.active_shop_id', $primaryShop->id)
+            ->assertJsonMissing(['id' => $unrelatedShop->id]);
+
+        $this->assertSame($primaryShop->id, session('active_shop_id'));
+        $this->assertSame($godown->id, session('active_godown_id'));
+
+        $this->actingAs($user)
+            ->postJson('/admin/location-context/shop', ['shop_id' => $unrelatedShop->id])
             ->assertForbidden();
     }
 

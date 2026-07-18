@@ -10,6 +10,7 @@ return [
     'roles' => ['view', 'create', 'update', 'delete'],
     'shops' => ['view', 'create', 'update', 'delete', 'switch'],
     'godowns' => ['view', 'create', 'update', 'delete', 'switch'],
+    'financial-years' => array_merge($crud, ['switch']),
     'activity-logs' => ['view', 'export'],
     'sessions' => ['view', 'revoke'],
     'settings' => ['view', 'update'],

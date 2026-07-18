@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\ActivityLog;
 use App\Models\LoginHistory;
 use App\Models\User;
 use App\Services\Access\BusinessContextService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,7 @@ class AuthController extends Controller
         return view('backend.auth.login');
     }
 
-    public function store(LoginRequest $request, BusinessContextService $contexts): RedirectResponse
+    public function store(LoginRequest $request, BusinessContextService $contexts): JsonResponse|RedirectResponse
     {
         $credentials = $request->validated();
 
@@ -75,16 +77,38 @@ class AuthController extends Controller
             'permitted_actions' => $permissionCodes->all(),
             'active_shop_id' => $context['shop_id'],
             'active_godown_id' => $context['godown_id'],
+            'active_financial_year_id' => $context['financial_year_id'],
             'login_history_id' => $history->id,
             'login_timestamp' => now()->toIso8601String(),
         ]);
 
         $this->logAttempt($request, 'login.success', $user);
 
+        if ($request->expectsJson()) {
+            return ResponseHelper::success('Login successful.', [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'role' => $user->role?->name,
+                    'is_super_admin' => $user->isSuperAdmin(),
+                ],
+                'permissions' => $permissionCodes->values(),
+                'shops' => $context['shops']->map->only(['id', 'name', 'code'])->values(),
+                'godowns' => $context['godowns']->map->only(['id', 'name', 'code'])->values(),
+                'financial_years' => $context['financial_years']->map->only(['id', 'name', 'code'])->values(),
+                'default_context' => [
+                    'shop_id' => $context['shop_id'],
+                    'godown_id' => $context['godown_id'],
+                    'financial_year_id' => $context['financial_year_id'],
+                ],
+                'redirect' => route('admin.dashboard'),
+            ]);
+        }
+
         return redirect()->intended(route('admin.dashboard'));
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request): JsonResponse|RedirectResponse
     {
         $this->logAttempt($request, 'logout', $request->user());
         LoginHistory::query()
@@ -94,6 +118,12 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($request->expectsJson()) {
+            return ResponseHelper::success('Logged out successfully.', [
+                'redirect' => route('admin.auth.index'),
+            ]);
+        }
 
         return redirect()->route('admin.auth.index');
     }

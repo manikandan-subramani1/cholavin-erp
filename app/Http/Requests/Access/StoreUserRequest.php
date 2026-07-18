@@ -28,6 +28,8 @@ class StoreUserRequest extends FormRequest
             'shops.*' => ['integer', Rule::exists('shops', 'id')->where('is_active', true)],
             'godowns' => ['nullable', 'array'],
             'godowns.*' => ['integer', Rule::exists('godowns', 'id')->where('is_active', true)],
+            'financial_years' => ['nullable', 'array'],
+            'financial_years.*' => ['integer', Rule::exists('reference_masters', 'id')->where('type', 'financial_year')->where('is_active', true)],
         ];
     }
 
@@ -36,9 +38,11 @@ class StoreUserRequest extends FormRequest
         return [function (Validator $validator): void {
             $shopIds = collect($this->input('shops', []))->map(fn ($id) => (int) $id);
             $invalid = Godown::query()
+                ->with('shops:id')
                 ->whereIn('id', $this->input('godowns', []))
-                ->whereNotIn('shop_id', $shopIds)
-                ->exists();
+                ->get(['id', 'shop_id'])
+                ->contains(fn (Godown $godown) => ! $shopIds->contains((int) $godown->shop_id)
+                    && $godown->shops->pluck('id')->intersect($shopIds)->isEmpty());
 
             if ($invalid) {
                 $validator->errors()->add('godowns', 'Every selected godown must belong to an assigned shop.');

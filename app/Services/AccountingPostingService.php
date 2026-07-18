@@ -27,6 +27,7 @@ class AccountingPostingService
 
         return $this->post(
             shopId: $document->shop_id,
+            financialYearId: $document->financial_year_id,
             type: 'system_document',
             date: $document->document_date,
             reference: $document->number,
@@ -54,6 +55,7 @@ class AccountingPostingService
 
         return $this->post(
             shopId: $payment->shop_id,
+            financialYearId: $payment->financial_year_id,
             type: 'system_payment',
             date: $payment->payment_date,
             reference: $payment->number,
@@ -67,9 +69,9 @@ class AccountingPostingService
         );
     }
 
-    private function post(int $shopId, string $type, mixed $date, string $reference, string $narration, string $sourceType, int $sourceId, string $debitCode, string $creditCode, float $amount, ?int $partyId): Voucher
+    private function post(int $shopId, ?int $financialYearId, string $type, mixed $date, string $reference, string $narration, string $sourceType, int $sourceId, string $debitCode, string $creditCode, float $amount, ?int $partyId): Voucher
     {
-        return DB::transaction(function () use ($shopId, $type, $date, $reference, $narration, $sourceType, $sourceId, $debitCode, $creditCode, $amount, $partyId) {
+        return DB::transaction(function () use ($shopId, $financialYearId, $type, $date, $reference, $narration, $sourceType, $sourceId, $debitCode, $creditCode, $amount, $partyId) {
             $existing = Voucher::query()->where('source_type', $sourceType)->where('source_id', $sourceId)->first();
             if ($existing) {
                 return $existing;
@@ -87,6 +89,7 @@ class AccountingPostingService
             $next = (int) Voucher::query()->where('shop_id', $shopId)->lockForUpdate()->max('id') + 1;
             $voucher = Voucher::create([
                 'shop_id' => $shopId,
+                'financial_year_id' => $financialYearId,
                 'type' => $type,
                 'number' => 'AUTO-'.now()->format('ym').'-'.str_pad((string) $next, 6, '0', STR_PAD_LEFT),
                 'voucher_date' => $date,

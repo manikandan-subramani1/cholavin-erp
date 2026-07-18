@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\PasswordResetNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -69,6 +70,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Godown::class)->withPivot(['is_default', 'is_active', 'created_by']);
     }
 
+    public function financialYears()
+    {
+        return $this->belongsToMany(ReferenceMaster::class, 'financial_year_user', 'user_id', 'financial_year_id')
+            ->where('reference_masters.type', 'financial_year')
+            ->withPivot(['is_default', 'is_active', 'created_by'])
+            ->withTimestamps();
+    }
+
     public function permissions()
     {
         return $this->belongsToMany(Permission::class)->withPivot('allowed')->withTimestamps();
@@ -82,6 +91,11 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         return (bool) $this->role?->is_super_admin;
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new PasswordResetNotification($token));
     }
 
     public function hasPermission(string $code): bool

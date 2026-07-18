@@ -1,8 +1,10 @@
-(function (window, document) {
+(function (window, $) {
     'use strict';
 
-    var shell = null;
-    var frame = null;
+    if (!$) return;
+
+    var $shell = $();
+    var $frame = $();
     var entryUrl = window.location.href;
     var messageType = 'cholavin:persistent-fullscreen-exit';
 
@@ -12,43 +14,39 @@
 
     function exitFullscreen() {
         var exit = document.exitFullscreen || document.webkitExitFullscreen;
-        if (exit && fullscreenElement()) {
-            exit.call(document);
-        }
+        if (exit && fullscreenElement()) exit.call(document);
     }
 
     function currentFrameUrl() {
         try {
-            return frame?.contentWindow?.location?.href || entryUrl;
+            return $frame.get(0)?.contentWindow?.location?.href || entryUrl;
         } catch (error) {
             return entryUrl;
         }
     }
 
     function removeShellAndSynchronizeRoute() {
-        if (!shell) return;
+        if (!$shell.length) return;
 
         var targetUrl = currentFrameUrl();
-        shell.remove();
-        shell = null;
-        frame = null;
-        document.body.classList.remove('fullscreen-enable');
+        $shell.remove();
+        $shell = $();
+        $frame = $();
+        $('body').removeClass('fullscreen-enable');
 
-        if (targetUrl !== entryUrl) {
-            window.location.assign(targetUrl);
-        }
+        if (targetUrl !== entryUrl) window.location.assign(targetUrl);
     }
 
     function enterPersistentFullscreen() {
-        if (shell) return;
+        if ($shell.length) return;
 
         entryUrl = window.location.href;
-        shell = document.createElement('div');
-        shell.id = 'erp-persistent-fullscreen-shell';
-        shell.setAttribute('aria-label', 'Cholavin ERP fullscreen workspace');
-        var brandLogo = document.querySelector('.erp-brand-logo')?.src
-            || '/frontend/assets/img/logo/logo-hm62.png';
-        shell.innerHTML = [
+        var brandLogo = $('.erp-brand-logo').first().attr('src') || '/frontend/assets/img/logo/logo-hm62.png';
+
+        $shell = $('<div>', {
+            id: 'erp-persistent-fullscreen-shell',
+            'aria-label': 'Cholavin ERP fullscreen workspace'
+        }).html([
             '<div class="erp-fullscreen-loader" role="status">',
             '<div class="loading-container">',
             '<div class="loading" aria-hidden="true"></div>',
@@ -57,33 +55,29 @@
             '<span class="loading-shape shape-two" aria-hidden="true"></span>',
             '<span class="loading-shape shape-three" aria-hidden="true"></span>',
             '</div>',
-            '<div class="loading-copy">',
-            '<span class="loading-label">Loading</span>',
-            '<h2>Cholavin</h2>',
-            '</div>',
+            '<div class="loading-copy"><span class="loading-label">Loading</span><h2>Cholavin</h2></div>',
             '</div>',
             '<iframe class="erp-fullscreen-frame" title="Cholavin ERP workspace"></iframe>'
-        ].join('');
-        shell.querySelector('.loading-icon img').src = brandLogo;
+        ].join(''));
 
-        frame = shell.querySelector('.erp-fullscreen-frame');
-        frame.addEventListener('load', function () {
-            shell?.classList.add('is-ready');
-        });
-        frame.src = entryUrl;
-        document.body.appendChild(shell);
+        $shell.find('.loading-icon img').attr('src', brandLogo);
+        $frame = $shell.find('.erp-fullscreen-frame').one('load', function () {
+            $shell.addClass('is-ready');
+        }).attr('src', entryUrl);
+        $shell.appendTo('body');
 
-        var request = shell.requestFullscreen || shell.webkitRequestFullscreen;
+        var shellElement = $shell.get(0);
+        var request = shellElement.requestFullscreen || shellElement.webkitRequestFullscreen;
         if (!request) {
-            shell.remove();
-            shell = null;
-            frame = null;
+            $shell.remove();
+            $shell = $();
+            $frame = $();
             window.toastr?.error('Fullscreen mode is not supported by this browser.');
             return;
         }
 
-        document.body.classList.add('fullscreen-enable');
-        var result = request.call(shell);
+        $('body').addClass('fullscreen-enable');
+        var result = request.call(shellElement);
         if (result && typeof result.catch === 'function') {
             result.catch(function () {
                 removeShellAndSynchronizeRoute();
@@ -92,47 +86,43 @@
         }
     }
 
-    if (window.self !== window.top) {
-        var embeddedToggle = document.querySelector('[data-toggle="fullscreen"]');
-        var embeddedIcon = embeddedToggle?.querySelector('i');
-        embeddedToggle?.setAttribute('aria-label', 'Exit fullscreen workspace');
-        embeddedToggle?.setAttribute('title', 'Exit fullscreen workspace');
-        embeddedIcon?.classList.replace('bx-fullscreen', 'bx-exit-fullscreen');
-    }
-
-    document.addEventListener('click', function (event) {
-        var button = event.target.closest('[data-toggle="fullscreen"]');
-        if (!button) return;
-
+    function handleToggle(event) {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
 
         if (window.self !== window.top) {
             window.top.postMessage({type: messageType}, window.location.origin);
-            return;
-        }
-
-        if (shell || fullscreenElement()) {
+        } else if ($shell.length || fullscreenElement()) {
             exitFullscreen();
-            return;
+        } else {
+            enterPersistentFullscreen();
         }
+    }
 
-        enterPersistentFullscreen();
-    }, true);
+    function bindToggles() {
+        var $toggles = $('[data-toggle="fullscreen"]');
+        $toggles.off('click.cholavinFullscreen').on('click.cholavinFullscreen', handleToggle);
+
+        if (window.self !== window.top) {
+            $toggles.attr({
+                'aria-label': 'Exit fullscreen workspace',
+                title: 'Exit fullscreen workspace'
+            }).find('i').removeClass('bx-fullscreen').addClass('bx-exit-fullscreen');
+        }
+    }
+
+    bindToggles();
+    $(document).on('cholavin:page-loaded.cholavinFullscreen', bindToggles);
 
     if (window.self === window.top) {
-        window.addEventListener('message', function (event) {
-            if (event.origin === window.location.origin && event.data?.type === messageType) {
-                exitFullscreen();
-            }
+        $(window).on('message.cholavinFullscreen', function (event) {
+            var original = event.originalEvent;
+            if (original.origin === window.location.origin && original.data?.type === messageType) exitFullscreen();
         });
 
-        document.addEventListener('fullscreenchange', function () {
-            if (!fullscreenElement()) removeShellAndSynchronizeRoute();
-        });
-        document.addEventListener('webkitfullscreenchange', function () {
+        $(document).on('fullscreenchange.cholavinFullscreen webkitfullscreenchange.cholavinFullscreen', function () {
             if (!fullscreenElement()) removeShellAndSynchronizeRoute();
         });
     }
-})(window, document);
+})(window, window.jQuery);

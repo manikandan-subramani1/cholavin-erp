@@ -25,6 +25,6 @@ class Shop extends Model
 
     public function linkedGodowns()
     {
-        return $this->belongsToMany(Godown::class)->withTimestamps();
+        return $this->belongsToMany(Godown::class, 'shop_godown')->withTimestamps();
     }
 }

@@ -1,201 +1,25 @@
 @extends('backend.layouts.app')
 @section('title', 'Delivery Management | Cholavin ERP')
 @section('content')
-    <div class="page-title-box d-flex justify-content-between">
-        <div><span class="erp-eyebrow">Delivery Management</span>
-            <h4>Assignments and Status</h4>
-        </div>
-        @can('deliveries.create')
-            <button id="add-delivery" class="btn btn-primary">Assign Delivery</button>
-        @endcan
+<div id="deliveries-module" data-index-url="{{ route('admin.deliveries.index') }}" data-store-url="{{ route('admin.deliveries.store') }}" data-pdf-url="{{ route('admin.deliveries.pdf') }}">
+    <div class="card erp-panel mb-3"><div class="card-body d-flex justify-content-between align-items-center gap-3"><div><span class="erp-eyebrow">Delivery Management</span><h4 class="mb-0">Assignments and Status</h4></div><div>@can('deliveries.export')<button id="deliveries-pdf" class="btn btn-secondary" type="button"><i class="ri-file-pdf-2-line me-1"></i>PDF</button>@endcan @can('deliveries.create')<button id="add-delivery" class="btn btn-primary" type="button">Assign Delivery</button>@endcan</div></div></div>
+    <div class="erp-module-kpis" data-module-summary-root>
+        <article><i class="ri-truck-line"></i><span><small>Total Deliveries</small><strong data-summary-key="records" data-summary-format="number">{{ number_format($deliverySummary['records']) }}</strong><em>Filtered assignments</em></span></article>
+        <article><i class="ri-time-line"></i><span><small>Pending</small><strong data-summary-key="pending" data-summary-format="number">{{ number_format($deliverySummary['pending']) }}</strong><em>Pending and assigned</em></span></article>
+        <article><i class="ri-road-map-line"></i><span><small>Out for Delivery</small><strong data-summary-key="in_transit" data-summary-format="number">{{ number_format($deliverySummary['in_transit']) }}</strong><em>Currently in transit</em></span></article>
+        <article><i class="ri-checkbox-circle-line"></i><span><small>Delivered</small><strong data-summary-key="delivered" data-summary-format="number">{{ number_format($deliverySummary['delivered']) }}</strong><em>Successfully completed</em></span></article>
     </div>
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-3"><label class="form-label">Status</label><select id="delivery-status-filter"
-                        class="form-select">
-                        <option value="">All</option>
-                        @foreach (['pending', 'assigned', 'out_for_delivery', 'delivered', 'failed', 'returned'] as $status)
-                            <option value="{{ $status }}">{{ str($status)->replace('_', ' ')->title() }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body table-responsive">
-            <table id="deliveries-table" class="table w-100">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Document</th>
-                        <th>Party</th>
-                        <th>Vehicle</th>
-                        <th>Driver</th>
-                        <th>Route</th>
-                        <th>Scheduled</th>
-                        <th>Cash</th>
-                        <th>Expense</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-    <div id="delivery-modal" class="modal fade">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form id="delivery-form" action="{{ route('admin.deliveries.store') }}" method="POST"
-                    enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="_method" value="POST">
-                    <div class="modal-header">
-                        <h5>Delivery Assignment</h5><button class="btn-close" type="button"
-                            data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label">Sales Document ID</label><input
-                                    name="commercial_document_id" type="number" class="form-control" required></div>
-                            <div class="col-md-6"><label class="form-label">Scheduled At</label><input name="scheduled_at"
-                                    type="datetime-local" class="form-control"></div>
-                            <div class="col-md-4"><label class="form-label">Vehicle</label><select name="vehicle_id"
-                                    class="form-select">
-                                    <option value="">None</option>
-                                    @foreach ($vehicles as $item)
-                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-4"><label class="form-label">Driver</label><select name="driver_id"
-                                    class="form-select">
-                                    <option value="">None</option>
-                                    @foreach ($drivers as $item)
-                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-4"><label class="form-label">Route</label><select name="route_id"
-                                    class="form-select">
-                                    <option value="">None</option>
-                                    @foreach ($routes as $item)
-                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-4"><label class="form-label">Status</label><select name="status"
-                                    class="form-select">
-                                    @foreach (['pending', 'assigned', 'out_for_delivery', 'delivered', 'failed', 'returned'] as $status)
-                                        <option value="{{ $status }}">{{ str($status)->replace('_', ' ')->title() }}
-                                        </option>
-                                    @endforeach
-                                </select></div>
-                            <div class="col-md-4"><label class="form-label">Cash Collected</label><input
-                                    name="cash_collected" type="number" min="0" step="0.01" value="0"
-                                    class="form-control"></div>
-                            <div class="col-md-4"><label class="form-label">Delivery Expense</label><input
-                                    name="delivery_expense" type="number" min="0" step="0.01" value="0"
-                                    class="form-control"></div>
-                            <div class="col-md-6"><label class="form-label">Proof of Delivery</label><input name="proof"
-                                    type="file" accept="image/jpeg,image/png,image/webp,application/pdf"
-                                    class="form-control"><small class="text-muted">JPG, PNG, WebP or PDF; max 5 MB.</small>
-                            </div>
-                            <div class="col-md-6"><label class="form-label">Notes</label>
-                                <textarea name="notes" class="form-control" rows="2"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer"><button type="button" class="btn btn-secondary"
-                            data-bs-dismiss="modal">Cancel</button><button class="btn btn-success">Save</button></div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <div class="accordion mb-3" id="delivery-filter-accordion"><div class="accordion-item erp-panel"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#delivery-filter-panel"><i class="ri-filter-3-line me-2"></i>Filters</button></h2><div id="delivery-filter-panel" class="accordion-collapse collapse"><div class="accordion-body"><form id="delivery-filters" class="row g-3">
+        <div class="col-lg-3"><label class="form-label" for="delivery-search">Search</label><input id="delivery-search" class="form-control" type="search" placeholder="Document or party"></div><div class="col-lg-2"><label class="form-label" for="delivery-status-filter">Status</label><select id="delivery-status-filter" class="form-select"><option value="">All</option>@foreach(['pending','assigned','out_for_delivery','delivered','failed','returned'] as $status)<option value="{{ $status }}">{{ str($status)->replace('_',' ')->title() }}</option>@endforeach</select></div>
+        <div class="col-lg-2"><label class="form-label" for="delivery-vehicle-filter">Vehicle</label><select id="delivery-vehicle-filter" class="form-select"><option value="">All</option>@foreach($vehicles as $item)<option value="{{ $item->id }}">{{ $item->name }}</option>@endforeach</select></div><div class="col-lg-2"><label class="form-label" for="delivery-driver-filter">Driver</label><select id="delivery-driver-filter" class="form-select"><option value="">All</option>@foreach($drivers as $item)<option value="{{ $item->id }}">{{ $item->name }}</option>@endforeach</select></div><div class="col-lg-1"><label class="form-label" for="delivery-from-filter">From</label><input id="delivery-from-filter" type="date" class="form-control"></div><div class="col-lg-1"><label class="form-label" for="delivery-to-filter">To</label><input id="delivery-to-filter" type="date" class="form-control"></div><div class="col-lg-1 align-self-end"><button id="reset-delivery-filters" class="btn btn-secondary w-100" type="button"><i class="ri-refresh-line"></i></button></div>
+    </form></div></div></div></div>
+    <div class="card erp-panel"><div class="card-body table-responsive"><table id="deliveries-table" class="table table-hover align-middle w-100"><thead><tr><th>S.No</th><th>Document</th><th>Party</th><th>Vehicle</th><th>Driver</th><th>Route</th><th>Scheduled</th><th>Cash</th><th>Expense</th><th>Status</th><th>Action</th></tr></thead></table></div></div>
+    <div id="delivery-modal" class="modal fade erp-form-modal" tabindex="-1" aria-labelledby="delivery-modal-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-sm-down"><div class="modal-content"><div class="modal-header"><div><span class="erp-eyebrow">Delivery workflow</span><h5 id="delivery-modal-title" class="modal-title">Delivery Assignment</h5></div><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button></div><form id="delivery-form" action="{{ route('admin.deliveries.store') }}" method="POST" enctype="multipart/form-data" novalidate>@csrf<input name="_method" type="hidden" value="POST"><div class="modal-body"><div class="row g-3">
+        <div class="col-12 form-group"><label class="form-label">Sales document <span class="text-danger">*</span></label><select name="commercial_document_id" class="form-select"><option value="">Select</option>@foreach($documents as $document)<option value="{{ $document->id }}">{{ $document->number }}</option>@endforeach</select></div><div class="col-md-6 form-group"><label class="form-label">Scheduled at</label><input name="scheduled_at" type="datetime-local" class="form-control"></div>
+        <div class="col-md-6 form-group"><label class="form-label">Status</label><select name="status" class="form-select">@foreach(['pending','assigned','out_for_delivery','delivered','failed','returned'] as $status)<option value="{{ $status }}">{{ str($status)->replace('_',' ')->title() }}</option>@endforeach</select></div>
+        <div class="col-md-4 form-group"><label class="form-label">Vehicle</label><select name="vehicle_id" class="form-select"><option value="">None</option>@foreach($vehicles as $item)<option value="{{ $item->id }}">{{ $item->name }}</option>@endforeach</select></div><div class="col-md-4 form-group"><label class="form-label">Driver</label><select name="driver_id" class="form-select"><option value="">None</option>@foreach($drivers as $item)<option value="{{ $item->id }}">{{ $item->name }}</option>@endforeach</select></div><div class="col-md-4 form-group"><label class="form-label">Route</label><select name="route_id" class="form-select"><option value="">None</option>@foreach($routes as $item)<option value="{{ $item->id }}">{{ $item->name }}</option>@endforeach</select></div>
+        <div class="col-md-6 form-group"><label class="form-label">Cash collected</label><input name="cash_collected" type="number" min="0" step="0.01" value="0" class="form-control"></div><div class="col-md-6 form-group"><label class="form-label">Delivery expense</label><input name="delivery_expense" type="number" min="0" step="0.01" value="0" class="form-control"></div><div class="col-12 form-group"><label class="form-label">Proof of delivery</label><input name="proof" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" class="form-control"></div><div class="col-12 form-group"><label class="form-label">Notes</label><textarea name="notes" class="form-control" rows="3"></textarea></div>
+    </div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Delivery</button></div></form></div></div></div>
+</div>
 @endsection
-@push('scripts')
-    <script>
-        $(function() {
-            const base = @json(route('admin.deliveries.index'));
-            const modal = new bootstrap.Modal('#delivery-modal');
-            const table = initializeDataTable({
-                selector: '#deliveries-table',
-                url: base,
-                filters: () => ({
-                    status: $('#delivery-status-filter').val()
-                }),
-                columns: [{
-                    data: 'DT_RowIndex',
-                    orderable: false,
-                    searchable: false
-                }, {
-                    data: 'document_number'
-                }, {
-                    data: 'party_name',
-                    defaultContent: '-'
-                }, {
-                    data: 'vehicle.name',
-                    defaultContent: '-'
-                }, {
-                    data: 'driver.name',
-                    defaultContent: '-'
-                }, {
-                    data: 'route.name',
-                    defaultContent: '-'
-                }, {
-                    data: 'scheduled_at',
-                    defaultContent: '-'
-                }, {
-                    data: 'cash_collected'
-                }, {
-                    data: 'delivery_expense'
-                }, {
-                    data: 'status'
-                }, {
-                    data: 'action',
-                    orderable: false,
-                    searchable: false
-                }]
-            });
-
-            function reset() {
-                const form = document.getElementById('delivery-form');
-                form.reset();
-                form.action = base;
-                form._method.value = 'POST';
-            }
-            $('#add-delivery').on('click', () => {
-                reset();
-                modal.show();
-            });
-            $('#delivery-status-filter').on('change', () => table.ajax.reload());
-            $(document).on('click', '.edit-delivery', function() {
-                $.get(base + '/' + this.dataset.id).then(response => {
-                    reset();
-                    const data = response.data;
-                    const form = document.getElementById('delivery-form');
-                    form.action = base + '/' + data.id;
-                    form._method.value = 'PUT';
-                    ['commercial_document_id', 'vehicle_id', 'driver_id', 'route_id', 'status',
-                        'scheduled_at', 'cash_collected', 'delivery_expense', 'notes'
-                    ].forEach(key => $('[name="' + key + '"]').val(data[key] !== null && data[
-                        key] !== undefined ? String(data[key]).substring(0, 16) : ''));
-                    modal.show();
-                });
-            });
-            $('#delivery-form').validate({
-                rules: {
-                    proof: {
-                        extension: 'jpg|jpeg|png|webp|pdf'
-                    }
-                },
-                submitHandler: form => submitFormUsingAjax(form, {
-                    reset: false,
-                    table: '#deliveries-table',
-                    onSuccess: () => modal.hide()
-                })
-            });
-        });
-    </script>
-@endpush
+@push('scripts')<script src="{{ asset('backend/assets/js/modules/deliveries.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/deliveries.js')) }}"></script>@endpush

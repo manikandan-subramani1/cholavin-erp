@@ -10,6 +10,35 @@ use Illuminate\Support\Facades\DB;
 
 class PartyService
 {
+    public function metrics(string $type): array
+    {
+        $rows = $this->filteredQuery($type, new Request)->get();
+        [$positiveTypes, , $paymentType] = $this->balanceTypes($type);
+        $partyIds = $rows->modelKeys();
+        $outstanding = $rows->sum(function (Party $party) use ($type) {
+            $opening = (float) $party->opening_balance * ($party->balance_type === ($type === 'customer' ? 'receivable' : 'payable') ? 1 : -1);
+
+            return $opening + (float) $party->positive_balance - (float) $party->negative_balance - (float) $party->unallocated_payments;
+        });
+
+        $documents = DB::table('commercial_documents')
+            ->whereIn('party_id', $partyIds ?: [0])
+            ->where('status', 'posted')
+            ->whereIn('type', $positiveTypes);
+        $payments = DB::table('payments')
+            ->whereIn('party_id', $partyIds ?: [0])
+            ->where('type', $paymentType);
+
+        return [
+            'total' => $rows->count(),
+            'active' => $rows->where('is_active', true)->count(),
+            'outstanding' => round((float) $outstanding, 2),
+            'overdue' => round((float) (clone $documents)->whereDate('due_date', '<', today())->where('balance_amount', '>', 0)->sum('balance_amount'), 2),
+            'business_month' => round((float) (clone $documents)->whereBetween('document_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])->sum('total_amount'), 2),
+            'payments_month' => round((float) (clone $payments)->whereBetween('payment_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])->sum('amount'), 2),
+        ];
+    }
+
     public function filteredQuery(string $type, Request $request): Builder
     {
         $search = is_array($request->input('search')) ? data_get($request->input('search'), 'value') : $request->input('search');

@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Backend;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Models\CommercialDocument;
+use App\Models\Delivery;
+use App\Models\InventoryBalance;
+use App\Models\StockTransfer;
 use App\Models\UserNotification;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
@@ -22,17 +26,59 @@ class NotificationController extends Controller
                 ->where(fn ($query) => $query->whereNull('user_id')->orWhere('user_id', $request->user()->id))
                 ->where(fn ($query) => $query->whereNull('shop_id')->orWhere('shop_id', session('active_shop_id')))
                 ->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))
+                ->when($request->filled('read_status'), fn ($query) => $request->string('read_status')->toString() === 'read' ? $query->whereNotNull('read_at') : $query->whereNull('read_at'))
                 ->latest())
                 ->addIndexColumn()
                 ->editColumn('type', fn ($row) => str($row->type)->replace('_', ' ')->title())
                 ->editColumn('created_at', fn ($row) => $row->created_at->format('d-m-Y h:i A'))
-                ->addColumn('status', fn ($row) => $row->read_at ? 'Read' : 'Unread')
+                ->addColumn('record_status', fn ($row) => '<span class="badge '.($row->read_at ? 'bg-secondary-subtle text-secondary' : 'bg-warning-subtle text-warning').'">'.($row->read_at ? 'Read' : 'Unread').'</span>')
                 ->addColumn('action', fn ($row) => $row->read_at ? '' : '<button class="btn btn-sm btn-soft-primary mark-notification-read" data-url="'.route('admin.notifications.read', $row).'">Mark read</button>')
-                ->rawColumns(['action'])
+                ->rawColumns(['record_status', 'action'])
                 ->toJson();
         }
 
         return view('backend.notifications.index');
+    }
+
+    public function badges(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $counts = [
+            'low_stock' => $user->can('stock.view')
+                ? InventoryBalance::query()
+                    ->accessibleBy($user)
+                    ->join('products', 'products.id', '=', 'inventory_balances.product_id')
+                    ->whereColumn('inventory_balances.quantity', '<=', 'products.reorder_level')
+                    ->count()
+                : 0,
+            'pending_delivery' => $user->can('deliveries.view')
+                ? Delivery::query()
+                    ->forActiveShop()
+                    ->whereNotIn('status', ['delivered', 'returned', 'cancelled'])
+                    ->count()
+                : 0,
+            'overdue_payments' => $user->can('payments.view') || $user->can('accounts.view') || $user->can('reports.view')
+                ? CommercialDocument::query()
+                    ->accessibleBy($user)
+                    ->where('status', 'posted')
+                    ->where('balance_amount', '>', 0)
+                    ->whereDate('due_date', '<', today())
+                    ->count()
+                : 0,
+            'pending_approvals' => $user->can('stock.transfer')
+                ? StockTransfer::query()
+                    ->forActiveShop()
+                    ->whereIn('status', ['draft', 'requested', 'pending'])
+                    ->count()
+                : 0,
+        ];
+
+        return ResponseHelper::success('Sidebar badges loaded.', $counts, refresh: [
+            'datatable' => false,
+            'summary' => false,
+            'drawer' => false,
+        ]);
     }
 
     public function generate(Request $request, NotificationService $notifications): JsonResponse

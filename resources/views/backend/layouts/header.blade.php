@@ -1,643 +1,146 @@
- <header id="page-topbar">
+<a class="erp-skip-link" href="#erp-main-content">Skip to main content</a>
+
+<header id="page-topbar" class="erp-topbar">
     <div class="layout-width">
         <div class="navbar-header">
-            <div class="d-flex">
-                <!-- LOGO -->
+            <div class="erp-header-start">
                 <div class="navbar-brand-box horizontal-logo">
-                    <a href="{{ route('admin.dashboard') }}" class="logo logo-dark">
-                        <span class="logo-sm">
-                            <i class="ri-seedling-fill brand-glyph"></i>
-                        </span>
-                        <span class="logo-lg">
-                            <img class="erp-brand-logo" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="Brand logo">
-                        </span>
+                    <a href="{{ route('admin.dashboard') }}" class="logo logo-dark" aria-label="Cholavin ERP home">
+                        <span class="logo-sm"><img class="erp-brand-mark" src="{{ asset('frontend/assets/img/logo/favicon.png') }}" alt=""></span>
+                        <span class="logo-lg"><img class="erp-brand-logo" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}"></span>
                     </a>
-
-                    <a href="{{ route('admin.dashboard') }}" class="logo logo-light">
-                        <span class="logo-sm">
-                            <i class="ri-seedling-fill brand-glyph"></i>
-                        </span>
-                        <span class="logo-lg">
-                            <img class="erp-brand-logo" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="Brand logo">
-                        </span>
+                    <a href="{{ route('admin.dashboard') }}" class="logo logo-light" aria-label="Cholavin ERP home">
+                        <span class="logo-sm"><img class="erp-brand-mark" src="{{ asset('frontend/assets/img/logo/favicon.png') }}" alt=""></span>
+                        <span class="logo-lg"><img class="erp-brand-logo" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}"></span>
                     </a>
                 </div>
 
-                <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger material-shadow-none" id="topnav-hamburger-icon">
-                    <span class="hamburger-icon">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span>
+                <button type="button" class="erp-icon-button vertical-menu-btn topnav-hamburger" id="topnav-hamburger-icon" aria-label="Toggle navigation">
+                    <span class="hamburger-icon"><span></span><span></span><span></span></span>
                 </button>
 
-                <!-- App Search-->
-                <form class="app-search d-none d-md-block">
-                    <div class="position-relative">
-                        <input type="text" class="form-control" placeholder="Search modules and records" aria-label="Search modules and records" autocomplete="off" id="search-options" value="">
-                        <span class="mdi mdi-magnify search-widget-icon"></span>
-                        <span class="mdi mdi-close-circle search-widget-icon search-widget-icon-close d-none" id="search-close-options"></span>
-                    </div>
-                    <div class="dropdown-menu dropdown-menu-lg" id="search-dropdown">
-                        <div data-simplebar style="max-height: 320px;">
-                            <!-- item-->
-                            <div class="dropdown-header">
-                                <h6 class="text-overflow text-muted mb-0 text-uppercase">Recent Searches</h6>
-                            </div>
-
-                            <div class="dropdown-item bg-transparent text-wrap">
-                                <a href="index.html" class="btn btn-soft-secondary btn-sm rounded-pill">how to setup <i class="mdi mdi-magnify ms-1"></i></a>
-                                <a href="index.html" class="btn btn-soft-secondary btn-sm rounded-pill">buttons <i class="mdi mdi-magnify ms-1"></i></a>
-                            </div>
-                            <!-- item-->
-                            <div class="dropdown-header mt-2">
-                                <h6 class="text-overflow text-muted mb-1 text-uppercase">Pages</h6>
-                            </div>
-
-                            <!-- item-->
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                <i class="ri-bubble-chart-line align-middle fs-18 text-muted me-2"></i>
-                                <span>Analytics Dashboard</span>
-                            </a>
-
-                            <!-- item-->
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                <i class="ri-lifebuoy-line align-middle fs-18 text-muted me-2"></i>
-                                <span>Help Center</span>
-                            </a>
-
-                            <!-- item-->
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                <i class="ri-user-settings-line align-middle fs-18 text-muted me-2"></i>
-                                <span>My account settings</span>
-                            </a>
-
-                            <!-- item-->
-                            <div class="dropdown-header mt-2">
-                                <h6 class="text-overflow text-muted mb-2 text-uppercase">Members</h6>
-                            </div>
-
-                            <div class="notification-list">
-                                <!-- item -->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item py-2">
-                                    <div class="d-flex">
-                                        <img src="{{ asset('backend/assets/images/users/avatar-2.jpg') }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                        <div class="flex-grow-1">
-                                            <h6 class="m-0">Angela Bernier</h6>
-                                            <span class="fs-11 mb-0 text-muted">Manager</span>
-                                        </div>
-                                    </div>
-                                </a>
-                                <!-- item -->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item py-2">
-                                    <div class="d-flex">
-                                        <img src="{{ asset('backend/assets/images/users/avatar-3.jpg') }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                        <div class="flex-grow-1">
-                                            <h6 class="m-0">David Grasso</h6>
-                                            <span class="fs-11 mb-0 text-muted">Web Designer</span>
-                                        </div>
-                                    </div>
-                                </a>
-                                <!-- item -->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item py-2">
-                                    <div class="d-flex">
-                                        <img src="{{ asset('backend/assets/images/users/avatar-5.jpg') }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                        <div class="flex-grow-1">
-                                            <h6 class="m-0">Mike Bunch</h6>
-                                            <span class="fs-11 mb-0 text-muted">React Developer</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="text-center pt-3 pb-1">
-                            <a href="pages-search-results.html" class="btn btn-primary btn-sm">View All Results <i class="ri-arrow-right-line ms-1"></i></a>
+                <form class="erp-global-search" id="global-search-form" data-search-url="{{ route('admin.global-search') }}" role="search">
+                    <i class="ri-search-line" aria-hidden="true"></i>
+                    <input type="search" placeholder="Search customers, products, invoices…" aria-label="Search modules and records" autocomplete="off" id="search-options">
+                    <kbd class="erp-search-shortcut">/</kbd>
+                    <button class="erp-search-clear d-none" id="search-close-options" type="button" aria-label="Clear search"><i class="ri-close-circle-fill"></i></button>
+                    <div class="dropdown-menu p-0" id="search-dropdown" aria-live="polite">
+                        <div id="global-search-results" class="global-search-results">
+                            <div class="global-search-state"><i class="ri-search-line"></i><span>Enter at least 2 characters to search.</span></div>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <div class="d-flex align-items-center">
-
-                <div class="dropdown d-md-none topbar-head-dropdown header-item">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="bx bx-search fs-22"></i>
+            <div class="erp-header-actions">
+                <div class="dropdown">
+                    <button class="erp-quick-create-button" id="erp-quick-create-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-add-line"></i><span>Quick Create</span><i class="ri-arrow-down-s-line"></i>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-search-dropdown">
-                        <form class="p-3">
-                            <div class="form-group m-0">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
-                                    <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>  
-
-                <div class="dropdown topbar-head-dropdown ms-1 header-item erp-demo-cart">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="page-header-cart-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
-                        <i class='bx bx-shopping-bag fs-22'></i>
-                        <span class="position-absolute topbar-badge cartitem-badge fs-10 translate-middle badge rounded-pill bg-info">5</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-xl dropdown-menu-end p-0 dropdown-menu-cart" aria-labelledby="page-header-cart-dropdown">
-                        <div class="p-3 border-top-0 border-start-0 border-end-0 border-dashed border">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <h6 class="m-0 fs-16 fw-semibold"> My Cart</h6>
-                                </div>
-                                <div class="col-auto">
-                                    <span class="badge bg-warning-subtle text-warning fs-13"><span class="cartitem-badge">7</span>
-                                        items</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div data-simplebar style="max-height: 300px;">
-                            <div class="p-2">
-                                <div class="text-center empty-cart" id="empty-cart">
-                                    <div class="avatar-md mx-auto my-3">
-                                        <div class="avatar-title bg-info-subtle text-info fs-36 rounded-circle">
-                                            <i class='bx bx-cart'></i>
-                                        </div>
-                                    </div>
-                                    <h5 class="mb-3">Your Cart is Empty!</h5>
-                                    <a href="apps-ecommerce-products.html" class="btn btn-success w-md mb-3">Shop Now</a>
-                                </div>
-                                <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <img src="assets/images/products/img-1.png" class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mt-0 mb-1 fs-14">
-                                                <a href="apps-ecommerce-product-details.html" class="text-reset">Branded
-                                                    T-Shirts</a>
-                                            </h6>
-                                            <p class="mb-0 fs-12 text-muted">
-                                                Quantity: <span>10 x $32</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2">
-                                            <h5 class="m-0 fw-normal">$<span class="cart-item-price">320</span></h5>
-                                        </div>
-                                        <div class="ps-2">
-                                            <button type="button" class="btn btn-icon btn-sm btn-ghost-secondary remove-item-btn"><i class="ri-close-fill fs-16"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <img src="assets/images/products/img-2.png" class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mt-0 mb-1 fs-14">
-                                                <a href="apps-ecommerce-product-details.html" class="text-reset">Bentwood Chair</a>
-                                            </h6>
-                                            <p class="mb-0 fs-12 text-muted">
-                                                Quantity: <span>5 x $18</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2">
-                                            <h5 class="m-0 fw-normal">$<span class="cart-item-price">89</span></h5>
-                                        </div>
-                                        <div class="ps-2">
-                                            <button type="button" class="btn btn-icon btn-sm btn-ghost-secondary remove-item-btn"><i class="ri-close-fill fs-16"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <img src="assets/images/products/img-3.png" class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mt-0 mb-1 fs-14">
-                                                <a href="apps-ecommerce-product-details.html" class="text-reset">
-                                                    Borosil Paper Cup</a>
-                                            </h6>
-                                            <p class="mb-0 fs-12 text-muted">
-                                                Quantity: <span>3 x $250</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2">
-                                            <h5 class="m-0 fw-normal">$<span class="cart-item-price">750</span></h5>
-                                        </div>
-                                        <div class="ps-2">
-                                            <button type="button" class="btn btn-icon btn-sm btn-ghost-secondary remove-item-btn"><i class="ri-close-fill fs-16"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <img src="assets/images/products/img-6.png" class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mt-0 mb-1 fs-14">
-                                                <a href="apps-ecommerce-product-details.html" class="text-reset">Gray
-                                                    Styled T-Shirt</a>
-                                            </h6>
-                                            <p class="mb-0 fs-12 text-muted">
-                                                Quantity: <span>1 x $1250</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2">
-                                            <h5 class="m-0 fw-normal">$ <span class="cart-item-price">1250</span></h5>
-                                        </div>
-                                        <div class="ps-2">
-                                            <button type="button" class="btn btn-icon btn-sm btn-ghost-secondary remove-item-btn"><i class="ri-close-fill fs-16"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <img src="assets/images/products/img-5.png" class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mt-0 mb-1 fs-14">
-                                                <a href="apps-ecommerce-product-details.html" class="text-reset">Stillbird Helmet</a>
-                                            </h6>
-                                            <p class="mb-0 fs-12 text-muted">
-                                                Quantity: <span>2 x $495</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2">
-                                            <h5 class="m-0 fw-normal">$<span class="cart-item-price">990</span></h5>
-                                        </div>
-                                        <div class="ps-2">
-                                            <button type="button" class="btn btn-icon btn-sm btn-ghost-secondary remove-item-btn"><i class="ri-close-fill fs-16"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-3 border-bottom-0 border-start-0 border-end-0 border-dashed border" id="checkout-elem">
-                            <div class="d-flex justify-content-between align-items-center pb-3">
-                                <h5 class="m-0 text-muted">Total:</h5>
-                                <div class="px-2">
-                                    <h5 class="m-0" id="cart-item-total">$1258.58</h5>
-                                </div>
-                            </div>
-
-                            <a href="apps-ecommerce-checkout.html" class="btn btn-success text-center w-100">
-                                Checkout
-                            </a>
+                    <div class="dropdown-menu dropdown-menu-end erp-command-menu" aria-labelledby="erp-quick-create-toggle">
+                        <div class="erp-command-heading"><span>Quick Create</span><small>Start common work instantly</small></div>
+                        <div class="erp-command-grid">
+                            @can('sales-invoices.create')<a href="{{ route('admin.documents.index', 'sales-invoices') }}" class="erp-command-item is-sales"><i class="ri-receipt-line"></i><span>New Sale</span><kbd>Alt+S</kbd></a>@endcan
+                            @can('purchase-bills.create')<a href="{{ route('admin.documents.index', 'purchase-bills') }}" class="erp-command-item is-purchase"><i class="ri-shopping-cart-2-line"></i><span>New Purchase</span><kbd>Alt+P</kbd></a>@endcan
+                            @can('payments.create')<a href="{{ route('admin.payments.index', ['type' => 'customer_collection']) }}" class="erp-command-item is-customer"><i class="ri-hand-coin-line"></i><span>Payment In</span><kbd>Alt+R</kbd></a>@endcan
+                            @can('payments.create')<a href="{{ route('admin.payments.index', ['type' => 'supplier_payment']) }}" class="erp-command-item is-accounting"><i class="ri-refund-2-line"></i><span>Payment Out</span><kbd>Alt+O</kbd></a>@endcan
+                            @can('stock.transfer')<a href="{{ route('admin.stock-transfers.index') }}" class="erp-command-item is-inventory"><i class="ri-arrow-left-right-line"></i><span>Stock Transfer</span></a>@endcan
+                            @can('products.create')<a href="{{ route('admin.products.create') }}" class="erp-command-item is-inventory"><i class="ri-shopping-bag-3-line"></i><span>Product</span></a>@endcan
                         </div>
                     </div>
                 </div>
 
-                <div class="ms-1 header-item d-none d-sm-flex">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="erp-fullscreen-toggle" data-toggle="fullscreen" aria-label="Toggle persistent fullscreen workspace" title="Fullscreen workspace">
-                        <i class='bx bx-fullscreen fs-22'></i>
+                <button type="button" class="erp-icon-button d-lg-none" id="erp-context-mobile-toggle" aria-label="Open business context" title="Business context">
+                    <i class="ri-building-2-line"></i>
+                </button>
+
+                <div class="dropdown d-none d-md-block">
+                    <button type="button" class="erp-icon-button" id="erp-calculator-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Open calculator" title="Calculator">
+                        <i class="ri-calculator-line"></i>
                     </button>
-                </div>
-
-                <div class="ms-1 header-item d-none d-sm-flex">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle light-dark-mode">
-                        <i class='bx bx-moon fs-22'></i>
-                    </button>
-                </div>
-
-                <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
-                    <button type="button" class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
-                        <i class='bx bx-bell fs-22'></i>
-                        <span class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">3<span class="visually-hidden">unread messages</span></span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
-
-                        <div class="dropdown-head bg-primary bg-pattern rounded-top">
-                            <div class="p-3">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <h6 class="m-0 fs-16 fw-semibold text-white"> Notifications </h6>
-                                    </div>
-                                    <div class="col-auto dropdown-tabs">
-                                        <span class="badge bg-light text-body fs-13"> 4 New</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="px-2 pt-2">
-                                <ul class="nav nav-tabs dropdown-tabs nav-tabs-custom" data-dropdown-tabs="true" id="notificationItemsTab" role="tablist">
-                                    <li class="nav-item waves-effect waves-light">
-                                        <a class="nav-link active" data-bs-toggle="tab" href="#all-noti-tab" role="tab" aria-selected="true">
-                                            All (4)
-                                        </a>
-                                    </li>
-                                    <li class="nav-item waves-effect waves-light">
-                                        <a class="nav-link" data-bs-toggle="tab" href="#messages-tab" role="tab" aria-selected="false">
-                                            Messages
-                                        </a>
-                                    </li>
-                                    <li class="nav-item waves-effect waves-light">
-                                        <a class="nav-link" data-bs-toggle="tab" href="#alerts-tab" role="tab" aria-selected="false">
-                                            Alerts
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                        </div>
-
-                        <div class="tab-content position-relative" id="notificationItemsTabContent">
-                            <div class="tab-pane fade show active py-2 ps-2" id="all-noti-tab" role="tabpanel">
-                                <div data-simplebar style="max-height: 300px;" class="pe-2">
-                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3 flex-shrink-0">
-                                                <span class="avatar-title bg-info-subtle text-info rounded-circle fs-16">
-                                                    <i class="bx bx-badge-check"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-2 lh-base">Your <b>Elite</b> author Graphic
-                                                        Optimization <span class="text-secondary">reward</span> is
-                                                        ready!
-                                                    </h6>
-                                                </a>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> Just 30 sec ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="all-notification-check01">
-                                                    <label class="form-check-label" for="all-notification-check01"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-2.jpg" class="me-3 rounded-circle avatar-xs flex-shrink-0" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Angela Bernier</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">Answered to your comment on the cash flow forecast's
-                                                        graph 🔔.</p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 48 min ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="all-notification-check02">
-                                                    <label class="form-check-label" for="all-notification-check02"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3 flex-shrink-0">
-                                                <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-16">
-                                                    <i class='bx bx-message-square-dots'></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-2 fs-13 lh-base">You have received <b class="text-success">20</b> new messages in the conversation
-                                                    </h6>
-                                                </a>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 2 hrs ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="all-notification-check03">
-                                                    <label class="form-check-label" for="all-notification-check03"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-8.jpg" class="me-3 rounded-circle avatar-xs flex-shrink-0" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Maureen Gibson</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">We talked about a project on linkedin.</p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 4 hrs ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="all-notification-check04">
-                                                    <label class="form-check-label" for="all-notification-check04"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="my-3 text-center view-all">
-                                        <button type="button" class="btn btn-soft-success waves-effect waves-light">View
-                                            All Notifications <i class="ri-arrow-right-line align-middle"></i></button>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="tab-pane fade py-2 ps-2" id="messages-tab" role="tabpanel" aria-labelledby="messages-tab">
-                                <div data-simplebar style="max-height: 300px;" class="pe-2">
-                                    <div class="text-reset notification-item d-block dropdown-item">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-3.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">James Lemire</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">We talked about a project on linkedin.</p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 30 min ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="messages-notification-check01">
-                                                    <label class="form-check-label" for="messages-notification-check01"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-reset notification-item d-block dropdown-item">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-2.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Angela Bernier</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">Answered to your comment on the cash flow forecast's
-                                                        graph 🔔.</p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 2 hrs ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="messages-notification-check02">
-                                                    <label class="form-check-label" for="messages-notification-check02"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-reset notification-item d-block dropdown-item">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-6.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Kenneth Brown</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">Mentionned you in his comment on 📃 invoice #12501.
-                                                    </p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 10 hrs ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="messages-notification-check03">
-                                                    <label class="form-check-label" for="messages-notification-check03"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-reset notification-item d-block dropdown-item">
-                                        <div class="d-flex">
-                                            <img src="assets/images/users/avatar-8.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-grow-1">
-                                                <a href="#!" class="stretched-link">
-                                                    <h6 class="mt-0 mb-1 fs-13 fw-semibold">Maureen Gibson</h6>
-                                                </a>
-                                                <div class="fs-13 text-muted">
-                                                    <p class="mb-1">We talked about a project on linkedin.</p>
-                                                </div>
-                                                <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                                    <span><i class="mdi mdi-clock-outline"></i> 3 days ago</span>
-                                                </p>
-                                            </div>
-                                            <div class="px-2 fs-15">
-                                                <div class="form-check notification-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="messages-notification-check04">
-                                                    <label class="form-check-label" for="messages-notification-check04"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="my-3 text-center view-all">
-                                        <button type="button" class="btn btn-soft-success waves-effect waves-light">View
-                                            All Messages <i class="ri-arrow-right-line align-middle"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade p-4" id="alerts-tab" role="tabpanel" aria-labelledby="alerts-tab"></div>
-
-                            <div class="notification-actions" id="notification-actions">
-                                <div class="d-flex text-muted justify-content-center">
-                                    Select <div id="select-content" class="text-body fw-semibold px-1">0</div> Result <button type="button" class="btn btn-link link-danger p-0 ms-3" data-bs-toggle="modal" data-bs-target="#removeNotificationModal">Remove</button>
-                                </div>
-                            </div>
+                    <div class="dropdown-menu dropdown-menu-end erp-calculator" aria-labelledby="erp-calculator-toggle">
+                        <div class="erp-calculator-head"><span>Calculator</span><button type="button" data-calc-action="clear">Clear</button></div>
+                        <input id="erp-calculator-display" value="0" readonly aria-label="Calculator display">
+                        <div class="erp-calculator-grid">
+                            @foreach(['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+'] as $key)
+                                <button type="button" data-calc-key="{{ $key }}" class="{{ in_array($key, ['/', '*', '-', '+', '='], true) ? 'is-operator' : '' }}">{{ $key === '*' ? '×' : ($key === '/' ? '÷' : $key) }}</button>
+                            @endforeach
                         </div>
                     </div>
                 </div>
 
-                @if (($headerShops ?? collect())->isNotEmpty())
-                    <div class="header-item d-none d-lg-flex align-items-center erp-context-wrap">
-                        <div id="erp-business-context" class="d-flex align-items-center erp-context-form"
-                            data-switch-shop-url="{{ route('admin.location-context.switch-shop') }}"
-                            data-switch-godown-url="{{ route('admin.location-context.switch-godown') }}">
-                            <div class="erp-context-field erp-context-shop">
-                                <i class="ri-building-2-line erp-context-field-icon" aria-hidden="true"></i>
-                                <label for="header-shop-context" class="erp-context-label">Business location</label>
-                                <select id="header-shop-context" name="shop_id" class="form-select form-select-sm erp-context-select"
-                                    data-placeholder="Search business location"
-                                    data-can-switch="{{ auth()->user()->can('shops.switch') ? '1' : '0' }}"
-                                    @disabled(! auth()->user()->can('shops.switch') || $headerShops->count() <= 1)>
-                                    @foreach ($headerShops as $shop)
-                                        <option value="{{ $shop->id }}" @selected($activeShopId === $shop->id)>
-                                            #{{ $shop->id }} — {{ $shop->name }} ({{ $shop->code }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="erp-context-field erp-context-godown">
-                                <i class="ri-home-gear-line erp-context-field-icon" aria-hidden="true"></i>
-                                <label for="header-godown-context" class="erp-context-label">Inventory location</label>
-                                <select id="header-godown-context" name="godown_id" class="form-select form-select-sm erp-context-select"
-                                    data-placeholder="Search inventory location"
-                                    data-allow-clear="true"
-                                    data-can-switch="{{ auth()->user()->can('godowns.switch') ? '1' : '0' }}"
-                                    @disabled(! auth()->user()->can('godowns.switch') || $headerGodowns->count() <= 1)>
-                                    <option value="">All inventory locations</option>
-                                    @foreach ($headerGodowns as $godown)
-                                        <option value="{{ $godown->id }}" @selected($activeGodownId === $godown->id)>
-                                            #{{ $godown->id }} — {{ $godown->name }} ({{ $godown->code }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                @endif
+                <button type="button" class="erp-icon-button d-none d-sm-grid" id="erp-fullscreen-toggle" data-toggle="fullscreen" aria-label="Toggle fullscreen" title="Fullscreen"><i class="ri-fullscreen-line"></i></button>
+                <button type="button" class="erp-icon-button light-dark-mode d-none d-sm-grid" aria-label="Switch theme" title="Theme"><i class="ri-moon-line"></i></button>
 
-                <div class="dropdown ms-sm-3 header-item topbar-user">
-                    <button type="button" class="btn material-shadow-none" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="d-flex align-items-center">
-                            <img class="rounded-circle header-profile-user" src="{{ asset('backend/assets/images/users/avatar-1.jpg') }}" alt="Header Avatar">
-                            <span class="text-start ms-xl-2">
-                                <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{ auth()->user()->name ?? 'Guest' }}</span>
-                                <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">{{ auth()->user()->role?->name }}</span>
-                            </span>
-                        </span>
+                <div id="notificationDropdown" class="erp-notification-link">
+                    @can('notifications.view')
+                        <a href="{{ route('admin.notifications.index') }}" class="erp-icon-button" aria-label="Open notifications" title="Notifications"><i class="ri-notification-3-line"></i><span class="erp-notification-dot"></span></a>
+                    @endcan
+                </div>
+
+                <div class="dropdown erp-user-menu">
+                    <button type="button" class="erp-user-button" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="erp-user-avatar">{{ str(auth()->user()->name ?? 'U')->substr(0, 1)->upper() }}</span>
+                        <span class="erp-user-copy"><strong>{{ auth()->user()->name ?? 'User' }}</strong><small>{{ auth()->user()->role?->name }}</small></span>
+                        <i class="ri-arrow-down-s-line"></i>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <!-- item-->
-                        <h6 class="dropdown-header">Welcome {{ auth()->user()->name ?? 'Guest' }}!</h6>
-                        <form method="post" action="{{ route('admin.logout') }}">@csrf<button class="dropdown-item"><i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> Logout</button></form>
+                    <div class="dropdown-menu dropdown-menu-end erp-user-dropdown">
+                        <div class="erp-user-dropdown-head"><span class="erp-user-avatar">{{ str(auth()->user()->name ?? 'U')->substr(0, 1)->upper() }}</span><div><strong>{{ auth()->user()->name ?? 'User' }}</strong><small>{{ auth()->user()->email }}</small></div></div>
+                        @can('settings.view')<a class="dropdown-item" href="{{ route('admin.settings.index') }}"><i class="ri-settings-4-line"></i>Company Settings</a>@endcan
+                        @can('sessions.view')<a class="dropdown-item" href="{{ route('admin.sessions.index') }}"><i class="ri-device-line"></i>Active Sessions</a>@endcan
+                        <div class="dropdown-divider"></div>
+                        <form id="ajax-logout-form" method="post" action="{{ route('admin.logout') }}">@csrf<button class="dropdown-item text-danger" type="submit"><i class="ri-logout-box-r-line"></i>Logout</button></form>
                     </div>
                 </div>
             </div>
         </div>
+
+        @if (($headerGodowns ?? collect())->isNotEmpty() || ($headerShops ?? collect())->isNotEmpty() || ($headerFinancialYears ?? collect())->isNotEmpty())
+            <div class="erp-context-bar" id="erp-context-panel">
+                <div class="erp-context-bar-head d-lg-none"><div><span>Working Context</span><small>Choose where you are working</small></div><button id="erp-context-mobile-close" type="button" aria-label="Close context"><i class="ri-close-line"></i></button></div>
+                <div id="erp-business-context" class="erp-context-form"
+                    data-shops-url="{{ route('admin.location-context.shops') }}"
+                    data-switch-shop-url="{{ route('admin.location-context.switch-shop') }}"
+                    data-switch-godown-url="{{ route('admin.location-context.switch-godown') }}"
+                    data-switch-financial-year-url="{{ route('admin.location-context.switch-financial-year') }}">
+                    <div class="erp-context-field erp-context-shop">
+                        <i class="ri-store-2-line erp-context-field-icon"></i>
+                        <label for="header-shop-context" class="erp-context-label">Shop</label>
+                        <select id="header-shop-context" name="shop_id" class="form-select form-select-sm erp-context-select"
+                            data-placeholder="Search shop" data-allow-clear="{{ auth()->user()->isSuperAdmin() ? 'true' : 'false' }}"
+                            data-allow-all="{{ auth()->user()->isSuperAdmin() ? 'true' : 'false' }}" data-can-switch="{{ auth()->user()->can('shops.switch') ? '1' : '0' }}"
+                            @disabled(! auth()->user()->can('shops.switch') || $headerShops->count() <= 1)>
+                            @if(auth()->user()->isSuperAdmin() && !$activeGodownId)<option value="">All shops</option>@endif
+                            @foreach ($headerShops as $shop)<option value="{{ $shop->id }}" @selected($activeShopId === $shop->id)>#{{ $shop->id }} — {{ $shop->name }} ({{ $shop->code }})</option>@endforeach
+                        </select>
+                    </div>
+                    <div class="erp-context-field erp-context-godown">
+                        <i class="ri-home-gear-line erp-context-field-icon"></i>
+                        <label for="header-godown-context" class="erp-context-label">Godown</label>
+                        <select id="header-godown-context" name="godown_id" class="form-select form-select-sm erp-context-select"
+                            data-placeholder="Search godown" data-allow-clear="{{ auth()->user()->isSuperAdmin() ? 'true' : 'false' }}"
+                            data-can-switch="{{ auth()->user()->can('godowns.switch') ? '1' : '0' }}"
+                            @disabled(! auth()->user()->can('godowns.switch') || $headerGodowns->count() <= 1)>
+                            @if(auth()->user()->isSuperAdmin())<option value="">All godowns</option>@endif
+                            @foreach ($headerGodowns as $godown)<option value="{{ $godown->id }}" @selected($activeGodownId === $godown->id)>#{{ $godown->id }} — {{ $godown->name }} ({{ $godown->code }})</option>@endforeach
+                        </select>
+                    </div>
+                    @if (($headerFinancialYears ?? collect())->isNotEmpty())
+                        <div class="erp-context-field erp-context-financial-year">
+                            <i class="ri-calendar-2-line erp-context-field-icon"></i>
+                            <label for="header-financial-year-context" class="erp-context-label">Financial Year</label>
+                            <select id="header-financial-year-context" name="financial_year_id" class="form-select form-select-sm erp-context-select"
+                                data-placeholder="Select financial year" data-can-switch="{{ auth()->user()->can('financial-years.switch') ? '1' : '0' }}"
+                                @disabled(! auth()->user()->can('financial-years.switch') || $headerFinancialYears->count() <= 1)>
+                                @foreach ($headerFinancialYears as $financialYear)<option value="{{ $financialYear->id }}" @selected($activeFinancialYearId === $financialYear->id)>{{ $financialYear->name }} ({{ $financialYear->code }})</option>@endforeach
+                            </select>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
     </div>
 </header>
 
-<div id="removeNotificationModal" class="modal fade zoomIn" tabindex="-1" aria-labelledby="removeNotificationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 id="removeNotificationModalLabel" class="modal-title">Remove notifications</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center p-4">
-                <div class="avatar-lg mx-auto mb-3">
-                    <div class="avatar-title bg-danger-subtle text-danger rounded-circle fs-24">
-                        <i class="ri-notification-off-line"></i>
-                    </div>
-                </div>
-                <p class="text-muted mb-0">Remove the selected notifications from this list?</p>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button id="NotificationModalbtn-close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="delete-notification" type="button" class="btn btn-danger">Remove</button>
-            </div>
-        </div>
-    </div>
-</div>
+{{-- Retained for compatibility with the existing theme runtime; no demo notifications are rendered. --}}
+<div id="removeNotificationModal" class="modal fade" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body"></div></div></div></div>

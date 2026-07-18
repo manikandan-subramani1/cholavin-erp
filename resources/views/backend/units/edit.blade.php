@@ -2,7 +2,6 @@
 
 @php
     $module = json_decode('{"title":"Units","group":"Items","singular":"Unit","slug":"units","icon":"ri-ruler-2-line"}', true);
-    $fields = json_decode('[{"label":"Unit Name","name":"name","placeholder":"Kilogram","type":"text"},{"label":"Short Code","name":"code","placeholder":"KG","type":"text"},{"label":"Decimal Places","name":"decimal_places","placeholder":"3","type":"number"},{"label":"Base Unit","name":"base_unit","placeholder":"Gram","type":"text"},{"label":"Conversion Value","name":"conversion_value","placeholder":"1000","type":"number"},{"label":"Status","name":"status","options":["Active","Inactive"],"type":"select"}]', true);
     $editing = true;
 @endphp
 
@@ -14,35 +13,74 @@
         <div><span class="erp-eyebrow">{{ $module['group'] }}</span><h4 class="mb-0">{{ $editing ? 'Edit' : 'Create' }} {{ $module['singular'] }}</h4></div>
         <a href="{{ route('admin.units.index') }}" class="btn btn-secondary"><i class="ri-arrow-left-line me-1"></i>Back</a>
     </div>
-    <form action="{{ route('admin.units.update', $recordId) }}" method="POST" id="form-validate">
+    <form action="{{ route('admin.units.update', $recordId) }}" method="POST" id="form-validate" data-index-url="{{ route('admin.'.$module['slug'].'.index') }}">
         @csrf
         @if($editing) @method('PUT') @endif
         <div class="card-body">
             <div class="row gy-4">
-                @foreach($fields as $field)
-                    @php
-                        $name = $field['name'];
-                        $type = $field['type'] ?? 'text';
-                        $value = old($name, $values[$name] ?? ($name === 'status' ? 'Active' : ''));
-                        $required = !in_array($name, ['notes', 'description', 'footer_text', 'suffix', 'header_text', 'subject'], true);
-                    @endphp
-                    <div class="{{ $type === 'textarea' ? 'col-12' : 'col-xxl-3 col-md-6' }}">
-                        <div class="form-group">
-                            <label class="form-label" for="{{ $name }}">{{ $field['label'] }} @if($required)<span class="text-danger">*</span>@endif</label>
-                            @if($type === 'select')
-                                <select class="form-select" id="{{ $name }}" name="{{ $name }}">
-                                    <option value="">-- Select --</option>
-                                    @foreach($field['options'] ?? [] as $option)<option value="{{ $option }}" @selected((string)$value === (string)$option)>{{ $option }}</option>@endforeach
-                                </select>
-                            @elseif($type === 'textarea')
-                                <textarea class="form-control" id="{{ $name }}" name="{{ $name }}" rows="3" placeholder="{{ $field['placeholder'] ?? '' }}">{{ $value }}</textarea>
-                            @else
-                                <input class="form-control" id="{{ $name }}" name="{{ $name }}" type="{{ $type }}" value="{{ $value }}" placeholder="{{ $field['placeholder'] ?? '' }}">
-                            @endif
-                            @error($name)<div class="error text-danger">{{ $message }}</div>@enderror
-                        </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Unit Name <span class="text-danger">*</span></label>
+                        <input class="form-control reference-master-input name-field @error('name') is-invalid @enderror" id="name" name="name" type="text" value="{{ old('name', $values['name'] ?? '') }}" placeholder="Kilogram" maxlength="190" required>
+                        @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                @endforeach
+                </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="code">Short Code <span class="text-danger">*</span></label>
+                        <input class="form-control reference-master-input code-field @error('code') is-invalid @enderror" id="code" name="code" type="text" value="{{ old('code', $values['code'] ?? '') }}" placeholder="KG" maxlength="190" required>
+                        @error('code')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="decimal_places">Decimal Places <span class="text-danger">*</span></label>
+                        <input class="form-control reference-master-input decimal-places-field @error('decimal_places') is-invalid @enderror" id="decimal_places" name="decimal_places" type="number" value="{{ old('decimal_places', $values['decimal_places'] ?? '') }}" placeholder="3" min="0" step="any" required>
+                        @error('decimal_places')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="base_unit">Base Unit <span class="text-danger">*</span></label>
+                        <input class="form-control reference-master-input base-unit-field @error('base_unit') is-invalid @enderror" id="base_unit" name="base_unit" type="text" value="{{ old('base_unit', $values['base_unit'] ?? '') }}" placeholder="Gram" maxlength="190" required>
+                        @error('base_unit')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="conversion_value">Conversion Value <span class="text-danger">*</span></label>
+                        <input class="form-control reference-master-input conversion-value-field @error('conversion_value') is-invalid @enderror" id="conversion_value" name="conversion_value" type="number" value="{{ old('conversion_value', $values['conversion_value'] ?? '') }}" placeholder="1000" min="0" step="any" required>
+                        @error('conversion_value')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="form-group">
+                        <div id="status-label" class="form-label mb-0">Status <span class="text-danger">*</span></div>
+                        <div class="reference-status-options d-flex flex-wrap align-items-center gap-3 pt-2" role="radiogroup" aria-labelledby="status-label">
+                            <div class="form-check form-check-inline mb-0">
+                                <input class="form-check-input reference-master-input status-field @error('status') is-invalid @enderror" id="status_active" name="status" type="radio" value="Active" @checked((string) old('status', $values['status'] ?? 'Active') === 'Active') required>
+                                <label class="form-check-label" for="status_active">Active</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-0">
+                                <input class="form-check-input reference-master-input status-field @error('status') is-invalid @enderror" id="status_inactive" name="status" type="radio" value="Inactive" @checked((string) old('status', $values['status'] ?? 'Active') === 'Inactive')>
+                                <label class="form-check-label" for="status_inactive">Inactive</label>
+                            </div>
+                        </div>
+                        @error('status')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
             </div>
             <div class="mt-4 d-flex justify-content-end gap-2">
                 <a href="{{ route('admin.units.index') }}" class="btn btn-secondary">Cancel</a>
@@ -54,42 +92,5 @@
 @endsection
 
 @push('scripts')
-<script>
-$(document).ready(function () {
-    const rules = {};
-    @foreach($fields as $field)
-    @php
-        $clientRequired = ! in_array($field['name'], ['notes', 'description', 'footer_text', 'suffix', 'header_text', 'subject'], true);
-    @endphp
-    rules[@json($field['name'])] = {
-        required: @json($clientRequired),
-        @if(($field['type'] ?? 'text') === 'number') number: true, min: 0, @else maxlength: @json(($field['type'] ?? 'text') === 'textarea' ? 2000 : 190), @endif
-    };
-    @endforeach
-
-    $('#form-validate').validate({
-        ignore: [],
-        rules,
-        messages: {required: 'This field is required.'},
-        errorElement: 'span',
-        errorClass: 'error text-danger',
-        highlight: function (element) {
-            $(element).closest('.form-group').addClass('has-error');
-            $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element) {
-            $(element).closest('.form-group').removeClass('has-error');
-            $(element).removeClass('is-invalid');
-        },
-        submitHandler: function (form) {
-            submitFormUsingAjax(form, {
-                reset: false,
-                onSuccess: function (response) {
-                    window.location.assign(response.data.redirect);
-                }
-            });
-        }
-    });
-});
-</script>
+<script src="{{ asset('backend/assets/js/modules/reference-master-form.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/reference-master-form.js')) }}"></script>
 @endpush

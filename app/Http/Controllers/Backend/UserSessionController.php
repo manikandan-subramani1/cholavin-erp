@@ -25,6 +25,7 @@ class UserSessionController extends Controller
                 ->leftJoin('roles', 'roles.id', '=', 'users.role_id')
                 ->leftJoin('shops', 'shops.id', '=', 'sessions.active_shop_id')
                 ->leftJoin('godowns', 'godowns.id', '=', 'sessions.active_godown_id')
+                ->leftJoin('reference_masters as financial_years', 'financial_years.id', '=', 'sessions.active_financial_year_id')
                 ->select([
                     'sessions.id',
                     'sessions.user_id',
@@ -35,6 +36,7 @@ class UserSessionController extends Controller
                     'roles.name as role_name',
                     'shops.name as shop_name',
                     'godowns.name as godown_name',
+                    'financial_years.name as financial_year_name',
                 ])
                 ->when($request->filled('user_id'), fn ($query) => $query->where('sessions.user_id', $request->integer('user_id')))
                 ->when($request->filled('status'), function ($query) use ($request) {

@@ -12,7 +12,7 @@
 @section('content')
 <div class="row"><div class="col-12"><div class="page-title-box d-sm-flex align-items-center justify-content-between"><h4 class="mb-sm-0">{{ $product->exists ? 'Edit' : 'Add' }} Product</h4><a href="{{ route('admin.products.index') }}" class="btn btn-light"><i class="ri-arrow-left-line me-1"></i>Back</a></div></div></div>
 
-<form id="product-form" action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}" method="post" enctype="multipart/form-data">
+<form id="product-form" data-index-url="{{ route('admin.products.index') }}" action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}" method="post" enctype="multipart/form-data">
     @csrf
     @if($product->exists) @method('PUT') @endif
     <div class="card product-form-card">
@@ -37,7 +37,7 @@
                 <div class="col-lg-4">
                     <label class="form-label">Product Image</label>
                     <div class="mb-3"><img class="image-preview" id="imagePreview" src="{{ $product->exists ? $product->imageUrl() : asset('backend/assets/images/no-image.png') }}" alt="preview"></div>
-                    <input type="file" name="image" class="form-control" accept="image/*" onchange="document.getElementById('imagePreview').src = window.URL.createObjectURL(this.files[0])">
+                    <input id="product-image" type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
                     <div class="form-check form-switch mt-4"><input class="form-check-input" type="checkbox" name="is_active" value="1" id="is_active" @checked(old('is_active', $product->exists ? $product->is_active : true))><label class="form-check-label" for="is_active">Active on website</label></div>
                     <div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" name="show_on_homepage" value="1" id="show_on_homepage" @checked(old('show_on_homepage', $product->show_on_homepage))><label class="form-check-label" for="show_on_homepage">Show on homepage/index</label></div>
                 </div>
@@ -48,5 +48,5 @@
 </form>
 @endsection
 @push('scripts')
-<script>$(function(){$('#product-form').validate({rules:{name:{required:true,minlength:2,maxlength:190},price:{number:true,min:0},purchase_price:{number:true,min:0},sale_price:{number:true,min:0},opening_stock:{number:true,min:0},reorder_level:{number:true,min:0}},errorElement:'span',errorClass:'invalid-feedback',highlight:element=>$(element).addClass('is-invalid'),unhighlight:element=>$(element).removeClass('is-invalid'),submitHandler:form=>submitFormUsingAjax(form,{reset:false,onSuccess:()=>window.location.assign(@json(route('admin.products.index')))})});});</script>
+<script src="{{ asset('backend/assets/js/modules/products-form.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/products-form.js')) }}"></script>
 @endpush

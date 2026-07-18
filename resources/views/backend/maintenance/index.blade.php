@@ -9,8 +9,10 @@
             <button id="create-backup" class="btn btn-primary"><i class="ri-save-3-line me-1"></i>Create Backup</button>
         @endcan
     </div>
+    <div id="maintenance-module" data-index-url="{{ route('admin.maintenance.index') }}" data-backup-url="{{ route('admin.maintenance.backups.store') }}">
     <div class="alert alert-info">Backups are private compressed NDJSON snapshots. They are never placed in the public web
         directory.</div>
+    <div class="accordion mb-3" id="backup-filter-accordion"><div class="accordion-item erp-panel"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#backup-filter-panel"><i class="ri-filter-3-line me-2"></i>Filters</button></h2><div id="backup-filter-panel" class="accordion-collapse collapse"><div class="accordion-body"><form id="backup-filters" class="row g-3"><div class="col-lg-9"><label class="form-label" for="backup-search">Search backups</label><input id="backup-search" class="form-control" type="search" placeholder="Backup filename"></div><div class="col-lg-3 align-self-end"><button id="reset-backup-filters" class="btn btn-secondary w-100" type="button">Reset</button></div></form></div></div></div></div>
     <div class="row g-3">
         <div class="col-xl-7">
             <div class="card h-100">
@@ -76,50 +78,8 @@
             <pre class="bg-dark text-light p-3 rounded overflow-auto" style="max-height:420px;white-space:pre-wrap">{{ $errorLog }}</pre>
         </div>
     </div>
+    </div>
 @endsection
 @push('scripts')
-    <script>
-        $(function() {
-            const token = document.querySelector('meta[name="csrf-token"]').content;
-            const table = initializeDataTable({
-                selector: '#backups-table',
-                url: @json(route('admin.maintenance.index')),
-                columns: [{
-                    data: 'DT_RowIndex',
-                    orderable: false,
-                    searchable: false
-                }, {
-                    data: 'name'
-                }, {
-                    data: 'size'
-                }, {
-                    data: 'created_at'
-                }, {
-                    data: 'action',
-                    orderable: false,
-                    searchable: false
-                }],
-                order: [
-                    [1, 'desc']
-                ]
-            });
-            $('#create-backup').on('click', function() {
-                $.ajax({
-                    url: @json(route('admin.maintenance.backups.store')),
-                    type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token
-                    }
-                }).done(response => {
-                    table.ajax.reload(null, false);
-                    if (window.toastr) toastr.success(response.message);
-                }).fail(xhr => handleAjaxError(xhr));
-            });
-            $('#import-form').validate({
-                submitHandler: form => submitFormUsingAjax(form, {
-                    table: '#backups-table'
-                })
-            });
-        });
-    </script>
+    <script src="{{ asset('backend/assets/js/modules/maintenance.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/maintenance.js')) }}"></script>
 @endpush

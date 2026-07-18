@@ -1,14 +1,8 @@
-<footer class="footer">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <script>document.write(new Date().getFullYear())</script> © Cholavin.
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="text-sm-end d-none d-sm-block">
-                                Design & Develop by Manikandan Subramani
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+<footer class="footer erp-footer">
+    <div class="container-fluid">
+        <div class="erp-footer-content">
+            <span>© {{ now()->year }} Cholavin ERP</span>
+            <span class="d-none d-sm-inline">Rice trading &amp; business management</span>
+        </div>
+    </div>
+</footer>

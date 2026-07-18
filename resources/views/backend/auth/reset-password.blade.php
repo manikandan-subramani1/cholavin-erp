@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Set Password | Cholavin ERP</title>
+    <link rel="icon" type="image/png" href="{{ asset('frontend/assets/img/logo/favicon.png') }}">
     @include('shared.google-fonts')
     <link href="{{ asset('backend/assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/assets/css/cholavin-erp.css') }}" rel="stylesheet">
@@ -19,7 +20,7 @@
             <img class="auth-logo mb-4" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="Cholavin">
             <h3>Set a new password</h3>
             @if($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
-            <form method="POST" action="{{ route('password.update') }}">
+            <form method="POST" action="{{ route('admin.password.update') }}">
                 @csrf
                 <input type="hidden" name="token" value="{{ $token }}">
                 <div class="mb-3">

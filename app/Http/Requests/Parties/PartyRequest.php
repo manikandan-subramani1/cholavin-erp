@@ -4,6 +4,7 @@ namespace App\Http\Requests\Parties;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class PartyRequest extends FormRequest
 {
@@ -38,5 +39,14 @@ class PartyRequest extends FormRequest
             'postal_code' => ['nullable', 'string', 'max:20'],
             'is_active' => ['required', 'boolean'],
         ];
+    }
+
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            if (! session('active_shop_id')) {
+                $validator->errors()->add('shop_id', 'Select a specific shop before saving a party.');
+            }
+        }];
     }
 }

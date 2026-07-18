@@ -16,7 +16,7 @@
     @if ($user->isSuperAdmin())
         <div class="alert alert-info">Super Admin always has every permission and cannot be overridden.</div>
     @else
-        <form method="post" action="{{ route('admin.users.permissions.update', $user) }}">
+        <form id="user-permissions-form" method="post" action="{{ route('admin.users.permissions.update', $user) }}">
             @csrf
             @method('PUT')
 
@@ -70,3 +70,7 @@
         </form>
     @endif
 @endsection
+
+@push('scripts')
+<script src="{{ asset('backend/assets/js/modules/user-permissions.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/user-permissions.js')) }}"></script>
+@endpush

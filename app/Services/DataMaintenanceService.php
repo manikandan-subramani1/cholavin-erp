@@ -13,10 +13,12 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class DataMaintenanceService
 {
     private const BACKUP_TABLES = [
-        'settings', 'roles', 'permissions', 'users', 'shops', 'godowns', 'reference_masters', 'products',
+        'settings', 'roles', 'permissions', 'permission_role', 'permission_user', 'users', 'shops', 'godowns',
+        'shop_user', 'godown_user', 'shop_godown', 'reference_masters', 'products',
         'parties', 'party_addresses', 'commercial_documents', 'commercial_document_items', 'inventory_balances',
         'inventory_movements', 'stock_transfers', 'stock_transfer_items', 'payments', 'ledger_accounts',
-        'vouchers', 'voucher_lines', 'deliveries', 'user_notifications',
+        'vouchers', 'voucher_lines', 'deliveries', 'user_notifications', 'contact_enquiries',
+        'activity_logs', 'context_switch_logs', 'login_histories',
     ];
 
     public function backups(): array
@@ -41,7 +43,9 @@ class DataMaintenanceService
         gzwrite($stream, json_encode(['format' => 'cholavin-erp-backup', 'version' => 1, 'created_at' => now()->toIso8601String()])."\n");
         foreach (self::BACKUP_TABLES as $table) {
             if (! Schema::hasTable($table)) continue;
-            DB::table($table)->orderBy('id')->chunk(500, function ($rows) use ($stream, $table) {
+            $columns = Schema::getColumnListing($table);
+            $orderColumn = in_array('id', $columns, true) ? 'id' : $columns[0];
+            DB::table($table)->orderBy($orderColumn)->chunk(500, function ($rows) use ($stream, $table) {
                 foreach ($rows as $row) {
                     gzwrite($stream, json_encode(['table' => $table, 'row' => (array) $row], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE)."\n");
                 }

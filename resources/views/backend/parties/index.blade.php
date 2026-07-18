@@ -3,6 +3,10 @@
 @push('styles')
 @endpush
 @section('content')
+    <div id="party-module" data-base-url="{{ route('admin.parties.index', $partyType) }}"
+        data-pdf-url="{{ route('admin.parties.pdf', $partyType) }}"
+        data-balance-label="{{ $partyType === 'customers' ? 'Receivable' : 'Payable' }}"
+        data-balance-type="{{ $partyType === 'customers' ? 'receivable' : 'payable' }}">
     <div class="party-page-toolbar">
         <div>
             <span class="erp-eyebrow">Party Management</span>
@@ -26,6 +30,15 @@
                     {{ str($title)->singular() }}</button>
             @endcan
         </div>
+    </div>
+
+    <div class="erp-party-kpis" aria-label="{{ $title }} summary">
+        <article><span class="erp-party-kpi-icon is-total"><i class="ri-group-line"></i></span><div><small>Total {{ strtolower($title) }}</small><strong data-party-metric="total">{{ number_format($workspaceMetrics['total']) }}</strong><em>All records</em></div></article>
+        <article><span class="erp-party-kpi-icon is-active"><i class="ri-user-follow-line"></i></span><div><small>Active</small><strong data-party-metric="active">{{ number_format($workspaceMetrics['active']) }}</strong><em>Available for transactions</em></div></article>
+        <article><span class="erp-party-kpi-icon is-balance"><i class="ri-wallet-3-line"></i></span><div><small>Total {{ $partyType === 'customers' ? 'receivable' : 'payable' }}</small><strong data-party-metric="outstanding">₹{{ number_format($workspaceMetrics['outstanding'], 2) }}</strong><em>Current outstanding</em></div></article>
+        <article><span class="erp-party-kpi-icon is-overdue"><i class="ri-alarm-warning-line"></i></span><div><small>Overdue amount</small><strong data-party-metric="overdue">₹{{ number_format($workspaceMetrics['overdue'], 2) }}</strong><em>Past due date</em></div></article>
+        <article><span class="erp-party-kpi-icon is-business"><i class="ri-line-chart-line"></i></span><div><small>{{ $partyType === 'customers' ? 'Sales' : 'Purchases' }} this month</small><strong data-party-metric="business_month">₹{{ number_format($workspaceMetrics['business_month'], 2) }}</strong><em>Posted documents</em></div></article>
+        <article><span class="erp-party-kpi-icon is-payment"><i class="ri-hand-coin-line"></i></span><div><small>{{ $partyType === 'customers' ? 'Collections' : 'Payments' }} this month</small><strong data-party-metric="payments_month">₹{{ number_format($workspaceMetrics['payments_month'], 2) }}</strong><em>Recorded payments</em></div></article>
     </div>
 
     <div class="party-workspace">
@@ -53,19 +66,27 @@
                     <button id="reset-party-filters" class="btn btn-sm btn-secondary" type="button">Reset</button>
                 </div>
             </div>
-            <div class="party-list-heading"><span>Party</span><span>Outstanding</span></div>
             <div class="party-list-table-wrap">
-                <table id="parties-table" class="table w-100">
-                    <thead class="visually-hidden">
+                <table id="parties-table" class="table table-hover align-middle w-100">
+                    <thead>
                         <tr>
                             <th>Party</th>
+                            <th>Group</th>
+                            <th>Mobile</th>
+                            <th>GSTIN</th>
+                            <th>Location</th>
                             <th>Outstanding</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                 </table>
             </div>
         </aside>
 
+        <div id="party-detail-modal" class="modal fade erp-form-modal" tabindex="-1" aria-labelledby="party-detail-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl modal-fullscreen-sm-down"><div class="modal-content">
+        <div class="modal-header"><div><span class="erp-eyebrow">{{ str($title)->singular() }} workspace</span><h5 id="party-detail-title" class="modal-title">Profile and transactions</h5></div><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <div class="modal-body p-0">
         <section class="party-detail-panel">
             <div id="party-empty-state" class="party-empty-state">
                 <div class="party-empty-icon"><i class="ri-user-search-line"></i></div>
@@ -171,15 +192,16 @@
                 </article>
             </div>
         </section>
+        </div></div></div></div>
     </div>
 
-    <div id="party-modal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+    <div id="party-modal" class="modal fade erp-form-modal" tabindex="-1" aria-labelledby="party-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-sm-down">
             <div class="modal-content">
                 <form id="party-form" method="POST">@csrf
                     <div class="modal-header">
                         <div><span class="erp-eyebrow">Party Management</span>
-                            <h5 class="modal-title mb-0">{{ str($title)->singular() }} Details</h5>
+                            <h5 id="party-modal-title" class="modal-title mb-0">{{ str($title)->singular() }} Details</h5>
                         </div><button class="btn-close" type="button" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body"><input type="hidden" name="_method" value="POST">
@@ -240,298 +262,8 @@
             </div>
         </div>
     </div>
+    </div>
 @endsection
 @push('scripts')
-    <script>
-        $(function() {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            });
-            const base = @json(route('admin.parties.index', $partyType));
-            const transactionsSuffix = '/transactions';
-            const modal = new bootstrap.Modal('#party-modal');
-            let selectedId = null;
-            let selectedParty = null;
-            let transactionTable = null;
-            let profileRequest = null;
-            const money = value => 'Rs. ' + Number(value || 0).toLocaleString('en-IN', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            const safe = value => $('<div>').text(value || '').html();
-
-            const partyTable = initializeDataTable({
-                selector: '#parties-table',
-                url: base,
-                filters: () => ({
-                    group_id: $('#party-group-filter').val(),
-                    status: $('#party-status-filter').val()
-                }),
-                pageLength: 10,
-                columns: [{
-                        data: null,
-                        name: 'name',
-                        render: function(data, type, row) {
-                            if (type !== 'display') return row.name;
-                            const meta = [row.code, row.mobile].filter(Boolean).map(safe).join(
-                                ' · ');
-                            return '<div class="party-list-name">' + safe(row.name) +
-                                '</div><div class="party-list-meta">' + meta + '</div>';
-                        }
-                    },
-                    {
-                        data: 'current_balance',
-                        name: 'current_balance',
-                        orderable: false,
-                        searchable: false,
-                        render: function(value, type) {
-                            if (type !== 'display') return value;
-                            return '<span class="party-list-balance ' + (Number(value) > 0 ?
-                                'has-balance' : '') + '">' + money(value) + '</span>';
-                        }
-                    }
-                ],
-                order: [
-                    [0, 'asc']
-                ]
-            });
-
-            function selectParty(id) {
-                if (!id) return;
-                selectedId = Number(id);
-                $('#parties-table tbody tr').removeClass('is-selected').filter(function() {
-                    return Number(partyTable.row(this).data()?.id) === selectedId;
-                }).addClass('is-selected');
-                $('#party-empty-state').addClass('d-none');
-                $('#party-detail-content').removeClass('d-none').addClass('is-loading');
-                if (profileRequest) profileRequest.abort();
-                profileRequest = $.get(base + '/' + selectedId).done(renderProfile).fail(function(xhr) {
-                    if (xhr.statusText !== 'abort') handleAjaxError(xhr);
-                }).always(() => $('#party-detail-content').removeClass('is-loading'));
-            }
-
-            function renderProfile(response) {
-                selectedParty = response.data.party;
-                const summary = response.data.summary;
-                const address = (selectedParty.addresses || []).find(item => item.is_default) || (selectedParty
-                    .addresses || [])[0] || {};
-                const addressText = [address.address, address.city, address.state, address.postal_code].filter(
-                    Boolean).join(', ') || '-';
-                const initials = String(selectedParty.name || 'P').split(/\s+/).slice(0, 2).map(word => word[0])
-                    .join('').toUpperCase();
-                $('#party-avatar').text(initials);
-                $('#party-name').text(selectedParty.name);
-                $('#party-code').text(selectedParty.code);
-                $('#party-group').text(selectedParty.group?.name || 'Ungrouped');
-                $('#party-mobile').text(selectedParty.mobile || '-');
-                $('#party-email').text(selectedParty.email || '-');
-                $('#party-gstin').text(selectedParty.gstin || '-');
-                $('#party-address').text(addressText);
-                $('#party-status').html(selectedParty.is_active ?
-                    '<span class="badge bg-success-subtle text-success">Active</span>' :
-                    '<span class="badge bg-secondary-subtle text-secondary">Inactive</span>');
-                $('#party-outstanding').text(money(summary.outstanding));
-                $('#party-business').text(money(summary.total_business));
-                $('#party-payments').text(money(summary.payments));
-                $('#party-credit').text(money(summary.credit_available));
-                $('#party-transaction-count').text(summary.transactions);
-                $('#party-balance-label').text(@json($partyType === 'customers' ? 'Receivable' : 'Payable'));
-                $('#party-whatsapp').attr('href', selectedParty.mobile ? 'https://wa.me/' + String(selectedParty
-                    .mobile).replace(/\D/g, '') : '#').toggleClass('disabled', !selectedParty.mobile);
-                $('#party-mail').attr('href', selectedParty.email ? 'mailto:' + encodeURIComponent(selectedParty
-                    .email) : '#').toggleClass('disabled', !selectedParty.email);
-                $('#edit-selected-party').toggleClass('d-none', !response.data.permissions.update);
-                $('#delete-selected-party').toggleClass('d-none', !response.data.permissions.delete);
-                loadTransactions();
-            }
-
-            function loadTransactions() {
-                const url = base + '/' + selectedId + transactionsSuffix;
-                if (transactionTable) {
-                    transactionTable.ajax.url(url).load();
-                    return;
-                }
-                transactionTable = initializeDataTable({
-                    selector: '#party-transactions-table',
-                    url: url,
-                    filters: () => ({
-                        status: $('#transaction-status-filter').val(),
-                        from_date: $('#transaction-from-filter').val(),
-                        to_date: $('#transaction-to-filter').val()
-                    }),
-                    columns: [{
-                            data: 'DT_RowIndex',
-                            orderable: false,
-                            searchable: false
-                        }, {
-                            data: 'source_type'
-                        }, {
-                            data: 'number'
-                        }, {
-                            data: 'transaction_date'
-                        },
-                        {
-                            data: 'total'
-                        }, {
-                            data: 'balance'
-                        }, {
-                            data: 'due_date'
-                        }, {
-                            data: 'status',
-                            orderable: false,
-                            searchable: false
-                        }, {
-                            data: 'action',
-                            orderable: false,
-                            searchable: false
-                        }
-                    ],
-                    order: [
-                        [3, 'desc']
-                    ]
-                });
-            }
-
-            function resetForm() {
-                const form = document.getElementById('party-form');
-                form.reset();
-                form.action = base;
-                form._method.value = 'POST';
-                $('#party-active').prop('checked', true);
-                $('[name="balance_type"]').val(@json($partyType === 'customers' ? 'receivable' : 'payable'));
-                $('#party-form .is-invalid').removeClass('is-invalid');
-                $('#party-form [data-ajax-error]').remove();
-            }
-
-            function editParty() {
-                if (!selectedParty) return;
-                resetForm();
-                const form = document.getElementById('party-form');
-                form.action = base + '/' + selectedParty.id;
-                form._method.value = 'PUT';
-                ['name', 'code', 'group_id', 'mobile', 'email', 'gstin', 'pan', 'credit_limit', 'opening_balance',
-                    'balance_type'
-                ].forEach(key => $('[name="' + key + '"]').val(selectedParty[key] ?? ''));
-                const address = (selectedParty.addresses || []).find(item => item.is_default) || (selectedParty
-                    .addresses || [])[0] || {};
-                ['address', 'city', 'state', 'postal_code'].forEach(key => $('[name="' + key + '"]').val(address[
-                    key] ?? ''));
-                $('#party-active').prop('checked', !!selectedParty.is_active);
-                modal.show();
-            }
-
-            $('#parties-table tbody').on('click', 'tr', function() {
-                const data = partyTable.row(this).data();
-                if (data) selectParty(data.id);
-            });
-            $('#parties-table').on('draw.dt', function() {
-                if (selectedId) $('#parties-table tbody tr').filter(function() {
-                    return Number(partyTable.row(this).data()?.id) === selectedId;
-                }).addClass('is-selected');
-                if (!selectedId) {
-                    const first = partyTable.rows({
-                        page: 'current'
-                    }).data()[0];
-                    if (first) selectParty(first.id);
-                }
-            });
-            let searchTimer;
-            $('#party-search').on('input', function() {
-                clearTimeout(searchTimer);
-                const value = this.value;
-                searchTimer = setTimeout(() => partyTable.search(value).draw(), 250);
-            });
-            $('#party-group-filter,#party-status-filter').on('change', () => {
-                selectedId = null;
-                partyTable.ajax.reload();
-            });
-            $('#reset-party-filters').on('click', () => {
-                $('#party-group-filter,#party-status-filter').val('');
-                $('#party-search').val('');
-                selectedId = null;
-                partyTable.search('').ajax.reload();
-            });
-            $('#transaction-status-filter,#transaction-from-filter,#transaction-to-filter').on('change', () =>
-                transactionTable?.ajax.reload());
-            $('#reset-transaction-filters').on('click', () => {
-                $('#transaction-status-filter,#transaction-from-filter,#transaction-to-filter').val('');
-                transactionTable?.ajax.reload();
-            });
-            $('#add-party').on('click', () => {
-                resetForm();
-                modal.show();
-            });
-            $('#edit-selected-party').on('click', editParty);
-
-            $('#party-form').validate({
-                rules: {
-                    name: {
-                        required: true,
-                        minlength: 2,
-                        maxlength: 190
-                    },
-                    code: {
-                        required: true,
-                        maxlength: 60
-                    },
-                    mobile: {
-                        minlength: 7,
-                        maxlength: 30
-                    },
-                    email: {
-                        email: true
-                    },
-                    credit_limit: {
-                        number: true,
-                        min: 0
-                    },
-                    opening_balance: {
-                        number: true,
-                        min: 0
-                    }
-                },
-                errorElement: 'span',
-                errorClass: 'invalid-feedback',
-                highlight: element => $(element).addClass('is-invalid'),
-                unhighlight: element => $(element).removeClass('is-invalid'),
-                submitHandler: form => submitFormUsingAjax(form, {
-                    reset: false,
-                    onSuccess: function(response) {
-                        modal.hide();
-                        selectedId = Number(response.data.id);
-                        partyTable.ajax.reload(() => selectParty(selectedId), false);
-                    }
-                })
-            });
-            $('#delete-selected-party').on('click', function() {
-                if (!selectedId) return;
-                Swal.fire({
-                    title: 'Delete ' + (selectedParty?.name || 'party') + '?',
-                    text: 'This cannot be undone.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Delete'
-                }).then(result => {
-                    if (!result.isConfirmed) return;
-                    $.ajax({
-                        url: base + '/' + selectedId,
-                        type: 'DELETE'
-                    }).done(response => {
-                        Swal.fire('Deleted', response.message, 'success');
-                        selectedId = null;
-                        selectedParty = null;
-                        $('#party-detail-content').addClass('d-none');
-                        $('#party-empty-state').removeClass('d-none');
-                        partyTable.ajax.reload(null, false);
-                    }).fail(xhr => Swal.fire('Unable to delete', xhr.responseJSON?.message ||
-                        'Please try again.', 'error'));
-                });
-            });
-            $('#party-pdf').on('click', () => location.href = @json(route('admin.parties.pdf', $partyType)) + '?status=' + ($(
-                    '#party-status-filter').val() || '') + '&group_id=' + ($('#party-group-filter').val() ||
-                '') + '&search=' + encodeURIComponent($('#party-search').val() || ''));
-        });
-    </script>
+    <script src="{{ asset('backend/assets/js/modules/parties.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/parties.js')) }}"></script>
 @endpush

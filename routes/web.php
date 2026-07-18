@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Backend\AccessControlController;
+use App\Http\Controllers\Backend\ActivityLogController;
 use App\Http\Controllers\Backend\AuthController;
 use App\Http\Controllers\Backend\BankAccountController;
 use App\Http\Controllers\Backend\BrandController;
@@ -13,11 +13,14 @@ use App\Http\Controllers\Backend\DeliveryController;
 use App\Http\Controllers\Backend\DeliveryRouteController;
 use App\Http\Controllers\Backend\DriverController;
 use App\Http\Controllers\Backend\FinancialYearController;
+use App\Http\Controllers\Backend\FinancialOverviewController;
 use App\Http\Controllers\Backend\GradeController;
+use App\Http\Controllers\Backend\GlobalSearchController;
 use App\Http\Controllers\Backend\HsnSacCodeController;
 use App\Http\Controllers\Backend\InvoiceSequenceController;
 use App\Http\Controllers\Backend\InvoiceTemplateController;
 use App\Http\Controllers\Backend\LocationContextController;
+use App\Http\Controllers\Backend\LocationController;
 use App\Http\Controllers\Backend\LookupController;
 use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\NotificationTemplateController;
@@ -29,6 +32,7 @@ use App\Http\Controllers\Backend\PaymentMethodController;
 use App\Http\Controllers\Backend\PriceListController;
 use App\Http\Controllers\Backend\ProductController as BackendProductController;
 use App\Http\Controllers\Backend\ReportController;
+use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\StockController;
 use App\Http\Controllers\Backend\StockTransferController;
@@ -40,6 +44,7 @@ use App\Http\Controllers\Backend\TaxRateController;
 use App\Http\Controllers\Backend\ThermalReceiptController;
 use App\Http\Controllers\Backend\UnitController;
 use App\Http\Controllers\Backend\UserSessionController;
+use App\Http\Controllers\Backend\UserAccessController;
 use App\Http\Controllers\Backend\VariantController;
 use App\Http\Controllers\Backend\VehicleController;
 use App\Http\Controllers\Backend\VoucherController;
@@ -77,21 +82,27 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::controller(DashboardController::class)->group(function () {
             Route::get('/dashboard', '__invoke')->name('dashboard');
         });
+        Route::get('/financial-overview', FinancialOverviewController::class)->name('financial-overview');
+
+        Route::get('/global-search', GlobalSearchController::class)->name('global-search');
 
         Route::controller(AuthController::class)->group(function () {
             Route::post('/logout', 'destroy')->name('logout');
         });
 
         Route::controller(LocationContextController::class)->prefix('location-context')->name('location-context.')->group(function () {
+            Route::get('/shops', 'shops')->name('shops');
             Route::get('/godowns', 'godowns')->name('godowns');
             Route::post('/shop', 'switchShop')->name('switch-shop');
             Route::post('/godown', 'switchGodown')->name('switch-godown');
+            Route::post('/financial-year', 'switchFinancialYear')->name('switch-financial-year');
         });
 
         Route::controller(BackendProductController::class)->prefix('products')->name('products.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/create', 'create')->name('create');
             Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
             Route::get('/{product}/edit', 'edit')->name('edit');
             Route::put('/{product}', 'update')->name('update');
             Route::delete('/{product}', 'destroy')->name('destroy');
@@ -319,6 +330,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::controller(PartyController::class)->prefix('parties/{type}')->name('parties.')->group(function () {
             Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/summary-metrics', 'metrics')->name('metrics');
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
             Route::get('/{party}/transactions', 'transactions')->name('transactions');
@@ -356,15 +368,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::controller(PaymentController::class)->prefix('accounts/payments')->name('payments.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
         });
 
         Route::controller(VoucherController::class)->prefix('accounts/vouchers')->name('vouchers.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
+            Route::get('/pdf', 'pdf')->name('pdf');
         });
 
         Route::controller(DeliveryController::class)->prefix('deliveries')->name('deliveries.')->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::get('/pdf', 'pdf')->name('pdf');
             Route::get('/{delivery}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
             Route::put('/{delivery}', 'update')->name('update');
@@ -372,6 +387,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::controller(NotificationController::class)->prefix('notifications')->name('notifications.')->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::get('/badges', 'badges')->name('badges');
             Route::post('/generate', 'generate')->name('generate');
             Route::patch('/{notification}/read', 'read')->name('read');
         });
@@ -386,31 +402,38 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('/{enquiry}/status', 'updateStatus')->name('status');
         });
 
-        Route::controller(AccessControlController::class)->prefix('access/users')->name('users.')->group(function () {
-            Route::get('/', 'users')->name('index');
-            Route::post('/', 'storeUser')->name('store');
-            Route::put('/{user}', 'updateUser')->name('update');
-            Route::delete('/{user}', 'destroyUser')->name('destroy');
-            Route::get('/{user}/permissions', 'userPermissions')->name('permissions');
-            Route::put('/{user}/permissions', 'updateUserPermissions')->name('permissions.update');
+        Route::controller(UserAccessController::class)->prefix('access/users')->name('users.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{user}', 'show')->name('show');
+            Route::put('/{user}', 'update')->name('update');
+            Route::delete('/{user}', 'destroy')->name('destroy');
+            Route::get('/{user}/permissions', 'permissions')->name('permissions');
+            Route::put('/{user}/permissions', 'updatePermissions')->name('permissions.update');
         });
 
-        Route::controller(AccessControlController::class)->prefix('access/roles')->name('roles.')->group(function () {
-            Route::get('/', 'roles')->name('index');
-            Route::post('/', 'storeRole')->name('store');
-            Route::put('/{role}', 'updateRole')->name('update');
-            Route::delete('/{role}', 'destroyRole')->name('destroy');
+        Route::controller(RoleController::class)->prefix('access/roles')->name('roles.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{role}', 'show')->name('show');
+            Route::put('/{role}', 'update')->name('update');
+            Route::delete('/{role}', 'destroy')->name('destroy');
         });
 
-        Route::controller(AccessControlController::class)->prefix('access')->group(function () {
-            Route::get('/locations', 'locations')->name('locations.index');
+        Route::controller(LocationController::class)->prefix('access')->group(function () {
+            Route::get('/locations', 'index')->name('locations.index');
             Route::post('/shops', 'storeShop')->name('shops.store');
+            Route::get('/shops/{shop}', 'showShop')->name('shops.show');
             Route::put('/shops/{shop}', 'updateShop')->name('shops.update');
             Route::delete('/shops/{shop}', 'destroyShop')->name('shops.destroy');
             Route::post('/godowns', 'storeGodown')->name('godowns.store');
+            Route::get('/godowns/{godown}', 'showGodown')->name('godowns.show');
             Route::put('/godowns/{godown}', 'updateGodown')->name('godowns.update');
             Route::delete('/godowns/{godown}', 'destroyGodown')->name('godowns.destroy');
-            Route::get('/activity-logs', 'activityLogs')->name('activity-logs.index');
+        });
+
+        Route::controller(ActivityLogController::class)->prefix('access')->group(function () {
+            Route::get('/activity-logs', 'index')->name('activity-logs.index');
         });
 
         Route::controller(UserSessionController::class)->prefix('access')->group(function () {

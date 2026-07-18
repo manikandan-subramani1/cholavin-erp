@@ -5,7 +5,7 @@
     $partyType = request()->routeIs('admin.parties.*') ? request()->route('type') : null;
     $paymentType = request()->query('type');
 
-    $menuItem = static fn (string $label, string $url, string $icon, bool $allowed, bool $active = false): array => compact('label', 'url', 'icon', 'allowed', 'active');
+    $menuItem = static fn (string $label, string $url, string $icon, bool $allowed, bool $active = false, ?string $badge = null): array => compact('label', 'url', 'icon', 'allowed', 'active', 'badge');
     $masterItem = fn (string $key, string $icon = 'ri-database-2-line'): array => $menuItem(
         config("erp_modules.reference.{$key}.title", str($key)->replace('-', ' ')->title()),
         route("admin.{$key}.index"),
@@ -43,7 +43,7 @@
 
     $saleItems = [
         $documentItem('sales-invoices', 'Sale Invoices', 'ri-bill-line'),
-        $menuItem('Payment-In', route('admin.payments.index', ['type' => 'customer_collection']), 'ri-hand-coin-line', $user->can('payments.view'), request()->routeIs('admin.payments.*') && $paymentType === 'customer_collection'),
+        $menuItem('Payment-In', route('admin.payments.index', ['type' => 'customer_collection']), 'ri-hand-coin-line', $user->can('payments.view'), request()->routeIs('admin.payments.*') && $paymentType === 'customer_collection', 'overdue_payments'),
         $documentItem('sales-orders', 'Sale Orders', 'ri-file-list-2-line'),
         $documentItem('delivery-challans', null, 'ri-truck-line'),
         $documentItem('sales-returns', 'Sale Returns / Credit', 'ri-arrow-go-back-line'),
@@ -64,8 +64,8 @@
     ];
 
     $inventoryItems = [
-        $menuItem('Stock', route('admin.stock.index'), 'ri-stack-line', $user->can('stock.view'), request()->routeIs('admin.stock.*')),
-        $menuItem('Stock Transfers', route('admin.stock-transfers.index'), 'ri-arrow-left-right-line', $user->can('stock.transfer'), request()->routeIs('admin.stock-transfers.*')),
+        $menuItem('Stock', route('admin.stock.index'), 'ri-stack-line', $user->can('stock.view'), request()->routeIs('admin.stock.*'), 'low_stock'),
+        $menuItem('Stock Transfers', route('admin.stock-transfers.index'), 'ri-arrow-left-right-line', $user->can('stock.transfer'), request()->routeIs('admin.stock-transfers.*'), 'pending_approvals'),
         $documentItem('stock-adjustments', null, 'ri-scales-3-line'),
         $documentItem('damaged-stock', null, 'ri-delete-bin-6-line'),
         $documentItem('expired-stock', null, 'ri-time-line'),
@@ -78,7 +78,7 @@
     ];
 
     $cashBankItems = [
-        $menuItem('All Receipts & Payments', route('admin.payments.index'), 'ri-exchange-funds-line', $user->can('payments.view'), request()->routeIs('admin.payments.*') && ! in_array($paymentType, ['customer_collection', 'supplier_payment', 'expense'], true)),
+        $menuItem('All Receipts & Payments', route('admin.payments.index'), 'ri-exchange-funds-line', $user->can('payments.view'), request()->routeIs('admin.payments.*') && ! in_array($paymentType, ['customer_collection', 'supplier_payment', 'expense'], true), 'overdue_payments'),
         $masterItem('bank-accounts', 'ri-bank-line'),
         $masterItem('payment-methods', 'ri-bank-card-line'),
     ];
@@ -93,7 +93,7 @@
     ];
 
     $deliveryItems = [
-        $menuItem('Delivery Assignments', route('admin.deliveries.index'), 'ri-route-line', $user->can('deliveries.view'), request()->routeIs('admin.deliveries.*')),
+        $menuItem('Delivery Assignments', route('admin.deliveries.index'), 'ri-route-line', $user->can('deliveries.view'), request()->routeIs('admin.deliveries.*'), 'pending_delivery'),
         $masterItem('vehicles', 'ri-truck-line'),
         $masterItem('drivers', 'ri-steering-2-line'),
         $masterItem('delivery-routes', 'ri-road-map-line'),
@@ -130,14 +130,14 @@
     ];
 @endphp
 
-<div class="app-menu navbar-menu">
+<div class="app-menu navbar-menu" data-sidebar-badges-url="{{ route('admin.notifications.badges') }}">
     <div class="navbar-brand-box">
         <a href="{{ route('admin.dashboard') }}" class="logo logo-dark">
-            <span class="logo-sm"><i class="ri-seedling-fill brand-glyph"></i></span>
+            <span class="logo-sm"><img class="erp-brand-mark" src="{{ asset('frontend/assets/img/logo/favicon.png') }}" alt="Cholavin"></span>
             <span class="logo-lg"><img class="erp-brand-logo" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}"></span>
         </a>
         <a href="{{ route('admin.dashboard') }}" class="logo logo-light">
-            <span class="logo-sm"><i class="ri-seedling-fill brand-glyph"></i></span>
+            <span class="logo-sm"><img class="erp-brand-mark" src="{{ asset('frontend/assets/img/logo/favicon.png') }}" alt="Cholavin"></span>
             <span class="logo-lg"><img class="erp-brand-logo" src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}"></span>
         </a>
         <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover"><i class="ri-record-circle-line"></i></button>
@@ -160,15 +160,40 @@
             {{-- Required by the Velzon layout runtime for vertical/two-column switching. --}}
             <div id="two-column-menu"></div>
             <ul class="navbar-nav" id="navbar-nav">
-                <li class="menu-title"><span>Menu</span></li>
-
                 @can('dashboard.view')
                     <li class="nav-item">
                         <a class="nav-link menu-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                            <i class="ri-home-4-line"></i><span>Home</span>
+                            <i class="ri-home-4-line"></i><span>Dashboard</span>
                         </a>
                     </li>
                 @endcan
+
+                <li class="menu-title"><span>Shortcuts</span></li>
+
+                <li class="erp-sidebar-productivity">
+                    <button type="button" class="erp-sidebar-create" id="erp-sidebar-quick-create"><i class="ri-add-circle-line"></i><span>Quick Create</span><kbd>Alt+N</kbd></button>
+                    <button type="button" class="erp-sidebar-pin" id="erp-pin-current-page"><i class="ri-pushpin-line"></i><span>Pin current page</span></button>
+                </li>
+
+                <li class="erp-sidebar-dynamic d-none" id="erp-pinned-section">
+                    <div class="erp-sidebar-section-label"><span>Pinned</span><button type="button" data-clear-list="pinned" aria-label="Clear pinned pages"><i class="ri-close-line"></i></button></div>
+                    <div id="erp-pinned-pages" class="erp-sidebar-links"></div>
+                </li>
+
+                <li class="erp-sidebar-dynamic d-none" id="erp-recent-section">
+                    <div class="erp-sidebar-section-label"><span>Recent</span><button type="button" data-clear-list="recent" aria-label="Clear recent pages"><i class="ri-close-line"></i></button></div>
+                    <div id="erp-recent-pages" class="erp-sidebar-links"></div>
+                </li>
+
+                <li class="menu-title"><span>Workspaces</span></li>
+                @can('customers.view')<li class="nav-item"><a class="nav-link menu-link {{ $partyType === 'customers' ? 'active' : '' }}" href="{{ route('admin.parties.index', 'customers') }}"><i class="ri-user-smile-line"></i><span>Customer Workspace</span></a></li>@endcan
+                @can('suppliers.view')<li class="nav-item"><a class="nav-link menu-link {{ $partyType === 'suppliers' ? 'active' : '' }}" href="{{ route('admin.parties.index', 'suppliers') }}"><i class="ri-truck-line"></i><span>Supplier Workspace</span></a></li>@endcan
+                @can('stock.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.stock.*') ? 'active' : '' }}" href="{{ route('admin.stock.index') }}"><i class="ri-archive-stack-line"></i><span>Inventory Workspace</span><span class="erp-sidebar-badge d-none" data-sidebar-badge="low_stock">0</span></a></li>@endcan
+                @can('accounts.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.vouchers.*') ? 'active' : '' }}" href="{{ route('admin.vouchers.index') }}"><i class="ri-book-open-line"></i><span>Accounting Workspace</span></a></li>@endcan
+                @can('reports.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.financial-overview') ? 'active' : '' }}" href="{{ route('admin.financial-overview') }}"><i class="ri-funds-line"></i><span>Financial Overview</span></a></li>@endcan
+                @can('deliveries.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.deliveries.*') ? 'active' : '' }}" href="{{ route('admin.deliveries.index') }}"><i class="ri-truck-line"></i><span>Delivery Workspace</span><span class="erp-sidebar-badge d-none" data-sidebar-badge="pending_delivery">0</span></a></li>@endcan
+
+                <li class="menu-title"><span>Transactions &amp; Masters</span></li>
 
                 @foreach($menuGroups as $group)
                     @php
@@ -186,6 +211,9 @@
                                         <li class="nav-item">
                                             <a href="{{ $item['url'] }}" class="nav-link {{ $item['active'] ? 'active' : '' }}">
                                                 <i class="{{ $item['icon'] }} submenu-icon"></i><span>{{ $item['label'] }}</span>
+                                                @if($item['badge'])
+                                                    <span class="erp-sidebar-badge d-none" data-sidebar-badge="{{ $item['badge'] }}">0</span>
+                                                @endif
                                             </a>
                                         </li>
                                     @endforeach

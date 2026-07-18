@@ -16,7 +16,7 @@ class SwitchShopContextRequest extends FormRequest
     {
         return [
             'shop_id' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists('shops', 'id')->where('is_active', true),
             ],

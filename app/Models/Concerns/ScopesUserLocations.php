@@ -13,6 +13,12 @@ trait ScopesUserLocations
         $godownId = (int) session('active_godown_id');
 
         if (! $shopId) {
+            if ($user->isSuperAdmin()) {
+                return $godownId
+                    ? $query->where($this->qualifyColumn('godown_id'), $godownId)
+                    : $query;
+            }
+
             return $query->whereRaw('1 = 0');
         }
 

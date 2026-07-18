@@ -11,6 +11,7 @@
 @endpush
 
 @section('content')
+    <div id="thermal-receipt-module" data-index-url="{{ route('admin.sales.thermal-receipt.index') }}">
     <div class="page-title-box d-flex flex-wrap justify-content-between align-items-start gap-3">
         <div><span class="erp-eyebrow">Sales / Print setup</span><h4>Thermal Receipt Sample</h4><p class="text-muted mb-0">Check the receipt fields and paper width before connecting it to actual sales.</p></div>
         <span class="sample-badge"><i class="ri-flask-line"></i> Sample data only</span>
@@ -22,7 +23,7 @@
             <div class="card-body">
                 <form method="get" action="{{ route('admin.sales.thermal-receipt.index') }}">
                     <label for="paperWidth" class="form-label">Thermal paper width</label>
-                    <select id="paperWidth" name="paper_width" class="form-select mb-3" onchange="this.form.submit()">
+                    <select id="paperWidth" name="paper_width" class="form-select mb-3">
                         <option value="80" @selected($paperWidth === 80)>80 mm (recommended)</option>
                         <option value="58" @selected($paperWidth === 58)>58 mm</option>
                     </select>
@@ -37,12 +38,9 @@
         </aside>
         <div class="receipt-preview">@include('backend.sales.thermal-receipt.partials.receipt')</div>
     </div>
+    </div>
 @endsection
 
 @push('scripts')
-<script>
-    document.getElementById('printReceipt').addEventListener('click', function () {
-        window.print();
-    });
-</script>
+<script src="{{ asset('backend/assets/js/modules/thermal-receipt.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/thermal-receipt.js')) }}"></script>
 @endpush

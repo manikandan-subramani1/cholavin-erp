@@ -10,7 +10,7 @@ class ActivityLog extends Model
 
     protected $fillable = [
         'user_id', 'event', 'module', 'action', 'auditable_type', 'auditable_id',
-        'shop_id', 'godown_id', 'method', 'route', 'url', 'ip_address',
+        'shop_id', 'godown_id', 'financial_year_id', 'method', 'route', 'url', 'ip_address',
         'user_agent', 'old_values', 'new_values', 'properties', 'created_at',
     ];
 

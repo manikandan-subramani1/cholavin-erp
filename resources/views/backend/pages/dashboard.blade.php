@@ -11,6 +11,7 @@
 @endphp
 
 @section('content')
+    <div id="dashboard-module" data-dashboard='@json($chartData)'>
     <div class="erp-dashboard-hero mb-4">
         <div class="erp-dashboard-hero-copy">
             <span class="erp-eyebrow">Cholavin ERP intelligence</span>
@@ -36,12 +37,30 @@
         <div class="erp-dashboard-hero-mark"><i class="ri-pulse-line"></i></div>
     </div>
 
+    <nav class="erp-dashboard-quick-actions" aria-label="Dashboard quick actions">
+        @can('sales-invoices.create')
+            <a href="{{ route('admin.documents.index', 'sales-invoices') }}" class="is-sales"><i class="ri-shopping-cart-2-line"></i><span><strong>New Sale</strong><small>Create customer invoice</small></span><kbd>Alt+S</kbd></a>
+        @endcan
+        @can('purchase-bills.create')
+            <a href="{{ route('admin.documents.index', 'purchase-bills') }}" class="is-purchase"><i class="ri-shopping-bag-3-line"></i><span><strong>New Purchase</strong><small>Record supplier bill</small></span><kbd>Alt+P</kbd></a>
+        @endcan
+        @can('payments.create')
+            <a href="{{ route('admin.payments.index', ['type' => 'customer_collection']) }}" class="is-payment"><i class="ri-hand-coin-line"></i><span><strong>Receive Payment</strong><small>Record collection</small></span><kbd>Alt+R</kbd></a>
+        @endcan
+        @can('stock.transfer')
+            <a href="{{ route('admin.stock-transfers.index') }}" class="is-stock"><i class="ri-arrow-left-right-line"></i><span><strong>Stock Transfer</strong><small>Move inventory</small></span></a>
+        @endcan
+        @can('reports.view')
+            <a href="{{ route('admin.reports.index', 'profit-loss') }}" class="is-report"><i class="ri-line-chart-line"></i><span><strong>View Reports</strong><small>Analyse business</small></span></a>
+        @endcan
+    </nav>
+
     @if(count($kpis))
         <div class="erp-dashboard-section-heading">
             <div><span class="erp-eyebrow">Top-level analysis</span><h4>Financial and stock position</h4></div>
             <span class="erp-dashboard-period-badge"><i class="ri-calendar-line"></i>{{ $period['label'] }}</span>
         </div>
-        <div class="row g-3 mb-4">
+        <div class="erp-dashboard-kpi-grid">
             @foreach($kpis as $kpi)
                 @php
                     $positiveChange = $kpi['change'] !== null && ($kpi['inverse'] ? $kpi['change'] <= 0 : $kpi['change'] >= 0);
@@ -288,89 +307,48 @@
             </div>
         </div>
     </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-xl-6">
+            <div class="card erp-panel erp-dashboard-card h-100">
+                <div class="card-header erp-dashboard-card-header"><div><span class="erp-eyebrow">Action queue</span><h5>Upcoming reminders</h5></div>@can('notifications.view')<a href="{{ route('admin.notifications.index') }}" class="btn btn-sm btn-outline-brand">View all</a>@endcan</div>
+                <div class="card-body p-0 erp-dashboard-feed">
+                    @forelse($reminders as $reminder)
+                        <a href="{{ route('admin.notifications.index') }}"><span class="erp-feed-icon is-reminder"><i class="ri-notification-3-line"></i></span><span><strong>{{ $reminder->title }}</strong><small>{{ $reminder->message }}</small></span><time>{{ $reminder->created_at?->diffForHumans() }}</time></a>
+                    @empty
+                        <div class="erp-dashboard-empty compact"><p>No pending reminders for the selected business context.</p></div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card erp-panel erp-dashboard-card h-100">
+                <div class="card-header erp-dashboard-card-header"><div><span class="erp-eyebrow">Audit trail</span><h5>Recent activities</h5></div>@can('activity-logs.view')<a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-outline-brand">View all</a>@endcan</div>
+                <div class="card-body p-0 erp-dashboard-feed">
+                    @forelse($recentActivities as $activity)
+                        <div><span class="erp-feed-icon is-activity"><i class="ri-history-line"></i></span><span><strong>{{ str($activity->event ?: $activity->action)->replace(['.', '_'], ' ')->title() }}</strong><small>{{ $activity->user?->name ?? 'System' }} · {{ $activity->module ?: 'ERP' }}</small></span><time>{{ $activity->created_at?->diffForHumans() }}</time></div>
+                    @empty
+                        <div class="erp-dashboard-empty compact"><p>Recent activity will appear as users work in the ERP.</p></div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="erp-billing-shortcuts" aria-label="ERP keyboard shortcuts">
+        <div><strong>Shortcut keys for faster work</strong><small>Works from every ERP module</small></div>
+        @can('sales-invoices.create')<a href="{{ route('admin.documents.index', 'sales-invoices') }}"><kbd>F1</kbd><span>New Sale</span></a>@endcan
+        @can('purchase-bills.create')<a href="{{ route('admin.documents.index', 'purchase-bills') }}"><kbd>F2</kbd><span>Purchase</span></a>@endcan
+        @can('payments.create')<a href="{{ route('admin.payments.index') }}"><kbd>F3</kbd><span>Payment</span></a>@endcan
+        @can('customers.view')<a href="{{ route('admin.parties.index', 'customers') }}"><kbd>F4</kbd><span>Customer</span></a>@endcan
+        @can('products.view')<a href="{{ route('admin.products.index') }}"><kbd>F5</kbd><span>Item Search</span></a>@endcan
+        @can('stock.view')<a href="{{ route('admin.stock.index') }}"><kbd>F6</kbd><span>Stock</span></a>@endcan
+        @can('reports.view')<a href="{{ route('admin.reports.index', 'sales') }}"><kbd>F7</kbd><span>Reports</span></a>@endcan
+        <button id="erp-print-current" type="button"><kbd>F8</kbd><span>Print Page</span></button>
+    </div>
+    </div>
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const period = document.getElementById('dashboard-period');
-            period?.addEventListener('change', function () {
-                const url = new URL(window.location.href);
-                url.searchParams.set('period', this.value);
-                window.location.assign(url.toString());
-            });
-
-            if (typeof ApexCharts === 'undefined') {
-                return;
-            }
-
-            const palette = ['#8f0028', '#f4c430', '#0f9f6e', '#3568c0', '#7b3fb2', '#df7a18', '#5e001b'];
-            const money = value => '₹' + new Intl.NumberFormat('en-IN', {maximumFractionDigits: 0}).format(value || 0);
-            const baseChart = {
-                chart: {fontFamily: 'Poppins, sans-serif', toolbar: {show: false}, animations: {speed: 450}},
-                dataLabels: {enabled: false},
-                colors: palette,
-                grid: {borderColor: '#eee7e8', strokeDashArray: 4},
-                tooltip: {y: {formatter: money}},
-                noData: {text: 'No data available'},
-            };
-
-            const financialElement = document.querySelector('#financial-trend-chart');
-            if (financialElement) {
-                new ApexCharts(financialElement, {
-                    ...baseChart,
-                    series: @json($trend['series']),
-                    chart: {...baseChart.chart, type: 'area', height: 350},
-                    stroke: {curve: 'smooth', width: 3},
-                    fill: {type: 'gradient', gradient: {shadeIntensity: 1, opacityFrom: .32, opacityTo: .03, stops: [0, 95, 100]}},
-                    xaxis: {categories: @json($trend['labels']), labels: {rotate: -35, trim: true}},
-                    yaxis: {labels: {formatter: money}},
-                    legend: {position: 'top', horizontalAlign: 'right'},
-                }).render();
-            }
-
-            const productElement = document.querySelector('#top-products-chart');
-            if (productElement) {
-                new ApexCharts(productElement, {
-                    ...baseChart,
-                    series: [
-                        {name: 'Revenue', data: @json($topProducts->pluck('revenue')->map(fn ($value) => round((float) $value, 2))->values())},
-                        {name: 'Product Cost', data: @json($topProducts->pluck('cost')->map(fn ($value) => round((float) $value, 2))->values())},
-                        {name: 'Profit', data: @json($topProducts->pluck('profit')->map(fn ($value) => round((float) $value, 2))->values())},
-                    ],
-                    colors: ['#8f0028', '#d89d17', '#0f9f6e'],
-                    chart: {...baseChart.chart, type: 'bar', height: 410},
-                    plotOptions: {bar: {horizontal: true, borderRadius: 4, barHeight: '68%'}},
-                    xaxis: {categories: @json($topProducts->pluck('name')->values()), labels: {formatter: money}},
-                    legend: {position: 'top'},
-                }).render();
-            }
-
-            const categoryElement = document.querySelector('#stock-category-chart');
-            if (categoryElement) {
-                new ApexCharts(categoryElement, {
-                    ...baseChart,
-                    series: @json($stock['categories']->pluck('value')->values()),
-                    labels: @json($stock['categories']->pluck('name')->values()),
-                    chart: {...baseChart.chart, type: 'donut', height: 300},
-                    plotOptions: {pie: {donut: {size: '67%', labels: {show: true, total: {show: true, label: 'Stock Value', formatter: chart => money(chart.globals.seriesTotals.reduce((sum, value) => sum + value, 0))}}}}},
-                    legend: {position: 'bottom'},
-                }).render();
-            }
-
-            const godownElement = document.querySelector('#godown-stock-chart');
-            if (godownElement) {
-                new ApexCharts(godownElement, {
-                    ...baseChart,
-                    series: [{name: 'Stock Value', data: @json($stock['godowns']->pluck('value')->values())}],
-                    colors: ['#5e001b'],
-                    chart: {...baseChart.chart, type: 'bar', height: 300},
-                    plotOptions: {bar: {borderRadius: 5, columnWidth: '48%', distributed: true}},
-                    xaxis: {categories: @json($stock['godowns']->pluck('name')->values()), labels: {trim: true}},
-                    yaxis: {labels: {formatter: money}},
-                    legend: {show: false},
-                }).render();
-            }
-        });
-    </script>
+<script src="{{ asset('backend/assets/js/modules/dashboard.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/dashboard.js')) }}"></script>
 @endpush

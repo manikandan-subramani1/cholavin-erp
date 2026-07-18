@@ -74,11 +74,9 @@
                     </div> 
                     <div id="sidebar-view"> 
                     </div>
-                    <div id="sidebar-color"> 
-                    </div> 
+                    <div id="sidebar-color">
+                    </div>
                     <div id="sidebar-img"> 
-                    </div> 
-                    <div id="sidebar-color"> 
                     </div> 
                     <div id="preloader-menu"> 
                     </div>

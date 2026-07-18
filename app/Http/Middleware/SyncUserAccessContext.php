@@ -29,6 +29,9 @@ class SyncUserAccessContext
             'role_id' => $user->role_id,
             'permitted_shop_ids' => $user->isSuperAdmin() ? ['*'] : $shopIds,
             'permitted_godown_ids' => $godownIds,
+            'permitted_financial_year_ids' => $user->isSuperAdmin()
+                ? ['*']
+                : $context['financial_years']->modelKeys(),
             'permitted_modules' => $user->isSuperAdmin()
                 ? ['*']
                 : $permissionCodes->map(fn (string $code) => str($code)->before('.')->toString())->unique()->values()->all(),
@@ -40,6 +43,8 @@ class SyncUserAccessContext
             'headerGodowns' => $context['godowns'],
             'activeShopId' => $context['shop_id'],
             'activeGodownId' => $context['godown_id'],
+            'headerFinancialYears' => $context['financial_years'],
+            'activeFinancialYearId' => $context['financial_year_id'],
         ]);
 
         return $next($request);

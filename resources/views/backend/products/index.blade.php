@@ -1,78 +1,11 @@
 @extends('backend.layouts.app')
-
 @section('title', 'Products | Cholavin ERP')
-
-@push('styles')
-<style>
-    .erp-metric { border: 0; border-radius: 8px; box-shadow: 0 8px 24px rgba(15, 23, 42, .06); }
-</style>
-@endpush
-
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Products</h4>
-            @can('create', App\Models\Product::class)<div class="page-title-right"><a href="{{ route('admin.products.create') }}" class="btn btn-primary"><i class="ri-add-line me-1"></i>Add Product</a></div>@endcan
-        </div>
-    </div>
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-md-4"><div class="card erp-metric"><div class="card-body"><span class="text-muted">Total Products</span><h3>{{ \App\Models\Product::count() }}</h3></div></div></div>
-    <div class="col-md-4"><div class="card erp-metric"><div class="card-body"><span class="text-muted">Active</span><h3>{{ \App\Models\Product::where('is_active', true)->count() }}</h3></div></div></div>
-    <div class="col-md-4"><div class="card erp-metric"><div class="card-body"><span class="text-muted">Homepage</span><h3>{{ \App\Models\Product::where('show_on_homepage', true)->count() }}</h3></div></div></div>
-</div>
-
-<div class="card">
-    <div class="card-header"><h5 class="card-title mb-0">Product Register</h5></div>
-    <div class="card-body">
-        <table id="products-table" class="table table-hover align-middle dt-responsive nowrap w-100">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th><th>Image</th><th>Name</th><th>Price</th><th>Unit</th><th>Status</th><th>Homepage</th><th>Sort</th><th>Action</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
+<div id="products-module" data-index-url="{{ route('admin.products.index') }}" data-pdf-url="{{ route('admin.products.pdf') }}">
+    <div class="card erp-panel mb-3"><div class="card-body d-flex justify-content-between align-items-center gap-3"><div><span class="erp-eyebrow">Product masters</span><h4 class="mb-0">Products</h4></div><div>@can('products.export')<button id="products-pdf" class="btn btn-secondary" type="button"><i class="ri-file-pdf-2-line me-1"></i>PDF</button>@endcan @can('create', App\Models\Product::class)<a href="{{ route('admin.products.create') }}" class="btn btn-primary"><i class="ri-add-line me-1"></i>Add Product</a>@endcan</div></div></div>
+    <div class="row g-3 mb-3"><div class="col-md-4"><div class="card erp-stat-card"><div><small>Total products</small><strong>{{ $metrics['total'] }}</strong></div></div></div><div class="col-md-4"><div class="card erp-stat-card"><div><small>Active</small><strong>{{ $metrics['active'] }}</strong></div></div></div><div class="col-md-4"><div class="card erp-stat-card"><div><small>Homepage</small><strong>{{ $metrics['homepage'] }}</strong></div></div></div></div>
+    <div class="accordion mb-3" id="product-filter-accordion"><div class="accordion-item erp-panel"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#product-filter-panel"><i class="ri-filter-3-line me-2"></i>Filters</button></h2><div id="product-filter-panel" class="accordion-collapse collapse"><div class="accordion-body"><form id="product-filters" class="row g-3"><div class="col-lg-4"><label class="form-label" for="product-search">Search</label><input id="product-search" type="search" class="form-control" placeholder="Product or SKU"></div><div class="col-lg-3"><label class="form-label" for="product-category-filter">Category</label><select id="product-category-filter" class="form-select"><option value="">All</option>@foreach($categories as $category)<option value="{{ $category->id }}">{{ $category->name }}</option>@endforeach</select></div><div class="col-lg-2"><label class="form-label" for="product-status-filter">Status</label><select id="product-status-filter" class="form-select"><option value="">All</option><option value="1">Active</option><option value="0">Inactive</option></select></div><div class="col-lg-2"><label class="form-label" for="product-homepage-filter">Homepage</label><select id="product-homepage-filter" class="form-select"><option value="">All</option><option value="1">Shown</option><option value="0">Hidden</option></select></div><div class="col-lg-1 align-self-end"><button id="reset-product-filters" class="btn btn-secondary w-100" type="button"><i class="ri-refresh-line"></i></button></div></form></div></div></div></div>
+    <div class="card erp-panel"><div class="card-body table-responsive"><table id="products-table" class="table table-hover align-middle w-100"><thead><tr><th>S.No</th><th>Image</th><th>Name</th><th>Price</th><th>Unit</th><th>Status</th><th>Homepage</th><th>Sort</th><th>Action</th></tr></thead></table></div></div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-$(function () {
-    $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
-
-    const table = $('#products-table').DataTable({
-        processing: true,
-        serverSide: true,
-        responsive: true,
-        ordering: false,
-        ajax: '{{ route('admin.products.index') }}',
-        columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-            {data: 'image_preview', name: 'image_preview'},
-            {data: 'name', name: 'name'},
-            {data: 'price', name: 'price'},
-            {data: 'unit', name: 'unit'},
-            {data: 'is_active', name: 'is_active'},
-            {data: 'show_on_homepage', name: 'show_on_homepage'},
-            {data: 'sort_order', name: 'sort_order'},
-            {data: 'action', name: 'action'},
-        ]
-    });
-
-    $(document).on('click', '.delete-product', function () {
-        const url = $(this).data('url');
-        Swal.fire({ title: 'Delete product?', text: 'This will remove the product and image.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Delete' })
-            .then((result) => {
-                if (! result.isConfirmed) return;
-                $.ajax({ url, type: 'DELETE' }).done(function (res) {
-                    Swal.fire('Deleted', res.message, 'success');
-                    table.ajax.reload(null, false);
-                });
-            });
-    });
-});
-</script>
-@endpush
+@push('scripts')<script src="{{ asset('backend/assets/js/modules/products-index.js') }}?v={{ filemtime(public_path('backend/assets/js/modules/products-index.js')) }}"></script>@endpush

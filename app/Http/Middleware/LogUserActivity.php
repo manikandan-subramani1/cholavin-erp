@@ -22,6 +22,7 @@ class LogUserActivity
                 ->update([
                     'active_shop_id' => $request->session()->get('active_shop_id'),
                     'active_godown_id' => $request->session()->get('active_godown_id'),
+                    'active_financial_year_id' => $request->session()->get('active_financial_year_id'),
                 ]);
         }
 
@@ -37,6 +38,7 @@ class LogUserActivity
                 'action' => $action,
                 'shop_id' => $request->session()->get('active_shop_id'),
                 'godown_id' => $request->session()->get('active_godown_id'),
+                'financial_year_id' => $request->session()->get('active_financial_year_id'),
                 'method' => $request->method(),
                 'route' => $request->route()->getName(),
                 'url' => $request->fullUrl(),

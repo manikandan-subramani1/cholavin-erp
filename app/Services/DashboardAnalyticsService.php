@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\ContactEnquiry;
 use App\Models\Godown;
 use App\Models\Product;
@@ -9,6 +10,7 @@ use App\Models\ReferenceMaster;
 use App\Models\Setting;
 use App\Models\Shop;
 use App\Models\User;
+use App\Models\UserNotification;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -22,8 +24,8 @@ class DashboardAnalyticsService
 
     public function build(User $user, int $days): array
     {
-        $shopId = (int) session('active_shop_id');
-        $godownId = (int) session('active_godown_id');
+        $shopId = session('active_shop_id') ? (int) session('active_shop_id') : null;
+        $godownId = session('active_godown_id') ? (int) session('active_godown_id') : null;
         $to = CarbonImmutable::today();
         $from = $to->subDays($days - 1);
         $previousTo = $from->subDay();
@@ -53,8 +55,8 @@ class DashboardAnalyticsService
                 'label' => $days === 365 ? 'Last 12 months' : "Last {$days} days",
             ],
             'visibility' => $visibility,
-            'metrics' => $this->moduleMetrics($shopId, $godownId),
-            'masterChecks' => $this->masterChecks($shopId),
+            'metrics' => $this->moduleMetrics($shopId, $godownId, $user),
+            'masterChecks' => $this->masterChecks($shopId, $user),
             'kpis' => $this->kpis(
                 $visibility,
                 $currentDocuments,
@@ -75,6 +77,8 @@ class DashboardAnalyticsService
             'trend' => $this->financialTrend($shopId, $godownId, $from, $to, $days, $visibility),
             'topProducts' => $visibility['sales'] ? $this->topSellingProducts($shopId, $godownId, $from, $to) : collect(),
             'stock' => $stock,
+            'reminders' => $this->reminders($user, $shopId),
+            'recentActivities' => $this->recentActivities($user, $shopId),
         ];
     }
 
@@ -88,6 +92,36 @@ class DashboardAnalyticsService
             'expenses' => $user->can('payments.view') || $user->can('accounts.view') || $user->can('reports.view'),
             'reports' => $user->can('reports.view'),
         ];
+    }
+
+    private function reminders(User $user, ?int $shopId): Collection
+    {
+        if (! $shopId && ! $user->isSuperAdmin()) {
+            return collect();
+        }
+
+        return UserNotification::query()
+            ->where('user_id', $user->id)
+            ->whereNull('read_at')
+            ->when($shopId, fn ($query) => $query->where(fn ($query) => $query->whereNull('shop_id')->orWhere('shop_id', $shopId)))
+            ->latest()
+            ->limit(5)
+            ->get(['id', 'type', 'title', 'message', 'data', 'created_at']);
+    }
+
+    private function recentActivities(User $user, ?int $shopId): Collection
+    {
+        if (! $shopId && ! $user->isSuperAdmin()) {
+            return collect();
+        }
+
+        return ActivityLog::query()
+            ->with('user:id,name')
+            ->when(! $user->isSuperAdmin(), fn ($query) => $query->where('user_id', $user->id))
+            ->when($shopId, fn ($query) => $query->where(fn ($query) => $query->whereNull('shop_id')->orWhere('shop_id', $shopId)))
+            ->latest('created_at')
+            ->limit(5)
+            ->get();
     }
 
     private function removeRestrictedDocumentValues(array &$summary, array $visibility): void
@@ -124,22 +158,25 @@ class DashboardAnalyticsService
         return $items;
     }
 
-    private function moduleMetrics(int $shopId, int $godownId): array
+    private function moduleMetrics(?int $shopId, ?int $godownId, User $user): array
     {
+        $denyUnscoped = ! $shopId && ! $user->isSuperAdmin();
+
         return [
             ['label' => 'Products', 'value' => Product::query()->where('is_active', true)->count(), 'icon' => 'ri-shopping-bag-3-line', 'route' => 'admin.products.index', 'ability' => ['viewAny', Product::class]],
             ['label' => 'Open Enquiries', 'value' => ContactEnquiry::query()->where('status', 'not_contacted')->count(), 'icon' => 'ri-customer-service-2-line', 'route' => 'admin.enquiries.index', 'ability' => ['viewAny', ContactEnquiry::class]],
             ['label' => 'Active Users', 'value' => User::query()->where('is_active', true)->count(), 'icon' => 'ri-team-line', 'route' => 'admin.users.index', 'ability' => 'users.view'],
             ['label' => 'Active Locations', 'value' => Shop::query()->where('is_active', true)->count() + Godown::query()->where('is_active', true)->count(), 'icon' => 'ri-store-2-line', 'route' => 'admin.locations.index', 'ability' => 'shops.view'],
-            ['label' => 'Customers', 'value' => DB::table('parties')->where('shop_id', $shopId)->whereIn('type', ['customer', 'both'])->count(), 'icon' => 'ri-user-smile-line', 'route' => 'admin.parties.index', 'route_parameters' => ['customers'], 'ability' => 'customers.view'],
-            ['label' => 'Sales Invoices', 'value' => DB::table('commercial_documents')->where('shop_id', $shopId)->when($godownId, fn (Builder $query) => $query->where('godown_id', $godownId))->where('type', 'sales_invoice')->count(), 'icon' => 'ri-file-list-3-line', 'route' => 'admin.documents.index', 'route_parameters' => ['sales-invoices'], 'ability' => 'sales-invoices.view'],
-            ['label' => 'Stock Items', 'value' => DB::table('inventory_balances')->where('shop_id', $shopId)->when($godownId, fn (Builder $query) => $query->where('godown_id', $godownId))->where('quantity', '>', 0)->distinct()->count('product_id'), 'icon' => 'ri-stack-line', 'route' => 'admin.stock.index', 'ability' => 'stock.view'],
+            ['label' => 'Customers', 'value' => DB::table('parties')->when($shopId, fn (Builder $query) => $query->where('shop_id', $shopId))->when($denyUnscoped, fn (Builder $query) => $query->whereRaw('1 = 0'))->whereIn('type', ['customer', 'both'])->count(), 'icon' => 'ri-user-smile-line', 'route' => 'admin.parties.index', 'route_parameters' => ['customers'], 'ability' => 'customers.view'],
+            ['label' => 'Sales Invoices', 'value' => DB::table('commercial_documents')->when($shopId, fn (Builder $query) => $query->where('shop_id', $shopId))->when($denyUnscoped, fn (Builder $query) => $query->whereRaw('1 = 0'))->when($godownId, fn (Builder $query) => $query->where('godown_id', $godownId))->when(session('active_financial_year_id'), fn (Builder $query) => $query->where('financial_year_id', session('active_financial_year_id')))->where('type', 'sales_invoice')->count(), 'icon' => 'ri-file-list-3-line', 'route' => 'admin.documents.index', 'route_parameters' => ['sales-invoices'], 'ability' => 'sales-invoices.view'],
+            ['label' => 'Stock Items', 'value' => DB::table('inventory_balances')->when($shopId, fn (Builder $query) => $query->where('shop_id', $shopId))->when($denyUnscoped, fn (Builder $query) => $query->whereRaw('1 = 0'))->when($godownId, fn (Builder $query) => $query->where('godown_id', $godownId))->where('quantity', '>', 0)->distinct()->count('product_id'), 'icon' => 'ri-stack-line', 'route' => 'admin.stock.index', 'ability' => 'stock.view'],
         ];
     }
 
-    private function masterChecks(int $shopId): array
+    private function masterChecks(?int $shopId, User $user): array
     {
         $settings = Setting::values();
+        $denyUnscoped = ! $shopId && ! $user->isSuperAdmin();
 
         return [
             ['label' => 'Products', 'count' => Product::query()->count(), 'route' => 'admin.products.create', 'ability' => ['create', Product::class], 'message' => 'Add the first product to make billing ready.'],
@@ -148,12 +185,12 @@ class DashboardAnalyticsService
             ['label' => 'Staff users', 'count' => User::query()->whereHas('role', fn ($query) => $query->where('is_super_admin', false))->count(), 'route' => 'admin.users.index', 'ability' => 'users.create', 'message' => 'Create staff and assign their working locations.'],
             ['label' => 'Company contact', 'count' => collect(['contact_phone', 'contact_email', 'company_address'])->filter(fn ($key) => filled($settings[$key] ?? null))->count(), 'expected' => 3, 'route' => 'admin.settings.index', 'ability' => 'settings.update', 'message' => 'Complete phone, email, and company address.'],
             ['label' => 'Units', 'count' => ReferenceMaster::ofType('unit')->where('is_active', true)->count(), 'route' => 'admin.units.create', 'ability' => 'units.create', 'message' => 'Create units before adding inventory products.'],
-            ['label' => 'Customers', 'count' => DB::table('parties')->where('shop_id', $shopId)->whereIn('type', ['customer', 'both'])->count(), 'route' => 'admin.parties.index', 'route_parameters' => ['customers'], 'ability' => 'customers.create', 'message' => 'Add a customer before creating sales documents.'],
-            ['label' => 'Suppliers', 'count' => DB::table('parties')->where('shop_id', $shopId)->whereIn('type', ['supplier', 'both'])->count(), 'route' => 'admin.parties.index', 'route_parameters' => ['suppliers'], 'ability' => 'suppliers.create', 'message' => 'Add a supplier before creating purchase documents.'],
+            ['label' => 'Customers', 'count' => DB::table('parties')->when($shopId, fn (Builder $query) => $query->where('shop_id', $shopId))->when($denyUnscoped, fn (Builder $query) => $query->whereRaw('1 = 0'))->whereIn('type', ['customer', 'both'])->count(), 'route' => 'admin.parties.index', 'route_parameters' => ['customers'], 'ability' => 'customers.create', 'message' => 'Add a customer before creating sales documents.'],
+            ['label' => 'Suppliers', 'count' => DB::table('parties')->when($shopId, fn (Builder $query) => $query->where('shop_id', $shopId))->when($denyUnscoped, fn (Builder $query) => $query->whereRaw('1 = 0'))->whereIn('type', ['supplier', 'both'])->count(), 'route' => 'admin.parties.index', 'route_parameters' => ['suppliers'], 'ability' => 'suppliers.create', 'message' => 'Add a supplier before creating purchase documents.'],
         ];
     }
 
-    private function documentSummary(int $shopId, int $godownId, CarbonImmutable $from, CarbonImmutable $to): array
+    private function documentSummary(?int $shopId, ?int $godownId, CarbonImmutable $from, CarbonImmutable $to): array
     {
         if (! $shopId) {
             return $this->emptyDocumentSummary();
@@ -183,7 +220,7 @@ class DashboardAnalyticsService
         return ['sales' => 0, 'purchases' => 0, 'sales_discount' => 0, 'sales_tax' => 0, 'purchase_tax' => 0, 'purchase_expense' => 0];
     }
 
-    private function estimatedProductCost(int $shopId, int $godownId, CarbonImmutable $from, CarbonImmutable $to): float
+    private function estimatedProductCost(?int $shopId, ?int $godownId, CarbonImmutable $from, CarbonImmutable $to): float
     {
         if (! $shopId) {
             return 0;
@@ -202,7 +239,7 @@ class DashboardAnalyticsService
             ->value('estimated_cost');
     }
 
-    private function operatingExpenses(int $shopId, int $godownId, CarbonImmutable $from, CarbonImmutable $to): float
+    private function operatingExpenses(?int $shopId, ?int $godownId, CarbonImmutable $from, CarbonImmutable $to): float
     {
         if (! $shopId) {
             return 0;
@@ -230,8 +267,8 @@ class DashboardAnalyticsService
         float $netContribution,
         float $previousNetContribution,
         array $stock,
-        int $shopId,
-        int $godownId,
+        ?int $shopId,
+        ?int $godownId,
     ): array {
         $cards = [];
         if ($visibility['sales']) {
@@ -296,7 +333,7 @@ class DashboardAnalyticsService
         return round((($current - $previous) / abs($previous)) * 100, 1);
     }
 
-    private function outstanding(int $shopId, int $godownId, array $types): float
+    private function outstanding(?int $shopId, ?int $godownId, array $types): float
     {
         if (! $shopId) {
             return 0;
@@ -311,7 +348,7 @@ class DashboardAnalyticsService
             ->sum('balance_amount');
     }
 
-    private function financialTrend(int $shopId, int $godownId, CarbonImmutable $from, CarbonImmutable $to, int $days, array $visibility): array
+    private function financialTrend(?int $shopId, ?int $godownId, CarbonImmutable $from, CarbonImmutable $to, int $days, array $visibility): array
     {
         $buckets = $this->trendBuckets($from, $to, $days);
         $documents = collect();
@@ -406,7 +443,7 @@ class DashboardAnalyticsService
         return $days > 90 ? $date->format('Y-m') : $date->toDateString();
     }
 
-    private function topSellingProducts(int $shopId, int $godownId, CarbonImmutable $from, CarbonImmutable $to): Collection
+    private function topSellingProducts(?int $shopId, ?int $godownId, CarbonImmutable $from, CarbonImmutable $to): Collection
     {
         if (! $shopId) {
             return collect();
@@ -440,7 +477,7 @@ class DashboardAnalyticsService
             });
     }
 
-    private function stockAnalytics(int $shopId, int $godownId): array
+    private function stockAnalytics(?int $shopId, ?int $godownId): array
     {
         if (! $shopId) {
             return $this->emptyStockAnalytics();
