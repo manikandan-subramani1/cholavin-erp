@@ -34,6 +34,8 @@ class PaymentController extends Controller
                 ->orderColumn('DT_RowIndex', false)
                 ->editColumn('payment_date', fn (Payment $payment) => $payment->payment_date->format('d-m-Y'))
                 ->editColumn('amount', fn (Payment $payment) => number_format((float) $payment->amount, 2))
+                ->addColumn('actions', fn (Payment $payment) => '<button type="button" class="btn btn-sm btn-soft-primary" data-payment-action="view"><i class="ri-eye-line"></i></button>')
+                ->rawColumns(['actions'])
                 ->with('summary', $this->summary($query))
                 ->toJson();
         }

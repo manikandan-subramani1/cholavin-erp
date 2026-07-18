@@ -8,8 +8,8 @@ use App\Models\Godown;
 use App\Models\InventoryBalance;
 use App\Models\LedgerAccount;
 use App\Models\Party;
-use App\Models\Product;
 use App\Models\Permission;
+use App\Models\Product;
 use App\Models\ReferenceMaster;
 use App\Models\Role;
 use App\Models\Shop;
@@ -179,13 +179,16 @@ class ErpModulesTest extends TestCase
         $this->actingAs($this->admin)
             ->get('/admin/dashboard?period=30')
             ->assertOk()
-            ->assertSee('Top-level analysis')
-            ->assertSee('Product-level analysis')
-            ->assertSee('ERP Product')
-            ->assertSee('id="financial-trend-chart"', false)
-            ->assertSee('id="top-products-chart"', false)
-            ->assertSee('id="stock-category-chart"', false)
-            ->assertSee('id="godown-stock-chart"', false);
+            ->assertSee('Executive Dashboard')
+            ->assertSee('Business at a glance')
+            ->assertSee('data-chart=\'sales-purchase\'', false)
+            ->assertSee('data-top=\'products\'', false)
+            ->assertSee('data-lazy-tab=\'inventory\'', false);
+
+        $this->actingAs($this->admin)->getJson(route('admin.dashboard.top', ['type' => 'products', 'preset' => 'today']))
+            ->assertOk()->assertJsonStructure(['data' => ['items'], 'meta']);
+        $this->actingAs($this->admin)->getJson(route('admin.dashboard.chart', ['chart' => 'profit', 'preset' => 'today']))
+            ->assertOk()->assertJsonStructure(['data' => ['chart' => ['series']], 'meta']);
     }
 
     public function test_voucher_requires_balanced_debit_and_credit(): void

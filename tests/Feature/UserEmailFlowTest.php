@@ -86,6 +86,11 @@ class UserEmailFlowTest extends TestCase
         $this->post(route('admin.password.email'), ['email' => 'missing@example.test'])
             ->assertRedirect()
             ->assertSessionHas('status', 'If that email is registered, a password reset link has been sent.');
+
+        $this->postJson(route('admin.password.email'), ['email' => 'missing@example.test'])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('message', 'If that email is registered, a password reset link has been sent.');
     }
 
     public function test_password_reset_form_and_one_time_token_complete_the_flow(): void
@@ -95,6 +100,9 @@ class UserEmailFlowTest extends TestCase
 
         $this->get(route('admin.password.reset', ['token' => $token, 'email' => $user->email]))
             ->assertOk()
+            ->assertSee('auth.css', false)
+            ->assertSee('data-auth-ajax', false)
+            ->assertSee('data-auth-password-toggle="#password"', false)
             ->assertSee('action="'.route('admin.password.update').'"', false);
 
         $response = $this->post(route('admin.password.update'), [
@@ -109,5 +117,22 @@ class UserEmailFlowTest extends TestCase
         $this->get($response->headers->get('Location'))
             ->assertOk()
             ->assertSee('Your password has been reset.');
+    }
+
+    public function test_password_reset_can_complete_through_ajax(): void
+    {
+        $user = User::where('username', 'superadmin')->firstOrFail();
+        $token = Password::broker()->createToken($user);
+
+        $this->postJson(route('admin.password.update'), [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'AjaxSecure123',
+            'password_confirmation' => 'AjaxSecure123',
+        ])->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.redirect', route('admin.auth.index'));
+
+        $this->assertTrue(Hash::check('AjaxSecure123', $user->fresh()->password));
     }
 }

@@ -6,6 +6,16 @@
     var form = $('#user-form');
     var modal = bootstrap.Modal.getOrCreateInstance($('#user-modal').get(0));
     var allGodownOptions = $('#user-godowns option').clone();
+    function visitUrl(url) { if (!url) return; if (window.CholavinNavigation) window.CholavinNavigation.visit(url); else window.location.href = url; }
+    if (window.CholavinShell) {
+        window.CholavinShell.setQuickActions([
+            {label: 'Add User', icon: 'ri-user-add-line', target: '#add-user', variant: 'primary'},
+            {label: 'Roles', icon: 'ri-shield-user-line', url: module.data('roles-url')},
+            {label: 'Locations', icon: 'ri-store-2-line', url: module.data('locations-url')},
+            {label: 'Activity', icon: 'ri-history-line', url: module.data('activity-url')}
+        ]);
+    }
+
     var table = initializeDataTable({
         selector: '#users-table',
         url: module.data('index-url'),

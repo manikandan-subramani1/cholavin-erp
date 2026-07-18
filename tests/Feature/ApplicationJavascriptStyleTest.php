@@ -42,4 +42,40 @@ class ApplicationJavascriptStyleTest extends TestCase
         $this->assertStringContainsString('CholavinAjax.request', $search);
         $this->assertStringContainsString('$.ajax', $navigation);
     }
+
+    public function test_party_workspace_uses_shell_drawer_and_ajax_navigation_helpers(): void
+    {
+        $script = File::get(public_path('backend/assets/js/modules/parties.js'));
+
+        $this->assertStringContainsString('openPartyDrawer', $script);
+        $this->assertStringContainsString('window.CholavinShell.openDrawer', $script);
+        $this->assertStringContainsString('window.CholavinShell.setQuickActions', $script);
+        $this->assertStringContainsString('window.CholavinNavigation', $script);
+        $this->assertStringContainsString('data-party-action="view"', $script);
+    }
+
+    public function test_product_workspace_uses_shell_drawer_and_quick_actions(): void
+    {
+        $script = File::get(public_path('backend/assets/js/modules/products-index.js'));
+
+        $this->assertStringContainsString('openProductDrawer', $script);
+        $this->assertStringContainsString('window.CholavinShell.openDrawer', $script);
+        $this->assertStringContainsString('window.CholavinShell.setQuickActions', $script);
+        $this->assertStringContainsString('data-product-action="view"', $script);
+        $this->assertStringContainsString('window.CholavinNavigation', $script);
+    }
+
+
+    public function test_document_workspace_uses_fast_shortcuts_and_shell_actions(): void
+    {
+        $script = File::get(public_path('backend/assets/js/modules/commercial-documents.js'));
+
+        $this->assertStringContainsString('installQuickActions', $script);
+        $this->assertStringContainsString('window.CholavinShell.setQuickActions', $script);
+        $this->assertStringContainsString('data-document-shortcut', $script);
+        $this->assertStringContainsString('save-print', $script);
+        $this->assertStringContainsString('save-pay', $script);
+        $this->assertStringContainsString('idempotency_key', $script);
+    }
+
 }

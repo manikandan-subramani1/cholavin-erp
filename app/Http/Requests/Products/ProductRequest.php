@@ -37,6 +37,8 @@ abstract class ProductRequest extends FormRequest
             'price' => ['nullable', 'numeric', 'min:0'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'sale_price' => ['nullable', 'numeric', 'min:0'],
+            'wholesale_price' => ['nullable', 'numeric', 'min:0'],
+            'retail_price' => ['nullable', 'numeric', 'min:0'],
             'opening_stock' => [$productId ? 'prohibited' : 'nullable', 'numeric', 'min:0'],
             'reorder_level' => ['nullable', 'numeric', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
@@ -44,5 +46,14 @@ abstract class ProductRequest extends FormRequest
             'is_active' => ['nullable', 'boolean'],
             'show_on_homepage' => ['nullable', 'boolean'],
         ];
+    }
+
+    public function after(): array
+    {
+        return [function ($validator): void {
+            if ((float) $this->input('opening_stock', 0) > 0 && ! ($this->user()?->can('stock.update') ?? false)) {
+                $validator->errors()->add('opening_stock', 'You do not have permission to post opening stock.');
+            }
+        }];
     }
 }

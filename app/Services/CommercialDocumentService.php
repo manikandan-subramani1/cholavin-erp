@@ -122,3 +122,5 @@ class CommercialDocumentService
         return $prefix.'-'.now()->format('ym').'-'.str_pad((string) ($lastId + 1), 5, '0', STR_PAD_LEFT);
     }
 }
+
+

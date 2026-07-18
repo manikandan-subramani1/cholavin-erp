@@ -28,6 +28,8 @@ class Product extends Model
         'price',
         'purchase_price',
         'sale_price',
+        'wholesale_price',
+        'retail_price',
         'opening_stock',
         'reorder_level',
         'unit',
@@ -40,6 +42,8 @@ class Product extends Model
         'price' => 'decimal:2',
         'purchase_price' => 'decimal:2',
         'sale_price' => 'decimal:2',
+        'wholesale_price' => 'decimal:2',
+        'retail_price' => 'decimal:2',
         'opening_stock' => 'decimal:3',
         'reorder_level' => 'decimal:3',
         'is_active' => 'boolean',
@@ -66,6 +70,10 @@ class Product extends Model
     public function grade() { return $this->belongsTo(ReferenceMaster::class, 'grade_id'); }
     public function unitMaster() { return $this->belongsTo(ReferenceMaster::class, 'unit_id'); }
     public function taxRate() { return $this->belongsTo(ReferenceMaster::class, 'tax_rate_id'); }
+    public function hsnSac() { return $this->belongsTo(ReferenceMaster::class, 'hsn_sac_id'); }
     public function stockBalances() { return $this->hasMany(InventoryBalance::class); }
+    public function stockMovements() { return $this->hasMany(InventoryMovement::class); }
+    public function images() { return $this->hasMany(ProductImage::class)->orderBy('sort_order'); }
+    public function priceHistory() { return $this->hasMany(ProductPriceHistory::class)->latest(); }
     public function documentItems() { return $this->hasMany(CommercialDocumentItem::class); }
 }

@@ -4,6 +4,15 @@
     var module = $('#locations-module');
     var shopModal = bootstrap.Modal.getOrCreateInstance($('#shop-modal').get(0));
     var godownModal = bootstrap.Modal.getOrCreateInstance($('#godown-modal').get(0));
+    if (window.CholavinShell) {
+        window.CholavinShell.setQuickActions([
+            {label: 'Add Shop', icon: 'ri-store-2-line', target: '#add-shop', variant: 'primary'},
+            {label: 'Add Godown', icon: 'ri-building-4-line', target: '#add-godown'},
+            {label: 'Users', icon: 'ri-team-line', url: module.data('users-url')},
+            {label: 'Stock', icon: 'ri-stack-line', url: module.data('stock-url')}
+        ]);
+    }
+
     var filters = function (entity) { return {entity: entity, status: $('#location-status-filter').val(), shop_id: $('#location-shop-filter').val()}; };
     var shops = initializeDataTable({selector: '#shops-table', url: module.data('index-url'), filters: function () { return filters('shops'); }, columns: [
         {data: 'DT_RowIndex'}, {data: 'name'}, {data: 'code'}, {data: 'linked_godowns_count', searchable: false}, {data: 'users_count', searchable: false}, {data: 'record_status', name: 'is_active'}, {data: 'action'}

@@ -3,8 +3,8 @@
 @section('title', 'Stock Transfers | Cholavin ERP')
 
 @section('content')
-<div id="stock-transfer-module" data-index-url="{{ route('admin.stock-transfers.index') }}">
-    <div class="card erp-panel mb-3"><div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3"><div><span class="erp-eyebrow">Inventory</span><h4 class="mb-0">Stock Transfers</h4></div>@can('stock.transfer')<button id="add-transfer" class="btn btn-primary" type="button"><i class="ri-arrow-left-right-line me-1"></i>New Transfer</button>@endcan</div></div>
+<div id="stock-transfer-module" data-index-url="{{ route('admin.stock-transfers.index') }}" data-stock-url="{{ route('admin.stock.index') }}">
+    <div class="card erp-panel mb-3"><div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3"><div><span class="erp-eyebrow">Inventory movement</span><h4 class="mb-1">Stock Transfers</h4><p class="text-muted mb-0">Create requests, track approvals, move stock safely, and audit every transfer stage.</p></div><div class="d-flex flex-wrap gap-2"><a href="{{ route('admin.stock.index') }}" class="btn btn-secondary" data-transfer-action="stock"><i class="ri-stack-line me-1"></i>Stock Overview</a>@can('stock.transfer')<button id="add-transfer" class="btn btn-primary" type="button"><i class="ri-arrow-left-right-line me-1"></i>New Transfer</button>@endcan</div></div></div>
     <div class="erp-module-kpis" data-module-summary-root>
         <article><i class="ri-arrow-left-right-line"></i><span><small>Total Transfers</small><strong data-summary-key="records" data-summary-format="number">{{ number_format($transferSummary['records']) }}</strong><em>Current financial year</em></span></article>
         <article><i class="ri-checkbox-circle-line"></i><span><small>Completed</small><strong data-summary-key="completed" data-summary-format="number">{{ number_format($transferSummary['completed']) }}</strong><em>Stock successfully moved</em></span></article>
@@ -21,7 +21,7 @@
             <div class="col-12"><button id="reset-transfer-filters" class="btn btn-secondary" type="button">Reset filters</button></div>
         </form></div></div>
     </div></div>
-    <div class="card erp-panel"><div class="card-body table-responsive"><table id="transfers-table" class="table table-hover align-middle w-100"><thead><tr><th>S.No</th><th>Number</th><th>Date</th><th>Route</th><th>Items</th><th>Status</th></tr></thead></table></div></div>
+    <div class="card erp-panel"><div class="card-body table-responsive"><table id="transfers-table" class="table table-hover align-middle w-100"><thead><tr><th>S.No</th><th>Number</th><th>Date</th><th>Route</th><th>Items</th><th>Status</th><th>Actions</th></tr></thead></table></div></div>
 
     <div id="transfer-modal" class="modal fade erp-form-modal" tabindex="-1" aria-labelledby="transfer-modal-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-sm-down"><div class="modal-content"><div class="modal-header"><div><span class="erp-eyebrow">Inventory movement</span><h5 id="transfer-modal-title" class="modal-title">New Stock Transfer</h5></div><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button></div>
         <form id="transfer-form" action="{{ route('admin.stock-transfers.store') }}" method="POST" novalidate>@csrf<div class="modal-body">

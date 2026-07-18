@@ -6,7 +6,10 @@
     <div id="party-module" data-base-url="{{ route('admin.parties.index', $partyType) }}"
         data-pdf-url="{{ route('admin.parties.pdf', $partyType) }}"
         data-balance-label="{{ $partyType === 'customers' ? 'Receivable' : 'Payable' }}"
-        data-balance-type="{{ $partyType === 'customers' ? 'receivable' : 'payable' }}">
+        data-balance-type="{{ $partyType === 'customers' ? 'receivable' : 'payable' }}"
+        data-party-label="{{ str($title)->singular() }}"
+        data-payment-url="{{ route('admin.payments.index', ['type' => $partyType === 'customers' ? 'customer_collection' : 'supplier_payment']) }}"
+        data-document-url="{{ route('admin.documents.index', $partyType === 'customers' ? 'sales-invoices' : 'purchase-bills') }}">
     <div class="party-page-toolbar">
         <div>
             <span class="erp-eyebrow">Party Management</span>
@@ -77,6 +80,7 @@
                             <th>Location</th>
                             <th>Outstanding</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                 </table>
@@ -124,14 +128,14 @@
 
                 <div class="party-summary-grid">
                     <div class="party-summary-card party-summary-primary"><span>Outstanding</span><strong
-                            id="party-outstanding">Rs. 0.00</strong><small id="party-balance-label">Receivable</small>
+                            id="party-outstanding">? 0.00</strong><small id="party-balance-label">Receivable</small>
                     </div>
-                    <div class="party-summary-card"><span>Total Business</span><strong id="party-business">Rs.
+                    <div class="party-summary-card"><span>Total Business</span><strong id="party-business">?
                             0.00</strong><small>Posted transactions</small></div>
                     <div class="party-summary-card">
                         <span>{{ $partyType === 'customers' ? 'Collections' : 'Payments' }}</span><strong
-                            id="party-payments">Rs. 0.00</strong><small>Recorded payments</small></div>
-                    <div class="party-summary-card"><span>Credit Available</span><strong id="party-credit">Rs.
+                            id="party-payments">? 0.00</strong><small>Recorded payments</small></div>
+                    <div class="party-summary-card"><span>Credit Available</span><strong id="party-credit">?
                             0.00</strong><small><span id="party-transaction-count">0</span> transactions</small></div>
                 </div>
 
@@ -154,8 +158,8 @@
                                 @endcan
                             @endif
                             @can('payments.create')
-                                <a href="{{ route('admin.payments.index') }}" class="btn btn-secondary btn-sm"><i
-                                        class="ri-money-rupee-circle-line"></i>Payment</a>
+                                <a href="{{ route('admin.payments.index', ['type' => $partyType === 'customers' ? 'customer_collection' : 'supplier_payment']) }}" class="btn btn-secondary btn-sm"><i
+                                        class="ri-money-rupee-circle-line"></i>{{ $partyType === 'customers' ? 'Receive Payment' : 'Make Payment' }}</a>
                             @endcan
                         </div>
                     </div>

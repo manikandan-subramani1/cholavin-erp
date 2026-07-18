@@ -12,15 +12,16 @@ use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\DeliveryController;
 use App\Http\Controllers\Backend\DeliveryRouteController;
 use App\Http\Controllers\Backend\DriverController;
-use App\Http\Controllers\Backend\FinancialYearController;
 use App\Http\Controllers\Backend\FinancialOverviewController;
-use App\Http\Controllers\Backend\GradeController;
+use App\Http\Controllers\Backend\FinancialYearController;
 use App\Http\Controllers\Backend\GlobalSearchController;
+use App\Http\Controllers\Backend\GradeController;
 use App\Http\Controllers\Backend\HsnSacCodeController;
 use App\Http\Controllers\Backend\InvoiceSequenceController;
 use App\Http\Controllers\Backend\InvoiceTemplateController;
 use App\Http\Controllers\Backend\LocationContextController;
 use App\Http\Controllers\Backend\LocationController;
+use App\Http\Controllers\Backend\LoginContextController;
 use App\Http\Controllers\Backend\LookupController;
 use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\NotificationTemplateController;
@@ -43,8 +44,8 @@ use App\Http\Controllers\Backend\TaxConfigurationController;
 use App\Http\Controllers\Backend\TaxRateController;
 use App\Http\Controllers\Backend\ThermalReceiptController;
 use App\Http\Controllers\Backend\UnitController;
-use App\Http\Controllers\Backend\UserSessionController;
 use App\Http\Controllers\Backend\UserAccessController;
+use App\Http\Controllers\Backend\UserSessionController;
 use App\Http\Controllers\Backend\VariantController;
 use App\Http\Controllers\Backend\VehicleController;
 use App\Http\Controllers\Backend\VoucherController;
@@ -78,9 +79,82 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/reset-password', 'update')->name('update');
     });
 
-    Route::middleware(['auth', 'active', 'access.context', 'activity'])->group(function () {
+    Route::middleware('guest')->name('auth.')->group(function () {
+        Route::view('/session-expired', 'backend.auth.state', [
+            'eyebrow' => 'Session expired',
+            'icon' => 'ri-timer-flash-line',
+            'title' => 'Your secure session expired',
+            'message' => 'For safety, inactive sessions are closed automatically. Sign in again to continue your work.',
+            'steps' => [
+                ['icon' => 'ri-login-circle-line', 'title' => 'Sign in again', 'description' => 'Your saved role, godown, shop, and financial-year context will be restored after login.'],
+                ['icon' => 'ri-shield-check-line', 'title' => 'No work is submitted twice', 'description' => 'AJAX forms use fresh tokens and server validation before saving.'],
+            ],
+        ])->name('session-expired');
+        Route::view('/account-locked', 'backend.auth.state', [
+            'eyebrow' => 'Account locked',
+            'icon' => 'ri-lock-2-line',
+            'title' => 'This account needs administrator help',
+            'message' => 'Access can be locked after repeated failed attempts, inactive user status, or role restrictions.',
+            'steps' => [
+                ['icon' => 'ri-user-settings-line', 'title' => 'Contact admin', 'description' => 'Ask a Super Admin to verify your role, active status, and assigned locations.'],
+                ['icon' => 'ri-history-line', 'title' => 'Attempt is logged', 'description' => 'IP address, browser, and time are recorded for audit review.'],
+            ],
+        ])->name('locked');
+        Route::view('/otp-verification', 'backend.auth.state', [
+            'eyebrow' => 'OTP verification',
+            'icon' => 'ri-smartphone-line',
+            'title' => 'Verify your one-time code',
+            'message' => 'Enter the code sent by your configured OTP provider. This policy is optional and remains off until a provider is enabled.',
+            'challengeType' => 'otp',
+            'enabled' => config('erp_auth.challenges.otp_enabled'),
+            'steps' => [
+                ['icon' => 'ri-message-2-line', 'title' => 'Receive OTP', 'description' => 'A one-time code can be sent to the registered mobile number.'],
+                ['icon' => 'ri-key-2-line', 'title' => 'Verify and continue', 'description' => 'The workspace opens only after a successful code check.'],
+            ],
+        ])->name('otp');
+        Route::view('/two-factor-verification', 'backend.auth.state', [
+            'eyebrow' => 'Two-factor authentication',
+            'icon' => 'ri-shield-user-line',
+            'title' => 'Complete two-factor verification',
+            'message' => 'Use an authenticator code or an approved recovery method when two-factor authentication is enabled.',
+            'challengeType' => 'two-factor',
+            'enabled' => config('erp_auth.challenges.two_factor_enabled'),
+            'steps' => [
+                ['icon' => 'ri-qr-code-line', 'title' => 'Authenticator code', 'description' => 'Users can enter the current app-generated security code.'],
+                ['icon' => 'ri-lifebuoy-line', 'title' => 'Recovery support', 'description' => 'Administrators can verify identity before restoring access.'],
+            ],
+        ])->name('two-factor');
+        Route::view('/device-approval', 'backend.auth.state', [
+            'eyebrow' => 'Device approval',
+            'icon' => 'ri-computer-line',
+            'title' => 'Approve this device',
+            'message' => 'Device and IP details are recorded at login. Trusted-device approval remains optional until an approval provider is configured.',
+            'challengeType' => 'device',
+            'enabled' => config('erp_auth.challenges.device_approval_enabled'),
+            'steps' => [
+                ['icon' => 'ri-device-recover-line', 'title' => 'Identify device', 'description' => 'Browser and IP details can be reviewed before approval.'],
+                ['icon' => 'ri-admin-line', 'title' => 'Admin approval', 'description' => 'A Super Admin can approve trusted devices for staff users.'],
+            ],
+        ])->name('device-approval');
+    });
+
+    Route::controller(LoginContextController::class)->middleware(['auth', 'active'])->prefix('select-location')->name('auth.context.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/shops', 'shops')->name('shops');
+        Route::post('/', 'store')->name('store');
+    });
+
+    Route::middleware(['auth', 'active', 'login.context', 'access.context', 'activity'])->group(function () {
         Route::controller(DashboardController::class)->group(function () {
             Route::get('/dashboard', '__invoke')->name('dashboard');
+            Route::prefix('/dashboard')->name('dashboard.')->group(function () {
+                Route::get('/kpis', 'kpis')->name('kpis');
+                Route::get('/charts/{chart}', 'chart')->where('chart', '[a-z-]+')->name('chart');
+                Route::get('/top/{type}', 'top')->whereIn('type', ['products', 'customers', 'suppliers'])->name('top');
+                Route::get('/alerts', 'alerts')->name('alerts');
+                Route::get('/activity', 'activity')->name('activity');
+                Route::get('/tabs/{tab}', 'tab')->whereIn('tab', ['sales', 'purchases', 'inventory', 'finance', 'collections', 'deliveries', 'alerts', 'activity'])->name('tab');
+            });
         });
         Route::get('/financial-overview', FinancialOverviewController::class)->name('financial-overview');
 
@@ -103,6 +177,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/create', 'create')->name('create');
             Route::post('/', 'store')->name('store');
             Route::get('/pdf', 'pdf')->name('pdf');
+            Route::get('/{product}/drawer', 'drawer')->name('drawer');
+            Route::get('/{product}/tabs/{tab}', 'tab')->whereIn('tab', ['overview', 'pricing', 'stock', 'stock-history', 'purchase-history', 'sales-history', 'images', 'barcode', 'documents', 'audit'])->name('tab');
+            Route::post('/{product}/prices', 'updatePrices')->name('prices');
+            Route::post('/{product}/images', 'uploadImage')->name('images');
+            Route::post('/{product}/barcode', 'generateBarcode')->name('barcode');
+            Route::post('/{product}/opening-stock', 'openingStock')->name('opening-stock');
+            Route::post('/{product}/duplicate', 'duplicate')->name('duplicate');
+            Route::patch('/{product}/status', 'status')->name('status');
             Route::get('/{product}/edit', 'edit')->name('edit');
             Route::put('/{product}', 'update')->name('update');
             Route::delete('/{product}', 'destroy')->name('destroy');

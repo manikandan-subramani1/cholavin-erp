@@ -3,11 +3,14 @@
 
     if (!$) return;
 
-    var contentSelector = '.page-content .container-fluid';
+    var contentSelector = '#app-content, #erp-main-content, .page-content .container-fluid';
     var currentRequest = null;
     var pageEventHandlers = [];
 
     function loader(show) {
+        $('body').toggleClass('erp-content-is-loading', !!show);
+        $('#app-content, #erp-main-content').attr('aria-busy', show ? 'true' : 'false');
+        $('#erp-content-skeleton').attr('aria-hidden', show ? 'false' : 'true');
         if (!window.CholavinPageLoader) return;
         show ? window.CholavinPageLoader.show(true) : window.CholavinPageLoader.hide();
     }
@@ -53,9 +56,13 @@
                 if ($.fn.DataTable.isDataTable(table)) $(table).DataTable().destroy(true);
             });
         }
-
         $('.modal-backdrop, .offcanvas-backdrop').remove();
-        $('body').removeClass('modal-open offcanvas-backdrop');
+        $('body').removeClass('modal-open offcanvas-backdrop erp-drawer-open erp-timeline-open');
+        if (window.CholavinShell) {
+            window.CholavinShell.closeDrawer();
+            window.CholavinShell.closeTimeline();
+            window.CholavinShell.setQuickActions([]);
+        }
     }
 
     function installStyles(sourceDocument) {
@@ -124,7 +131,7 @@
         var parsed = new DOMParser().parseFromString(html, 'text/html');
         var $parsed = $(parsed);
         var $incoming = $parsed.find(contentSelector).first();
-        var $current = $(contentSelector).first();
+        var $current = $('#app-content, #erp-main-content').first();
 
         if (!$incoming.length || !$current.length || !$parsed.find('#erp-page-scripts').length) {
             window.location.assign(url.href);
@@ -139,6 +146,7 @@
         if (push) window.history.pushState({cholavin: true}, '', url.href);
         updateMenu(url);
         $(window).scrollTop(0);
+        $current.trigger('focus');
 
         return executeScripts(parsed).then(function () {
             $(document).trigger('cholavin:page-loaded', [{url: url.href}]);
@@ -209,3 +217,4 @@
 
     window.CholavinNavigation = {visit: visit};
 })(window, window.jQuery);
+

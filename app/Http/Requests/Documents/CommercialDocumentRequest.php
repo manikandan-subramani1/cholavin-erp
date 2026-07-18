@@ -30,7 +30,7 @@ class CommercialDocumentRequest extends FormRequest
             'expense_amount' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
             'round_off' => ['nullable', 'numeric', 'between:-10,10'], 'notes' => ['nullable', 'string', 'max:2000'],
             'items' => ['required', 'array', 'min:1'], 'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
-            'items.*.quantity' => ['required', 'numeric', 'gt:0'], 'items.*.rate' => ['required', 'numeric', 'min:0'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0', 'decimal:0,3'], 'items.*.rate' => ['required', 'numeric', 'min:0'],
             'items.*.discount_amount' => ['nullable', 'numeric', 'min:0'], 'items.*.description' => ['nullable', 'string', 'max:255'],
             'items.*.unit' => ['nullable', 'string', 'max:40'], 'items.*.batch_number' => ['nullable', 'string', 'max:80'],
             'items.*.expiry_date' => ['nullable', 'date'],
@@ -48,3 +48,6 @@ class CommercialDocumentRequest extends FormRequest
         )];
     }
 }
+
+
+

@@ -35,7 +35,8 @@ class StockController extends Controller
                 ->editColumn('average_cost', fn (InventoryBalance $balance) => number_format((float) $balance->average_cost, 2))
                 ->addColumn('value', fn (InventoryBalance $balance) => number_format((float) $balance->quantity * (float) $balance->average_cost, 2))
                 ->addColumn('record_status', fn (InventoryBalance $balance) => $this->stockStatus($balance))
-                ->rawColumns(['record_status'])
+                ->addColumn('actions', fn (InventoryBalance $balance) => '<button type="button" class="btn btn-sm btn-soft-primary" data-stock-action="view"><i class="ri-eye-line"></i></button>')
+                ->rawColumns(['record_status', 'actions'])
                 ->with('summary', $this->stockSummary($request))
                 ->toJson();
         }

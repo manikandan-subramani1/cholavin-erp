@@ -2,6 +2,7 @@
 
 use App\Helpers\ResponseHelper;
 use App\Http\Middleware\EnsureActiveUser;
+use App\Http\Middleware\EnsureLoginContextSelected;
 use App\Http\Middleware\LogUserActivity;
 use App\Http\Middleware\SyncUserAccessContext;
 use Illuminate\Foundation\Application;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn () => route('admin.auth.index'));
         $middleware->alias([
             'active' => EnsureActiveUser::class,
+            'login.context' => EnsureLoginContextSelected::class,
             'activity' => LogUserActivity::class,
             'access.context' => SyncUserAccessContext::class,
         ]);

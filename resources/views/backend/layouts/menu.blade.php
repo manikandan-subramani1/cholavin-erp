@@ -166,35 +166,7 @@
                             <i class="ri-home-4-line"></i><span>Dashboard</span>
                         </a>
                     </li>
-                @endcan
-
-                <li class="menu-title"><span>Shortcuts</span></li>
-
-                <li class="erp-sidebar-productivity">
-                    <button type="button" class="erp-sidebar-create" id="erp-sidebar-quick-create"><i class="ri-add-circle-line"></i><span>Quick Create</span><kbd>Alt+N</kbd></button>
-                    <button type="button" class="erp-sidebar-pin" id="erp-pin-current-page"><i class="ri-pushpin-line"></i><span>Pin current page</span></button>
-                </li>
-
-                <li class="erp-sidebar-dynamic d-none" id="erp-pinned-section">
-                    <div class="erp-sidebar-section-label"><span>Pinned</span><button type="button" data-clear-list="pinned" aria-label="Clear pinned pages"><i class="ri-close-line"></i></button></div>
-                    <div id="erp-pinned-pages" class="erp-sidebar-links"></div>
-                </li>
-
-                <li class="erp-sidebar-dynamic d-none" id="erp-recent-section">
-                    <div class="erp-sidebar-section-label"><span>Recent</span><button type="button" data-clear-list="recent" aria-label="Clear recent pages"><i class="ri-close-line"></i></button></div>
-                    <div id="erp-recent-pages" class="erp-sidebar-links"></div>
-                </li>
-
-                <li class="menu-title"><span>Workspaces</span></li>
-                @can('customers.view')<li class="nav-item"><a class="nav-link menu-link {{ $partyType === 'customers' ? 'active' : '' }}" href="{{ route('admin.parties.index', 'customers') }}"><i class="ri-user-smile-line"></i><span>Customer Workspace</span></a></li>@endcan
-                @can('suppliers.view')<li class="nav-item"><a class="nav-link menu-link {{ $partyType === 'suppliers' ? 'active' : '' }}" href="{{ route('admin.parties.index', 'suppliers') }}"><i class="ri-truck-line"></i><span>Supplier Workspace</span></a></li>@endcan
-                @can('stock.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.stock.*') ? 'active' : '' }}" href="{{ route('admin.stock.index') }}"><i class="ri-archive-stack-line"></i><span>Inventory Workspace</span><span class="erp-sidebar-badge d-none" data-sidebar-badge="low_stock">0</span></a></li>@endcan
-                @can('accounts.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.vouchers.*') ? 'active' : '' }}" href="{{ route('admin.vouchers.index') }}"><i class="ri-book-open-line"></i><span>Accounting Workspace</span></a></li>@endcan
-                @can('reports.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.financial-overview') ? 'active' : '' }}" href="{{ route('admin.financial-overview') }}"><i class="ri-funds-line"></i><span>Financial Overview</span></a></li>@endcan
-                @can('deliveries.view')<li class="nav-item"><a class="nav-link menu-link {{ request()->routeIs('admin.deliveries.*') ? 'active' : '' }}" href="{{ route('admin.deliveries.index') }}"><i class="ri-truck-line"></i><span>Delivery Workspace</span><span class="erp-sidebar-badge d-none" data-sidebar-badge="pending_delivery">0</span></a></li>@endcan
-
-                <li class="menu-title"><span>Transactions &amp; Masters</span></li>
-
+                @endcan 
                 @foreach($menuGroups as $group)
                     @php
                         $visibleItems = collect($group['items'])->where('allowed', true)->values();

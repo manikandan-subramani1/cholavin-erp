@@ -3,9 +3,9 @@
 @section('title', 'Shops & Godowns | Cholavin ERP')
 
 @section('content')
-<div id="locations-module" data-index-url="{{ route('admin.locations.index') }}" data-shop-store-url="{{ route('admin.shops.store') }}" data-godown-store-url="{{ route('admin.godowns.store') }}">
+<div id="locations-module" data-index-url="{{ route('admin.locations.index') }}" data-shop-store-url="{{ route('admin.shops.store') }}" data-godown-store-url="{{ route('admin.godowns.store') }}" data-users-url="{{ route('admin.users.index') }}" data-stock-url="{{ route('admin.stock.index') }}">
     <div class="card erp-panel mb-3"><div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <div><span class="erp-eyebrow">Organisation setup</span><h4 class="mb-0">Shops & Godowns</h4></div>
+        <div><span class="erp-eyebrow">Organisation setup</span><h4 class="mb-1">Shops & Godowns</h4><p class="text-muted mb-0">Company hierarchy, billing branches, inventory storage, linked users, and active status.</p></div>
         <div class="d-flex gap-2">@can('shops.create')<button id="add-shop" class="btn btn-primary" type="button"><i class="ri-store-2-line me-1"></i>Add Shop</button>@endcan @can('godowns.create')<button id="add-godown" class="btn btn-primary" type="button"><i class="ri-building-4-line me-1"></i>Add Godown</button>@endcan</div>
     </div></div>
 

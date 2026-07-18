@@ -2,6 +2,16 @@
     'use strict';
     var $form = $('#settings-form');
     if (!$ || !$form.length) return;
+    var $module = $('#settings-module');
+    if (window.CholavinShell && $module.length) {
+        window.CholavinShell.setQuickActions([
+            {label: 'Save Settings', icon: 'ri-save-line', target: '#settings-form .btn-brand', variant: 'primary'},
+            {label: 'Branches', icon: 'ri-store-2-line', url: $module.data('locations-url')},
+            {label: 'Backup', icon: 'ri-database-2-line', url: $module.data('maintenance-url')},
+            {label: 'Business Profile', icon: 'ri-building-4-line', target: '#settings-brand'}
+        ]);
+    }
+
     $form.validate({
         ignore: [],
         rules: {

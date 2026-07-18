@@ -30,6 +30,8 @@ class VoucherController extends Controller
                 ->addIndexColumn()
                 ->editColumn('voucher_date', fn (Voucher $voucher) => $voucher->voucher_date->format('d-m-Y'))
                 ->editColumn('total_debit', fn (Voucher $voucher) => number_format((float) $voucher->total_debit, 2))
+                ->addColumn('actions', fn (Voucher $voucher) => '<button type="button" class="btn btn-sm btn-soft-primary" data-voucher-action="view"><i class="ri-eye-line"></i></button>')
+                ->rawColumns(['actions'])
                 ->toJson();
         }
 

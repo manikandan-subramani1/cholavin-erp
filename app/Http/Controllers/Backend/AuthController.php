@@ -20,8 +20,17 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
+        if (config('erp_auth.captcha.enabled')) {
+            $left = random_int(1, 9);
+            $right = random_int(1, 9);
+            $request->session()->put('auth_captcha_answer', $left + $right);
+            $request->session()->put('auth_captcha_question', $left.' + '.$right);
+        } else {
+            $request->session()->forget(['auth_captcha_answer', 'auth_captcha_question']);
+        }
+
         return view('backend.auth.login');
     }
 
@@ -29,48 +38,72 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
 
-        $throttleKey = Str::lower($credentials['login']).'|'.$request->ip();
-        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
-            throw ValidationException::withMessages([
-                'login' => 'Too many login attempts. Try again in '.RateLimiter::availableIn($throttleKey).' seconds.',
-            ]);
+        $identifier = trim($credentials['login']);
+        $field = filter_var($identifier, FILTER_VALIDATE_EMAIL)
+            ? 'email'
+            : (preg_match('/^[+]?[0-9][0-9 -]{6,}$/', $identifier) ? 'mobile' : 'username');
+        $user = User::with('role')->where($field, $identifier)->first();
+        $throttleKey = Str::lower($identifier).'|'.$request->ip();
+        $maxAttempts = max(1, (int) config('erp_auth.throttle.max_attempts', 5));
+        $decaySeconds = max(30, (int) config('erp_auth.throttle.decay_seconds', 60));
+
+        if (RateLimiter::tooManyAttempts($throttleKey, $maxAttempts)) {
+            $retryAfter = RateLimiter::availableIn($throttleKey);
+            $this->logAttempt($request, 'login.throttled', $user, ['retry_after' => $retryAfter]);
+            $this->recordLoginHistory($request, 'login.throttled', $user, $identifier);
+
+            if ($request->expectsJson()) {
+                return ResponseHelper::error(
+                    'Too many login attempts. Try again in '.$retryAfter.' seconds.',
+                    ['login' => ['Login is temporarily locked.']],
+                    429,
+                    'LOGIN_THROTTLED',
+                );
+            }
+
+            return redirect()->route('admin.auth.locked')->with('retry_after', $retryAfter);
         }
 
-        $field = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL)
-            ? 'email'
-            : (preg_match('/^[+]?[0-9][0-9 -]{6,}$/', $credentials['login']) ? 'mobile' : 'username');
-
-        $user = User::where($field, $credentials['login'])->first();
-
-        if (! $user || ! Auth::attempt([$field => $credentials['login'], 'password' => $credentials['password']], $request->boolean('remember'))) {
-            RateLimiter::hit($throttleKey, 60);
-            $this->logAttempt($request, 'login.failed', $user, ['identifier' => $credentials['login']]);
-            $this->recordLoginHistory($request, 'login.failed', $user, $credentials['login']);
+        if (! $user || ! Auth::attempt([$field => $identifier, 'password' => $credentials['password']], $request->boolean('remember'))) {
+            RateLimiter::hit($throttleKey, $decaySeconds);
+            $this->logAttempt($request, 'login.failed', $user, ['identifier' => $identifier]);
+            $this->recordLoginHistory($request, 'login.failed', $user, $identifier);
             throw ValidationException::withMessages(['login' => 'The supplied credentials are incorrect.']);
         }
 
         if (! $user->is_active || ! $user->role?->is_active) {
             Auth::logout();
-            $request->session()->regenerate();
-            RateLimiter::hit($throttleKey, 60);
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            RateLimiter::hit($throttleKey, $decaySeconds);
             $this->logAttempt($request, 'login.blocked', $user);
-            $this->recordLoginHistory($request, 'login.blocked', $user, $credentials['login']);
+            $this->recordLoginHistory($request, 'login.blocked', $user, $identifier);
             throw ValidationException::withMessages(['login' => 'This account is inactive. Contact the Super Admin.']);
         }
 
         $request->session()->regenerate();
+        $request->session()->forget(['auth_captcha_answer', 'auth_captcha_question']);
         RateLimiter::clear($throttleKey);
         $user->loadMissing(['role.permissions', 'permissions', 'shops:id', 'godowns:id']);
         $user->update(['last_login_at' => now()]);
         $context = $contexts->synchronize($user);
         $permissionCodes = $user->isSuperAdmin() ? collect(['*']) : $user->effectivePermissionCodes();
-        $history = $this->recordLoginHistory($request, 'login.success', $user, $credentials['login']);
+        $history = $this->recordLoginHistory($request, 'login.success', $user, $identifier);
+        $allShops = $contexts->permittedShops($user);
+        $allGodowns = $contexts->permittedGodowns($user);
+        $allFinancialYears = $contexts->permittedFinancialYears($user);
+        $requiresLocationSelection = ! $user->isSuperAdmin() && (
+            $allShops->count() !== 1
+            || $allGodowns->count() !== 1
+            || $allFinancialYears->count() !== 1
+        );
 
         $request->session()->put([
             'user_id' => $user->id,
             'role_id' => $user->role_id,
             'permitted_shop_ids' => $user->isSuperAdmin() ? ['*'] : $user->shops->modelKeys(),
             'permitted_godown_ids' => $user->isSuperAdmin() ? ['*'] : $user->godowns->modelKeys(),
+            'permitted_financial_year_ids' => $user->isSuperAdmin() ? ['*'] : $allFinancialYears->modelKeys(),
             'permitted_modules' => $user->isSuperAdmin()
                 ? ['*']
                 : $permissionCodes->map(fn (string $code) => str($code)->before('.')->toString())->unique()->values()->all(),
@@ -80,9 +113,14 @@ class AuthController extends Controller
             'active_financial_year_id' => $context['financial_year_id'],
             'login_history_id' => $history->id,
             'login_timestamp' => now()->toIso8601String(),
+            'auth_location_selection_required' => $requiresLocationSelection,
         ]);
 
         $this->logAttempt($request, 'login.success', $user);
+
+        $redirect = $requiresLocationSelection
+            ? route('admin.auth.context.index')
+            : route('admin.dashboard');
 
         if ($request->expectsJson()) {
             return ResponseHelper::success('Login successful.', [
@@ -101,11 +139,14 @@ class AuthController extends Controller
                     'godown_id' => $context['godown_id'],
                     'financial_year_id' => $context['financial_year_id'],
                 ],
-                'redirect' => route('admin.dashboard'),
+                'requires_location_selection' => $requiresLocationSelection,
+                'redirect' => $redirect,
             ]);
         }
 
-        return redirect()->intended(route('admin.dashboard'));
+        return $requiresLocationSelection
+            ? redirect()->route('admin.auth.context.index')
+            : redirect()->intended(route('admin.dashboard'));
     }
 
     public function destroy(Request $request): JsonResponse|RedirectResponse

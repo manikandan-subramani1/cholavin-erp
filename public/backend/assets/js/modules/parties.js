@@ -37,6 +37,78 @@
         return $('<div>').text(value || '').html();
     }
 
+    function visitUrl(url) {
+        if (!url) return;
+        if (window.CholavinNavigation) window.CholavinNavigation.visit(url);
+        else window.location.assign(url);
+    }
+
+    function drawerSkeleton() {
+        return '<div class="party-drawer-loading"><span class="spinner-border text-primary"></span><strong>Loading profile...</strong><small>Fetching scoped party details.</small></div>';
+    }
+
+    function partyInitials(party) {
+        return String(party.name || 'P').split(/\s+/).slice(0, 2).map(function (word) { return word[0]; }).join('').toUpperCase();
+    }
+
+    function partyAddress(party) {
+        var addresses = party.addresses || [];
+        var address = addresses.find(function (item) { return item.is_default; }) || addresses[0] || {};
+        return [address.address, address.city, address.state, address.postal_code].filter(Boolean).join(', ') || '-';
+    }
+
+    function openPartyDrawer(response) {
+        if (!window.CholavinShell) return false;
+
+        var party = response.data.party;
+        var summary = response.data.summary;
+        var permissions = response.data.permissions || {};
+        var typeLabel = $root.data('party-label') || 'Party';
+        var paymentLabel = $root.data('balance-type') === 'receivable' ? 'Receive Payment' : 'Make Payment';
+        var documentLabel = $root.data('balance-type') === 'receivable' ? 'New Sale' : 'New Purchase';
+        var whatsapp = party.mobile ? 'https://wa.me/' + String(party.mobile).replace(/\D/g, '') : '#';
+        var email = party.email ? 'mailto:' + encodeURIComponent(party.email) : '#';
+        var html = ''
+            + '<div class="party-drawer-profile">'
+            + '<div class="party-drawer-hero"><div class="party-avatar">' + safe(partyInitials(party)) + '</div><div><span class="erp-eyebrow">' + safe(typeLabel) + ' profile</span><h4>' + safe(party.name) + '</h4><p>' + safe(party.code) + ' &middot; ' + safe(party.group ? party.group.name : 'Ungrouped') + '</p></div></div>'
+            + '<div class="party-drawer-status">' + (party.is_active ? '<span class="badge bg-success-subtle text-success">Active</span>' : '<span class="badge bg-secondary-subtle text-secondary">Inactive</span>') + '</div>'
+            + '<div class="party-drawer-kpis">'
+            + '<article><small>Outstanding</small><strong>' + money(summary.outstanding) + '</strong><span>' + safe($root.data('balance-label')) + '</span></article>'
+            + '<article><small>Total Business</small><strong>' + money(summary.total_business) + '</strong><span>Posted transactions</span></article>'
+            + '<article><small>Payments</small><strong>' + money(summary.payments) + '</strong><span>' + Number(summary.transactions || 0).toLocaleString('en-IN') + ' entries</span></article>'
+            + '<article><small>Credit Available</small><strong>' + money(summary.credit_available) + '</strong><span>Limit balance</span></article>'
+            + '</div>'
+            + '<div class="party-drawer-tabs"><button class="is-active" type="button">Overview</button><button type="button">Ledger</button><button type="button">Documents</button><button type="button">Activity</button></div>'
+            + '<div class="party-drawer-contact">'
+            + '<span><i class="ri-phone-line"></i><strong>Mobile</strong><small>' + safe(party.mobile || '-') + '</small></span>'
+            + '<span><i class="ri-mail-line"></i><strong>Email</strong><small>' + safe(party.email || '-') + '</small></span>'
+            + '<span><i class="ri-government-line"></i><strong>GSTIN</strong><small>' + safe(party.gstin || '-') + '</small></span>'
+            + '<span><i class="ri-map-pin-line"></i><strong>Address</strong><small>' + safe(partyAddress(party)) + '</small></span>'
+            + '</div>'
+            + '<div class="party-drawer-actions">'
+            + '<a class="btn btn-soft-success" href="' + whatsapp + '" target="_blank" rel="noopener"><i class="ri-whatsapp-line"></i>WhatsApp</a>'
+            + '<a class="btn btn-soft-info" href="' + email + '"><i class="ri-mail-send-line"></i>Email</a>'
+            + '<button class="btn btn-primary" type="button" data-party-drawer-action="ledger"><i class="ri-file-list-3-line"></i>Open Ledger</button>'
+            + '<a class="btn btn-secondary" href="' + safe($root.data('payment-url')) + '"><i class="ri-hand-coin-line"></i>' + safe(paymentLabel) + '</a>'
+            + '<a class="btn btn-secondary" href="' + safe($root.data('document-url')) + '"><i class="ri-add-line"></i>' + safe(documentLabel) + '</a>'
+            + (permissions.update ? '<button class="btn btn-soft-primary" type="button" data-party-drawer-action="edit"><i class="ri-edit-line"></i>Edit</button>' : '')
+            + (permissions.delete ? '<button class="btn btn-soft-danger" type="button" data-party-drawer-action="delete"><i class="ri-delete-bin-line"></i>Delete</button>' : '')
+            + '</div></div>';
+
+        window.CholavinShell.openDrawer({title: party.name || typeLabel + ' Details', html: html});
+        return true;
+    }
+
+    function openWorkspaceQuickActions() {
+        if (!window.CholavinShell) return;
+        var actions = [];
+        if ($('#add-party').length) actions.push({label: 'Add ' + ($root.data('party-label') || 'Party'), icon: 'ri-user-add-line', handler: function () { $('#add-party').trigger('click'); }});
+        if ($('#party-pdf').length) actions.push({label: 'Export PDF', icon: 'ri-file-pdf-2-line', handler: function () { $('#party-pdf').trigger('click'); }});
+        actions.push({label: $root.data('balance-type') === 'receivable' ? 'Payment In' : 'Payment Out', icon: 'ri-hand-coin-line', handler: function () { visitUrl($root.data('payment-url')); }});
+        actions.push({label: $root.data('balance-type') === 'receivable' ? 'New Sale' : 'New Purchase', icon: 'ri-add-circle-line', handler: function () { visitUrl($root.data('document-url')); }});
+        window.CholavinShell.setQuickActions(actions);
+    }
+
     var partyTable = initializeDataTable({
         selector: '#parties-table',
         url: base,
@@ -72,7 +144,19 @@
                     return '<span class="party-list-balance ' + (Number(value) > 0 ? 'has-balance' : '') + '">' + money(value) + '</span>';
                 }
             },
-            {data: 'is_active', orderable: false, searchable: false}
+            {data: 'is_active', orderable: false, searchable: false},
+            {
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row) {
+                    if (type !== 'display') return row.id;
+                    return '<div class="party-row-actions">'
+                        + '<button type="button" class="btn btn-sm btn-soft-primary" data-party-action="view" data-party-id="' + row.id + '" title="View profile"><i class="ri-eye-line"></i></button>'
+                        + '<button type="button" class="btn btn-sm btn-soft-success" data-party-action="payment" data-party-id="' + row.id + '" title="Payment"><i class="ri-hand-coin-line"></i></button>'
+                        + '</div>';
+                }
+            }
         ],
         order: [[0, 'asc']]
     });
@@ -112,10 +196,8 @@
     function renderProfile(response) {
         selectedParty = response.data.party;
         var summary = response.data.summary;
-        var addresses = selectedParty.addresses || [];
-        var address = addresses.find(function (item) { return item.is_default; }) || addresses[0] || {};
-        var addressText = [address.address, address.city, address.state, address.postal_code].filter(Boolean).join(', ') || '-';
-        var initials = String(selectedParty.name || 'P').split(/\s+/).slice(0, 2).map(function (word) { return word[0]; }).join('').toUpperCase();
+        var addressText = partyAddress(selectedParty);
+        var initials = partyInitials(selectedParty);
 
         $('#party-avatar').text(initials);
         $('#party-name').text(selectedParty.name);
@@ -150,12 +232,19 @@
         }).addClass('is-selected');
         $('#party-empty-state').addClass('d-none');
         $('#party-detail-content').removeClass('d-none').addClass('is-loading');
-        detailModal.show();
+        if (window.CholavinShell) {
+            window.CholavinShell.openDrawer({title: 'Loading profile', html: drawerSkeleton()});
+        } else {
+            detailModal.show();
+        }
         if (profileRequest) profileRequest.abort();
         profileRequest = CholavinAjax.request({
             url: base + '/' + selectedId,
             showLoader: false,
-            onSuccess: renderProfile,
+            onSuccess: function (response) {
+                renderProfile(response);
+                openPartyDrawer(response);
+            },
             onComplete: function () { $('#party-detail-content').removeClass('is-loading'); }
         });
     }
@@ -186,13 +275,26 @@
         });
         $('#party-active').prop('checked', !!selectedParty.is_active);
         detailModal.hide();
+        if (window.CholavinShell) window.CholavinShell.closeDrawer();
         modal.show();
     }
 
-    $('#parties-table tbody').off('.partyModule').on('click.partyModule', 'tr', function () {
-        var data = partyTable.row(this).data();
-        if (data) selectParty(data.id);
-    });
+    $('#parties-table tbody').off('.partyModule')
+        .on('click.partyModule', '[data-party-action]', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var id = $(this).data('party-id');
+            var action = $(this).data('party-action');
+            if (action === 'payment') {
+                visitUrl($root.data('payment-url'));
+                return;
+            }
+            selectParty(id);
+        })
+        .on('click.partyModule', 'tr', function () {
+            var data = partyTable.row(this).data();
+            if (data) selectParty(data.id);
+        });
     $('#parties-table').off('.partyModule').on('draw.dt.partyModule', function () {
         if (selectedId) {
             $('#parties-table tbody tr').filter(function () {
@@ -201,6 +303,8 @@
             }).addClass('is-selected');
         }
     });
+
+    openWorkspaceQuickActions();
 
     var searchTimer;
     if (initialSearch) {
@@ -231,6 +335,21 @@
     });
     $('#add-party').off('.partyModule').on('click.partyModule', function () { resetForm(); modal.show(); });
     $('#edit-selected-party').off('.partyModule').on('click.partyModule', editParty);
+
+    $(document).off('click.partyDrawer').on('click.partyDrawer', '[data-party-drawer-action]', function () {
+        var action = $(this).data('party-drawer-action');
+        if (action === 'ledger') {
+            detailModal.show();
+            return;
+        }
+        if (action === 'edit') {
+            editParty();
+            return;
+        }
+        if (action === 'delete') {
+            $('#delete-selected-party').trigger('click');
+        }
+    });
 
     $('#party-form').validate({
         ignore: [],
@@ -278,6 +397,7 @@
                     selectedId = null;
                     selectedParty = null;
                     detailModal.hide();
+                    if (window.CholavinShell) window.CholavinShell.closeDrawer();
                     $('#party-detail-content').addClass('d-none');
                     $('#party-empty-state').removeClass('d-none');
                     partyTable.ajax.reload(null, false);

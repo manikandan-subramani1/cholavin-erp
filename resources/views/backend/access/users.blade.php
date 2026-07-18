@@ -5,10 +5,10 @@
 @section('content')
 <div id="users-module"
     data-index-url="{{ route('admin.users.index') }}"
-    data-store-url="{{ route('admin.users.store') }}">
+    data-store-url="{{ route('admin.users.store') }}" data-roles-url="{{ route('admin.roles.index') }}" data-locations-url="{{ route('admin.locations.index') }}" data-activity-url="{{ route('admin.activity-logs.index') }}">
     <div class="card erp-panel mb-3">
         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div><span class="erp-eyebrow">Access control</span><h4 class="mb-0">Users & Access</h4></div>
+            <div><span class="erp-eyebrow">Access control</span><h4 class="mb-1">Users & Access</h4><p class="text-muted mb-0">Manage login accounts, role assignment, shop/godown scope, financial-year access, and status.</p></div>
             @can('users.create')
                 <button id="add-user" class="btn btn-primary" type="button"><i class="ri-user-add-line me-1"></i>Add User</button>
             @endcan

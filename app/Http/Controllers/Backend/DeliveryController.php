@@ -33,6 +33,7 @@ class DeliveryController extends Controller
                 ->addColumn('party_name', fn ($row) => $row->document->party?->name)
                 ->editColumn('scheduled_at', fn ($row) => $row->scheduled_at?->format('d-m-Y h:i A'))
                 ->editColumn('status', fn ($row) => '<span class="badge bg-info">'.str($row->status)->replace('_', ' ')->title().'</span>')
+                ->addColumn('show_url', fn ($row) => route('admin.deliveries.show', $row))
                 ->addColumn('action', fn ($row) => '<button class="btn btn-sm btn-soft-primary edit-delivery" data-url="'.route('admin.deliveries.show', $row).'">Update</button>')
                 ->rawColumns(['status', 'action'])
                 ->with('summary', $this->summary($query))

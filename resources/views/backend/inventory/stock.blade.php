@@ -3,10 +3,10 @@
 @section('title', 'Stock | Cholavin ERP')
 
 @section('content')
-<div id="stock-module" data-index-url="{{ route('admin.stock.index') }}" data-pdf-url="{{ route('admin.stock.pdf') }}">
-    <div class="card erp-panel mb-3"><div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3"><div><span class="erp-eyebrow">Inventory</span><h4 class="mb-0">Shop & Godown Stock</h4></div><div>
+<div id="stock-module" data-index-url="{{ route('admin.stock.index') }}" data-pdf-url="{{ route('admin.stock.pdf') }}" data-transfer-url="{{ route('admin.stock-transfers.index') }}" data-adjustment-url="{{ route('admin.documents.index', 'stock-adjustments') }}" data-damage-url="{{ route('admin.documents.index', 'damaged-stock') }}">
+    <div class="card erp-panel mb-3"><div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3"><div><span class="erp-eyebrow">Inventory control</span><h4 class="mb-1">Shop & Godown Stock</h4><p class="text-muted mb-0">Real-time stock, valuation, reorder alerts, movement shortcuts, and location-safe filters.</p></div><div class="d-flex flex-wrap gap-2">
         @can('stock.export')<button id="stock-pdf" type="button" class="btn btn-secondary"><i class="ri-file-pdf-2-line me-1"></i>PDF</button>@endcan
-        @can('stock.transfer')<a href="{{ route('admin.stock-transfers.index') }}" class="btn btn-primary"><i class="ri-arrow-left-right-line me-1"></i>Stock Transfer</a>@endcan
+        @can('stock.transfer')<a href="{{ route('admin.stock-transfers.index') }}" class="btn btn-primary" data-stock-primary-action="transfer"><i class="ri-arrow-left-right-line me-1"></i>Stock Transfer</a>@endcan
     </div></div></div>
     <div class="erp-stock-kpis" aria-live="polite">
         <article><i class="ri-box-3-line"></i><span><small>Total Items</small><strong data-stock-summary="products">{{ number_format($stockSummary['products']) }}</strong><em>Active stock records</em></span></article>
@@ -24,7 +24,7 @@
             <div class="col-lg-1 align-self-end"><button id="reset-stock-filters" class="btn btn-secondary w-100" type="button"><i class="ri-refresh-line"></i></button></div>
         </form></div></div>
     </div></div>
-    <div class="card erp-panel"><div class="card-body table-responsive"><table id="stock-table" class="table table-hover context-data-table align-middle w-100"><thead><tr><th>S.No</th><th>Product</th><th>SKU</th><th>Godown</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Average Cost</th><th>Value</th><th>Status</th></tr></thead></table></div></div>
+    <div class="card erp-panel"><div class="card-body table-responsive"><table id="stock-table" class="table table-hover context-data-table align-middle w-100"><thead><tr><th>S.No</th><th>Product</th><th>SKU</th><th>Godown</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Average Cost</th><th>Value</th><th>Status</th><th>Actions</th></tr></thead></table></div></div>
 </div>
 @endsection
 

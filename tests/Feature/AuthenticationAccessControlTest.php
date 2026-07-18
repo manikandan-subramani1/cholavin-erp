@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Godown;
 use App\Models\Permission;
+use App\Models\ReferenceMaster;
 use App\Models\Role;
 use App\Models\Shop;
 use App\Models\User;
@@ -28,6 +29,78 @@ class AuthenticationAccessControlTest extends TestCase
         $this->get('/admin/products')->assertRedirect('/admin/login');
     }
 
+    public function test_login_screen_includes_ajax_auth_affordances(): void
+    {
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertSee('auth.css', false)
+            ->assertSee('id="login-form"', false)
+            ->assertSee('data-auth-password-toggle="#password"', false)
+            ->assertSee('data-loading-label="Signing in..."', false)
+            ->assertSee('auth-login.js', false)
+            ->assertSee('Version', false)
+            ->assertSee('Access is monitored', false);
+    }
+
+    public function test_auth_security_state_screens_render_for_future_policies(): void
+    {
+        foreach ([
+            '/admin/session-expired' => 'Your secure session expired',
+            '/admin/account-locked' => 'This account needs administrator help',
+            '/admin/otp-verification' => 'Verify your one-time code',
+            '/admin/two-factor-verification' => 'Complete two-factor verification',
+            '/admin/device-approval' => 'Approve this device',
+        ] as $url => $copy) {
+            $this->get($url)
+                ->assertOk()
+                ->assertSee($copy)
+                ->assertSee('Back to sign in');
+        }
+    }
+
+    public function test_party_workspace_renders_drawer_ready_actions(): void
+    {
+        $admin = User::where('username', 'superadmin')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('admin.parties.index', 'customers'))
+            ->assertOk()
+            ->assertSee('data-payment-url=', false)
+            ->assertSee('data-document-url=', false)
+            ->assertSee('<th>Actions</th>', false)
+            ->assertSee('party-detail-modal', false);
+    }
+
+    public function test_product_workspace_renders_stock_aware_item_master(): void
+    {
+        $admin = User::where('username', 'superadmin')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('admin.products.index'))
+            ->assertOk()
+            ->assertSee('data-stock-url=', false)
+            ->assertSee('data-transfer-url=', false)
+            ->assertSee('Low Stock')
+            ->assertSee('Without Image')
+            ->assertSee('<th>Item Code</th>', false)
+            ->assertSee('<th>Stock</th>', false);
+    }
+
+    public function test_pos_billing_workspace_renders_fast_shortcuts(): void
+    {
+        $admin = User::where('username', 'superadmin')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('admin.documents.index', 'pos-billing'))
+            ->assertOk()
+            ->assertSee('erp-billing-shortcuts', false)
+            ->assertSee('data-document-shortcut="hold"', false)
+            ->assertSee('data-document-shortcut="save-print"', false)
+            ->assertSee('data-document-shortcut="save-pay"', false)
+            ->assertSee('name="idempotency_key"', false)
+            ->assertSee('data-payment-url=', false);
+    }
+
     public function test_user_can_login_with_username_and_permission_context_is_loaded(): void
     {
         $user = User::where('username', 'superadmin')->firstOrFail();
@@ -39,6 +112,7 @@ class AuthenticationAccessControlTest extends TestCase
         $this->assertSame($user->id, session('user_id'));
         $this->assertSame($user->role_id, session('role_id'));
         $this->assertSame(['*'], session('permitted_shop_ids'));
+        $this->assertSame(['*'], session('permitted_financial_year_ids'));
         $this->assertSame(['*'], session('permitted_actions'));
         $this->assertDatabaseHas('activity_logs', ['user_id' => $user->id, 'event' => 'login.success']);
         $this->assertDatabaseHas('login_histories', ['user_id' => $user->id, 'event' => 'login.success']);
@@ -71,6 +145,77 @@ class AuthenticationAccessControlTest extends TestCase
 
         $this->assertGuest();
         $this->assertDatabaseHas('activity_logs', ['event' => 'login.blocked']);
+    }
+
+    public function test_normal_user_with_multiple_locations_selects_context_before_dashboard(): void
+    {
+        $role = Role::create(['name' => 'Multi Location', 'slug' => 'multi-location', 'is_active' => true]);
+        $user = User::create(['role_id' => $role->id, 'name' => 'Multi User', 'username' => 'multi.user', 'email' => 'multi@example.test', 'password' => 'password123', 'is_active' => true]);
+        $shopOne = Shop::create(['name' => 'Shop One', 'code' => 'SHOP-ONE', 'is_active' => true]);
+        $shopTwo = Shop::create(['name' => 'Shop Two', 'code' => 'SHOP-TWO', 'is_active' => true]);
+        $godownOne = Godown::create(['shop_id' => $shopOne->id, 'name' => 'Godown One', 'code' => 'GODOWN-ONE', 'is_active' => true]);
+        $godownTwo = Godown::create(['shop_id' => $shopTwo->id, 'name' => 'Godown Two', 'code' => 'GODOWN-TWO', 'is_active' => true]);
+        $year = ReferenceMaster::create(['type' => 'financial_year', 'code' => 'FY-LOGIN', 'name' => 'Login Year', 'is_active' => true]);
+        $user->shops()->attach([$shopOne->id, $shopTwo->id], ['is_active' => true]);
+        $user->godowns()->attach([$godownOne->id, $godownTwo->id], ['is_active' => true]);
+        $user->financialYears()->attach($year->id, ['is_active' => true]);
+
+        $this->postJson(route('admin.auth.login'), ['login' => $user->username, 'password' => 'password123'])
+            ->assertOk()
+            ->assertJsonPath('data.requires_location_selection', true)
+            ->assertJsonPath('data.redirect', route('admin.auth.context.index'));
+
+        $this->get(route('admin.dashboard'))->assertRedirect(route('admin.auth.context.index'));
+        $this->get(route('admin.auth.context.index'))->assertOk()->assertSee('Choose where you are working');
+        $this->getJson(route('admin.auth.context.shops', ['godown_id' => $godownOne->id]))
+            ->assertOk()->assertJsonPath('data.shops.0.id', $shopOne->id);
+
+        $this->postJson(route('admin.auth.context.store'), [
+            'godown_id' => $godownOne->id,
+            'shop_id' => $shopOne->id,
+            'financial_year_id' => $year->id,
+        ])->assertOk()->assertJsonPath('data.redirect', route('admin.dashboard'));
+
+        $this->assertFalse(session('auth_location_selection_required'));
+        $this->assertSame($shopOne->id, session('active_shop_id'));
+        $this->assertDatabaseHas('activity_logs', ['user_id' => $user->id, 'event' => 'login.context_selected']);
+    }
+
+    public function test_single_assigned_context_is_selected_automatically(): void
+    {
+        $role = Role::create(['name' => 'Single Location', 'slug' => 'single-location', 'is_active' => true]);
+        $user = User::create(['role_id' => $role->id, 'name' => 'Single User', 'username' => 'single.user', 'email' => 'single@example.test', 'password' => 'password123', 'is_active' => true]);
+        $shop = Shop::create(['name' => 'Only Shop', 'code' => 'ONLY-SHOP', 'is_active' => true]);
+        $godown = Godown::create(['shop_id' => $shop->id, 'name' => 'Only Godown', 'code' => 'ONLY-GODOWN', 'is_active' => true]);
+        $year = ReferenceMaster::create(['type' => 'financial_year', 'code' => 'FY-ONLY', 'name' => 'Only Year', 'is_active' => true]);
+        $user->shops()->attach($shop->id, ['is_active' => true, 'is_default' => true]);
+        $user->godowns()->attach($godown->id, ['is_active' => true, 'is_default' => true]);
+        $user->financialYears()->attach($year->id, ['is_active' => true, 'is_default' => true]);
+
+        $this->postJson(route('admin.auth.login'), ['login' => $user->email, 'password' => 'password123'])
+            ->assertOk()
+            ->assertJsonPath('data.requires_location_selection', false)
+            ->assertJsonPath('data.redirect', route('admin.dashboard'));
+
+        $this->assertSame([$year->id], session('permitted_financial_year_ids'));
+        $this->assertSame($shop->id, session('active_shop_id'));
+        $this->assertSame($godown->id, session('active_godown_id'));
+    }
+
+    public function test_login_throttle_returns_locked_response_and_optional_captcha_is_enforced(): void
+    {
+        config()->set('erp_auth.throttle.max_attempts', 1);
+        $this->postJson(route('admin.auth.login'), ['login' => 'rate-limit-user', 'password' => 'wrong'])->assertUnprocessable();
+        $this->postJson(route('admin.auth.login'), ['login' => 'rate-limit-user', 'password' => 'wrong'])
+            ->assertStatus(429)->assertJsonPath('error_code', 'LOGIN_THROTTLED');
+
+        config()->set('erp_auth.captcha.enabled', true);
+        $this->get(route('admin.auth.index'))->assertOk()->assertSee('Security check:');
+        $answer = session('auth_captcha_answer');
+        $this->postJson(route('admin.auth.login'), ['login' => 'admin@gmail.com', 'password' => '12345678'])
+            ->assertUnprocessable()->assertJsonValidationErrors('captcha');
+        $this->postJson(route('admin.auth.login'), ['login' => 'admin@gmail.com', 'password' => '12345678', 'captcha' => $answer])
+            ->assertOk();
     }
 
     public function test_role_without_product_permission_is_forbidden(): void
@@ -190,6 +335,13 @@ class AuthenticationAccessControlTest extends TestCase
             ->assertSee('id="theme-settings-offcanvas"', false)
             ->assertDontSee('id="page-header-cart-dropdown"', false)
             ->assertSee('page-loader.js', false)
+            ->assertSee('id="app-content"', false)
+            ->assertSee('data-erp-main-content', false)
+            ->assertSee('id="erp-content-skeleton"', false)
+            ->assertSee('id="erp-right-drawer"', false)
+            ->assertSee('id="erp-activity-timeline"', false)
+            ->assertSee('id="erp-quick-action-bar"', false)
+            ->assertSee('href="#app-content"', false)
             ->assertSee('id="erp-quick-create-toggle"', false)
             ->assertSee('id="erp-calculator-toggle"', false)
             ->assertSee('header-context.js', false)

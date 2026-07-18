@@ -5,8 +5,10 @@
 
     var storageKeys = {
         pinned: 'cholavin.erp.pinned-pages',
-        recent: 'cholavin.erp.recent-pages'
+        recent: 'cholavin.erp.recent-pages',
+        sidebarSize: 'cholavin.erp.sidebar-size'
     };
+    var mainSelector = '#app-content, #erp-main-content';
 
     function readList(type) {
         try {
@@ -97,12 +99,39 @@
         $('body').attr('data-erp-domain', domain);
     }
 
+    function restoreSidebarSize() {
+        if (window.innerWidth < 1025) return;
+
+        try {
+            var size = window.localStorage.getItem(storageKeys.sidebarSize);
+            if (size !== 'lg' && size !== 'sm') return;
+            $('html').attr('data-sidebar-size', size);
+            window.sessionStorage.setItem('data-sidebar-size', size);
+        } catch (error) {
+            // Storage can be unavailable in restricted browser sessions.
+        }
+    }
+
+    function rememberSidebarSize() {
+        if (window.innerWidth < 1025) return;
+
+        try {
+            var size = $('html').attr('data-sidebar-size') === 'sm' ? 'sm' : 'lg';
+            window.localStorage.setItem(storageKeys.sidebarSize, size);
+            window.sessionStorage.setItem('data-sidebar-size', size);
+        } catch (error) {
+            // The visual toggle still works when persistence is unavailable.
+        }
+    }
+
     function enhancePage() {
         setDomainClass();
-        var $main = $('#erp-main-content');
+        var $main = $(mainSelector).first();
         $main.find('> .card.erp-panel').first().addClass('erp-page-command-card');
         $main.find('.accordion').has('form').addClass('erp-smart-filter-panel');
         $main.find('.table').addClass('erp-data-table');
+        $main.find('.table-responsive').addClass('erp-datatable-shell');
+        $main.find('.table-responsive').closest('.card').addClass('erp-table-workspace');
         $main.find('.card').addClass('erp-surface');
         $main.find('input[type="search"]').attr('autocomplete', 'off');
         rememberRecentPage();
@@ -140,7 +169,7 @@
 
     function updateModuleSummary($table, summary) {
         if (!summary) return;
-        var $root = $table.closest('[data-module-summary-root], #erp-main-content').find('[data-module-summary-root]').first();
+        var $root = $table.closest('[data-module-summary-root], #app-content, #erp-main-content').find('[data-module-summary-root]').first();
         if (!$root.length) return;
 
         $.each(summary, function (key, value) {
@@ -154,6 +183,72 @@
         });
     }
 
+    function closeDrawer() {
+        $('#erp-right-drawer').removeClass('is-open').attr('aria-hidden', 'true');
+        $('body').removeClass('erp-drawer-open');
+    }
+
+    function openDrawer(options) {
+        options = options || {};
+        var $drawer = $('#erp-right-drawer');
+        var $body = $drawer.find('[data-erp-drawer-body]');
+        if (!$drawer.length) return;
+
+        $('#erp-right-drawer-title').text(options.title || 'Details');
+        $body.html(options.html || '');
+        $drawer.addClass('is-open').attr('aria-hidden', 'false');
+        $('body').addClass('erp-drawer-open');
+        $drawer.find('[data-erp-close-drawer]').trigger('focus');
+    }
+
+    function closeTimeline() {
+        $('#erp-activity-timeline').removeClass('is-open').attr('aria-hidden', 'true');
+        $('body').removeClass('erp-timeline-open');
+    }
+
+    function openTimeline(items) {
+        var $timeline = $('#erp-activity-timeline');
+        var $body = $timeline.find('[data-erp-timeline-body]').empty();
+        if (!$timeline.length) return;
+
+        $.each(items || [], function (_, item) {
+            $('<article>', {class: 'erp-activity-item'})
+                .append($('<span>', {class: 'erp-activity-dot'}))
+                .append($('<div>')
+                    .append($('<strong>').text(item.title || 'Activity'))
+                    .append($('<small>').text(item.time || ''))
+                    .append($('<p>').text(item.description || '')))
+                .appendTo($body);
+        });
+
+        $timeline.addClass('is-open').attr('aria-hidden', 'false');
+        $('body').addClass('erp-timeline-open');
+        $timeline.find('[data-erp-close-timeline]').trigger('focus');
+    }
+
+    function setQuickActions(actions) {
+        var $bar = $('#erp-quick-action-bar').empty();
+        if (!$bar.length) return;
+
+        $.each(actions || [], function (_, action) {
+            var $button = $('<button>', {type: 'button', class: 'erp-quick-action-item', title: action.title || action.label || ''})
+                .append($('<i>', {class: action.icon || 'ri-flashlight-line'}))
+                .append($('<span>').text(action.label || 'Action'));
+
+            if (typeof action.handler === 'function') {
+                $button.on('click.erpQuickAction', action.handler);
+            } else if (action.url) {
+                $button.on('click.erpQuickAction', function () {
+                    if (window.CholavinNavigation) window.CholavinNavigation.visit(action.url);
+                    else window.location.assign(action.url);
+                });
+            }
+
+            $button.appendTo($bar);
+        });
+
+        $bar.toggleClass('is-open', (actions || []).length > 0).attr('aria-hidden', (actions || []).length > 0 ? 'false' : 'true');
+    }
     function calculate(key) {
         var $display = $('#erp-calculator-display');
         var expression = String($display.data('expression') || '');
@@ -180,14 +275,33 @@
     }
 
     $(function () {
+        restoreSidebarSize();
         $('<div>', {id: 'erp-live-region', class: 'visually-hidden', 'aria-live': 'polite', 'aria-atomic': 'true'}).appendTo('body');
         renderList('pinned');
         renderList('recent');
         enhancePage();
         refreshSidebarBadges();
 
+        $('[data-erp-close-drawer]').on('click.erpUi', closeDrawer);
+        $('[data-erp-close-timeline]').on('click.erpUi', closeTimeline);
+        $(document).on('click.erpUi', '[data-erp-drawer-url]', function () {
+            var $trigger = $(this);
+            window.CholavinAjax.request({
+                url: $trigger.data('erp-drawer-url'),
+                method: 'GET',
+                onSuccess: function (response) {
+                    openDrawer({
+                        title: $trigger.data('erp-drawer-title'),
+                        html: response.data && response.data.html ? response.data.html : ''
+                    });
+                }
+            });
+        });
         $('#erp-sidebar-quick-create, #erp-mobile-create').on('click.erpUi', toggleQuickCreate);
         $('#erp-pin-current-page').on('click.erpUi', pinCurrentPage);
+        $('#topnav-hamburger-icon').on('click.erpSidebarState', function () {
+            window.setTimeout(rememberSidebarSize, 0);
+        });
         $('[data-clear-list]').on('click.erpUi', function () {
             var type = $(this).data('clear-list');
             writeList(type, []);
@@ -236,11 +350,12 @@
                 }
 
                 if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-                    var $form = $('.modal.show form:visible, #erp-main-content form:visible').first();
+                    var $form = $('.modal.show form:visible, #app-content form:visible, #erp-main-content form:visible').first();
                     if ($form.length) { event.preventDefault(); $form.trigger('submit'); }
                 }
             });
 
         $(document).ajaxStart(function () { $('body').addClass('erp-ajax-active'); }).ajaxStop(function () { $('body').removeClass('erp-ajax-active'); });
     });
+    window.CholavinShell = {openDrawer: openDrawer, closeDrawer: closeDrawer, openTimeline: openTimeline, closeTimeline: closeTimeline, setQuickActions: setQuickActions};
 })(window, window.jQuery);

@@ -3,9 +3,9 @@
 @section('title', 'Roles & Permissions | Cholavin ERP')
 
 @section('content')
-<div id="roles-module" data-index-url="{{ route('admin.roles.index') }}" data-store-url="{{ route('admin.roles.store') }}">
+<div id="roles-module" data-index-url="{{ route('admin.roles.index') }}" data-store-url="{{ route('admin.roles.store') }}" data-users-url="{{ route('admin.users.index') }}" data-activity-url="{{ route('admin.activity-logs.index') }}">
     <div class="card erp-panel mb-3"><div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <div><span class="erp-eyebrow">Access control</span><h4 class="mb-0">Roles & Permissions</h4></div>
+        <div><span class="erp-eyebrow">Access control</span><h4 class="mb-1">Roles & Permissions</h4><p class="text-muted mb-0">Module-wise and action-wise permission matrix for secure ERP operations.</p></div>
         @can('roles.create')<button id="add-role" type="button" class="btn btn-primary"><i class="ri-shield-user-line me-1"></i>Add Role</button>@endcan
     </div></div>
 

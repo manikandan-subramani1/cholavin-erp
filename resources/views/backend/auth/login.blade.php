@@ -10,38 +10,66 @@
     <link href="{{ asset('backend/assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/assets/css/icons.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/assets/vendor/toastr/toastr.min.css') }}" rel="stylesheet">
-    <style>
-        :root{--maroon:#5e001b;--deep:#3b0010;--red:#8f0028;--gold:#f4c430;--ivory:#fff8e6}*{box-sizing:border-box}body{margin:0;background:#f8f4f1;color:#35292d;font-family:Inter,Arial,sans-serif}.auth-shell{min-height:100vh;display:grid;grid-template-columns:minmax(420px,1.05fr) minmax(420px,.95fr)}.auth-brand{position:relative;background:var(--deep);overflow:hidden;display:flex;align-items:flex-end;padding:56px}.auth-brand:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(59,0,16,.06),rgba(59,0,16,.78)),url('{{ asset($commonSettings['auth_brand_image'] ?? 'frontend/assets/img/logo/logo-hm64.png') }}') center/cover no-repeat}.auth-brand-content{position:relative;z-index:1;color:#fff;max-width:580px}.auth-brand-content img{width:250px;max-height:90px;object-fit:contain;object-position:left;margin-bottom:32px}.auth-kicker{color:var(--gold);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}.auth-brand h1{font-size:42px;color:#fff;margin:12px 0}.auth-brand p{font-size:17px;color:#eadcdf;line-height:1.7}.auth-form-panel{display:grid;place-items:center;padding:45px;background:linear-gradient(145deg,#fff,#fff8ed)}.auth-form{width:100%;max-width:430px}.auth-form h2{color:var(--deep);font-size:30px;margin-bottom:7px}.auth-form .lead{color:#84777b;font-size:15px;margin-bottom:32px}.form-label{font-weight:700;color:#57484d}.form-control{height:50px;border:1px solid #ded2d5;border-radius:9px}.form-control:focus{border-color:var(--red);box-shadow:0 0 0 .2rem rgba(143,0,40,.1)}.btn-login{height:52px;border:0;border-radius:9px;background:var(--red);color:#fff;font-weight:800;width:100%;box-shadow:0 10px 24px rgba(143,0,40,.18)}.btn-login:hover{background:var(--deep);color:var(--gold)}.auth-meta{display:flex;align-items:center;justify-content:space-between;margin:18px 0 28px}.security-note{margin-top:28px;padding-top:20px;border-top:1px solid #ebdfe1;color:#93878a;font-size:12px}.mobile-logo{display:none;background:var(--deep);border-radius:12px;padding:18px;margin-bottom:25px}.mobile-logo img{width:220px;max-height:65px;object-fit:contain}@media(max-width:900px){.auth-shell{display:block}.auth-brand{display:none}.auth-form-panel{min-height:100vh;padding:28px}.mobile-logo{display:block}}
-    </style>
+    <link href="{{ asset('backend/assets/css/auth.css') }}?v={{ filemtime(public_path('backend/assets/css/auth.css')) }}" rel="stylesheet">
     <link href="{{ asset('shared/assets/css/cholavin-fonts.css') }}?v={{ filemtime(public_path('shared/assets/css/cholavin-fonts.css')) }}" rel="stylesheet">
 </head>
 <body>
+@php
+    $supportPhone = $commonSettings['contact_phone'] ?? '+91 99652 52555';
+    $supportEmail = $commonSettings['contact_email'] ?? config('mail.from.address');
+@endphp
 <main class="auth-shell">
-    <section class="auth-brand">
+    <section class="auth-brand" style="--auth-hero-image: url('{{ asset($commonSettings['auth_brand_image'] ?? 'frontend/assets/img/logo/logo-hm64.png') }}')">
         <div class="auth-brand-content">
             <img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="{{ $commonSettings['company_name'] ?? 'Cholavin' }}">
-            <span class="auth-kicker">Secure business workspace</span>
+            <span class="auth-kicker"><i class="ri-shield-check-line"></i> Secure business workspace</span>
             <h1>One system. Every shop. Complete control.</h1>
-            <p>Access billing, inventory, customer operations, and reports according to your assigned role and working location.</p>
+            <p>Access billing, inventory, customer operations, and reports according to your assigned role, godown, shop, and financial year.</p>
+            <ul class="auth-feature-list">
+                <li><i class="ri-checkbox-circle-line"></i> Role, module, and action permissions are checked on every request.</li>
+                <li><i class="ri-map-pin-2-line"></i> Assigned godown and shop context loads automatically after login.</li>
+                <li><i class="ri-flashlight-line"></i> AJAX-powered workflow keeps billing counters fast.</li>
+            </ul>
         </div>
     </section>
     <section class="auth-form-panel">
         <div class="auth-form">
-            <div class="mobile-logo"><img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="Brand logo"></div>
+            <div class="auth-mobile-logo"><img src="{{ asset($commonSettings['brand_logo'] ?? 'frontend/assets/img/logo/logo-hm62.png') }}" alt="Brand logo"></div>
             <span class="auth-kicker">{{ $commonSettings['company_name'] ?? 'Cholavin' }} ERP</span>
             <h2>Welcome back</h2>
             <p class="lead">Sign in with your username, email address, or mobile number.</p>
-            @if (session('status'))<div class="alert alert-success" role="status">{{ session('status') }}</div>@endif
-            @if ($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
-            <div id="login-feedback" class="alert alert-danger d-none" role="alert"></div>
-            <form id="login-form" action="{{ route('admin.auth.login') }}" method="post" novalidate>
+            @if (session('status'))<div class="alert alert-success auth-status" role="status">{{ session('status') }}</div>@endif
+            @if ($errors->any())<div class="alert alert-danger auth-status">{{ $errors->first() }}</div>@endif
+            <div id="login-feedback" class="alert alert-danger auth-status d-none" role="alert" aria-live="polite"></div>
+            <form id="login-form" action="{{ route('admin.auth.login') }}" method="post" data-locked-url="{{ route('admin.auth.locked') }}" novalidate>
                 @csrf
-                <div class="mb-3"><label for="login" class="form-label">Username / Email / Mobile</label><input type="text" name="login" value="{{ old('login') }}" class="form-control @error('login') is-invalid @enderror" id="login" placeholder="Enter your login ID" required autofocus autocomplete="username"></div>
-                <div class="mb-2"><label for="password" class="form-label">Password</label><input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="Enter your password" required autocomplete="current-password"></div>
-                <div class="auth-meta"><label class="form-check-label"><input class="form-check-input me-1" name="remember" value="1" type="checkbox"> Remember me</label><a class="small" href="{{ route('admin.password.request') }}">Forgot password?</a></div>
-                <button class="btn btn-login" type="submit">Sign in to ERP <i class="ri-arrow-right-line ms-1"></i></button>
+                <div class="mb-3">
+                    <label for="login" class="form-label">Username / Email / Mobile</label>
+                    <input type="text" name="login" value="{{ old('login') }}" class="form-control @error('login') is-invalid @enderror" id="login" placeholder="Enter your login ID" required autofocus autocomplete="username">
+                </div>
+                <div class="mb-2 auth-password-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="Enter your password" required autocomplete="current-password">
+                    <button type="button" class="auth-password-toggle" data-auth-password-toggle="#password" aria-label="Show password"><i class="ri-eye-line"></i></button>
+                </div>
+                @if(config('erp_auth.captcha.enabled'))
+                    <div class="mb-3">
+                        <label for="captcha" class="form-label">Security check: {{ session('auth_captcha_question') }} = ?</label>
+                        <input type="number" name="captcha" class="form-control @error('captcha') is-invalid @enderror" id="captcha" required inputmode="numeric" autocomplete="off" placeholder="Enter answer">
+                    </div>
+                @endif
+                <div class="auth-meta">
+                    <label class="form-check-label"><input class="form-check-input me-1" name="remember" value="1" type="checkbox"> Remember me</label>
+                    <a class="small" href="{{ route('admin.password.request') }}">Forgot password?</a>
+                </div>
+                <button class="btn btn-login" type="submit" data-loading-label="Signing in...">Sign in to ERP <i class="ri-arrow-right-line ms-1"></i></button>
             </form>
-            <div class="security-note">Access is monitored and restricted by role, shop, and godown assignment.</div>
+            <div class="auth-security-note"><i class="ri-lock-password-line"></i><span>Access is monitored and restricted by role, shop, godown, action permission, and financial-year context.</span></div>
+            <div class="auth-support">
+                <span><i class="ri-phone-line me-1"></i>{{ $supportPhone }}</span>
+                <span><i class="ri-mail-line me-1"></i>{{ $supportEmail }}</span>
+            </div>
+            <div class="auth-version">Version {{ config('app.version', '1.0.0') }}</div>
         </div>
     </section>
 </main>
@@ -49,6 +77,6 @@
 <script src="{{ asset('backend/assets/vendor/jquery-validation/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('backend/assets/vendor/toastr/toastr.min.js') }}"></script>
 <script src="{{ asset('backend/assets/js/erp-common.js') }}"></script>
-<script src="{{ asset('backend/assets/js/auth-login.js') }}"></script>
+<script src="{{ asset('backend/assets/js/auth-login.js') }}?v={{ filemtime(public_path('backend/assets/js/auth-login.js')) }}"></script>
 </body>
 </html>

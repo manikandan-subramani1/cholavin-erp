@@ -12,8 +12,8 @@ use App\Services\StockTransferService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -33,7 +33,8 @@ class StockTransferController extends Controller
                 ->editColumn('transfer_date', fn (StockTransfer $transfer) => $transfer->transfer_date->format('d-m-Y'))
                 ->addColumn('route', fn (StockTransfer $transfer) => e($transfer->fromGodown->name.' → '.$transfer->toGodown->name))
                 ->addColumn('record_status', fn (StockTransfer $transfer) => '<span class="badge '.($transfer->status === 'completed' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning').'">'.str($transfer->status)->title().'</span>')
-                ->rawColumns(['record_status'])
+                ->addColumn('actions', fn (StockTransfer $transfer) => '<button type="button" class="btn btn-sm btn-soft-primary" data-transfer-action="view"><i class="ri-eye-line"></i></button>')
+                ->rawColumns(['record_status', 'actions'])
                 ->with('summary', $this->summary($query))
                 ->toJson();
         }

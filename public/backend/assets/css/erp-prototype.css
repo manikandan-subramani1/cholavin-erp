@@ -149,6 +149,21 @@ body .navbar-menu .navbar-nav .menu-link[aria-expanded='true'] {
 body .navbar-menu .navbar-nav .nav-link.active { box-shadow: inset 3px 0 0 var(--erp-gold); }
 body .navbar-menu .menu-dropdown .nav-sm > .nav-item > .nav-link { margin-left: 21px; color: #d8c7cd; }
 
+/* Compact mode is an icon rail; expanded-only utilities stay available after reopening it. */
+:is([data-layout=vertical], [data-layout=semibox])[data-sidebar-size=sm] body .erp-sidebar-productivity,
+:is([data-layout=vertical], [data-layout=semibox])[data-sidebar-size=sm] body .erp-sidebar-dynamic,
+:is([data-layout=vertical], [data-layout=semibox])[data-sidebar-size=sm] body .navbar-menu .navbar-nav > .menu-title {
+    display: none !important;
+}
+
+:is([data-layout=vertical], [data-layout=semibox])[data-sidebar-size=sm] body .navbar-menu .navbar-nav {
+    padding-top: 12px;
+}
+
+:is([data-layout=vertical], [data-layout=semibox])[data-sidebar-size=sm] body .navbar-menu .navbar-nav > .nav-item > .menu-link {
+    overflow: hidden;
+}
+
 body .main-content { margin-left: 230px; }
 
 body .page-content {

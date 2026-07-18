@@ -112,7 +112,8 @@
         if (!$button.length || $button.data('cholavin-loading')) return;
         $button.data('cholavin-loading', true);
         $button.data('cholavin-original-html', $button.html());
-        $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Processing...');
+        var loadingLabel = $button.data('loading-label') || 'Processing...';
+        $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> ' + loadingLabel);
     }
 
     function stopButton(button) {
@@ -158,8 +159,12 @@
         }
 
         var response = xhr.responseJSON || {};
-        if (xhr.status === 419) {
-            notify('error', 'Your secure session expired. Refresh this page and submit again.');
+        if (xhr.status === 401 || xhr.status === 419) {
+            notify('error', 'Your secure session expired. Sign in again to continue.');
+            window.setTimeout(function () {
+                var redirect = $('meta[name="session-expired-url"]').attr('content') || '/admin/session-expired';
+                window.location.assign(redirect);
+            }, 250);
             return;
         }
 

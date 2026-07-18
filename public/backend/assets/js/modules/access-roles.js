@@ -4,6 +4,15 @@
     var module = $('#roles-module');
     var form = $('#role-form');
     var modal = bootstrap.Modal.getOrCreateInstance($('#role-modal').get(0));
+    if (window.CholavinShell) {
+        window.CholavinShell.setQuickActions([
+            {label: 'Add Role', icon: 'ri-shield-user-line', target: '#add-role', variant: 'primary'},
+            {label: 'Users', icon: 'ri-team-line', url: module.data('users-url')},
+            {label: 'Activity', icon: 'ri-history-line', url: module.data('activity-url')},
+            {label: 'Active Roles', icon: 'ri-checkbox-circle-line', target: '#role-status-filter', value: '1'}
+        ]);
+    }
+
     var table = initializeDataTable({selector: '#roles-table', url: module.data('index-url'), filters: function () { return {status: $('#role-status-filter').val()}; }, columns: [
         {data: 'DT_RowIndex'}, {data: 'name'}, {data: 'role_type', orderable: false, searchable: false},
         {data: 'permissions_count', searchable: false}, {data: 'users_count', searchable: false}, {data: 'record_status', name: 'is_active'}, {data: 'action'}

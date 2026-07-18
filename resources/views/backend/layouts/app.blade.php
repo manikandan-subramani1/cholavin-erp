@@ -8,6 +8,7 @@
     <title>@yield('title', 'Billing Dashboard | Cholavin ERP')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="session-expired-url" content="{{ route('admin.auth.session-expired') }}">
     <meta content="Cholavin ERP billing software interface" name="description" />
     <meta content="Cholavin" name="author" />
     @include('shared.google-fonts')
@@ -59,9 +60,36 @@
         <!-- ============================================================== -->
         <div class="main-content"> 
             <div class="page-content">
-                <main class="container-fluid" id="erp-main-content" tabindex="-1">
+                <main class="container-fluid erp-main-content" id="app-content" data-erp-main-content tabindex="-1" aria-live="polite">
                     @yield('content') 
                 </main>
+                <div id="erp-content-skeleton" class="erp-content-skeleton" aria-hidden="true">
+                    <div class="erp-skeleton-command"></div>
+                    <div class="erp-skeleton-summary">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="erp-skeleton-table">
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+                <aside id="erp-right-drawer" class="erp-right-drawer" aria-hidden="true" aria-labelledby="erp-right-drawer-title">
+                    <header class="erp-right-drawer-head">
+                        <div>
+                            <span class="erp-eyebrow">Workspace</span>
+                            <h5 id="erp-right-drawer-title">Details</h5>
+                        </div>
+                        <button type="button" class="erp-icon-button" data-erp-close-drawer aria-label="Close details drawer"><i class="ri-close-line"></i></button>
+                    </header>
+                    <div class="erp-right-drawer-body" data-erp-drawer-body></div>
+                </aside>
+                <aside id="erp-activity-timeline" class="erp-activity-timeline" aria-hidden="true" aria-label="Activity timeline">
+                    <div class="erp-activity-timeline-head">
+                        <span class="erp-eyebrow">Activity</span>
+                        <button type="button" class="erp-icon-button" data-erp-close-timeline aria-label="Close activity timeline"><i class="ri-close-line"></i></button>
+                    </div>
+                    <div class="erp-activity-timeline-body" data-erp-timeline-body></div>
+                </aside>
+                <div id="erp-quick-action-bar" class="erp-quick-action-bar" aria-label="Quick actions" aria-hidden="true"></div>
                 <!-- container-fluid -->
             </div>
             <!-- End Page-content -->

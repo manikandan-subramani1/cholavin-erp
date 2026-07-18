@@ -33,6 +33,8 @@
         order: [[2, 'desc']]
     });
 
+    installQuickActions();
+
     if (initialSearch) {
         $('#document-search').val(initialSearch);
         table.search(initialSearch).draw();
@@ -40,6 +42,31 @@
 
     function escapeHtml(value) {
         return $('<div>').text(value == null ? '' : value).html();
+    }
+
+    function visitUrl(url) {
+        if (!url) return;
+        if (window.CholavinNavigation) window.CholavinNavigation.visit(url);
+        else window.location.assign(url);
+    }
+
+    function printUrl(id) {
+        return base + '/' + id + '/print';
+    }
+
+    function refreshIdempotencyKey() {
+        $('[name="idempotency_key"]').val('doc-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+    }
+
+    function installQuickActions() {
+        if (!window.CholavinShell) return;
+        var actions = [];
+        if ($('#add-document').length) actions.push({label: 'Add Document', icon: 'ri-add-line', handler: function () { $('#add-document').trigger('click'); }});
+        if ($('#document-pdf').length) actions.push({label: 'Export PDF', icon: 'ri-file-pdf-2-line', handler: function () { $('#document-pdf').trigger('click'); }});
+        actions.push({label: 'Drafts', icon: 'ri-draft-line', handler: function () { $('#document-status-filter').val('draft').trigger('change'); }});
+        actions.push({label: 'Posted', icon: 'ri-checkbox-circle-line', handler: function () { $('#document-status-filter').val('posted').trigger('change'); }});
+        if ($root.data('payment-url')) actions.push({label: 'Payment', icon: 'ri-hand-coin-line', handler: function () { visitUrl($root.data('payment-url')); }});
+        window.CholavinShell.setQuickActions(actions);
     }
 
     function loadLookups() {
@@ -93,14 +120,25 @@
         var $form = $('#document-form');
         $form.trigger('reset').attr('action', base);
         $form.find('[name="_method"]').val('POST');
+        $form.removeData('next-action');
+        refreshIdempotencyKey();
         $('#document-items').empty().append(itemRow());
         $form.validate().resetForm();
         $form.find('.is-invalid').removeClass('is-invalid');
         total();
     }
 
+    function ensureDocumentModal(status, nextAction) {
+        loadLookups().then(function () {
+            resetForm();
+            if (status) $('[name="status"]').val(status);
+            if (nextAction) $('#document-form').data('next-action', nextAction);
+            modal.show();
+        });
+    }
+
     $('#add-document').off('.documentModule').on('click.documentModule', function () {
-        loadLookups().then(function () { resetForm(); modal.show(); });
+        ensureDocumentModal('draft');
     });
     $(document).off('click.documentModule', '.erp-pos-product').on('click.documentModule', '.erp-pos-product', function () {
         var productId = $(this).data('product-id');
@@ -110,6 +148,24 @@
             modal.show();
         });
     });
+    $(document).off('click.documentModule', '[data-document-shortcut]').on('click.documentModule', '[data-document-shortcut]', function () {
+        var shortcut = $(this).data('document-shortcut');
+        var $form = $('#document-form');
+        if (shortcut === 'hold') {
+            if ($form.is(':visible')) { $('[name="status"]').val('draft'); $form.trigger('submit'); }
+            else ensureDocumentModal('draft');
+            return;
+        }
+        if (shortcut === 'recent') { $('#document-status-filter').val('').trigger('change'); return; }
+        if (shortcut === 'quotation') { visitUrl($root.data('quotation-url')); return; }
+        if (shortcut === 'delivery') { visitUrl($root.data('delivery-url')); return; }
+        if (shortcut === 'save' || shortcut === 'save-print' || shortcut === 'save-pay') {
+            if (!$form.is(':visible')) { ensureDocumentModal('posted', shortcut === 'save' ? null : shortcut); return; }
+            $('[name="status"]').val('posted');
+            $form.data('next-action', shortcut === 'save' ? null : shortcut).trigger('submit');
+        }
+    });
+
     $('#pos-product-search').off('.documentModule').on('input.documentModule', function () {
         var term = String($(this).val() || '').toLowerCase();
         $('.erp-pos-product').each(function () { $(this).toggle(String($(this).data('search')).includes(term)); });
@@ -171,7 +227,15 @@
         submitHandler: function (form) {
             submitFormUsingAjax(form, {
                 reset: false,
-                onSuccess: function () { modal.hide(); table.ajax.reload(null, false); }
+                onSuccess: function (response) {
+                    var nextAction = $('#document-form').data('next-action');
+                    var documentId = response.data && response.data.id;
+                    modal.hide();
+                    table.ajax.reload(null, false);
+                    $('#document-form').removeData('next-action');
+                    if (nextAction === 'save-print' && documentId) window.open(printUrl(documentId), '_blank', 'noopener');
+                    if (nextAction === 'save-pay') visitUrl($root.data('payment-url'));
+                }
             });
         }
     });
@@ -205,4 +269,7 @@
         });
         window.location.assign($root.data('pdf-url') + '?' + params.toString());
     });
-})(window.jQuery);
+$(document).off("click.documentModule", ".erp-pos-product");$(document).off("click.posCart", ".erp-pos-product").on("click.posCart", ".erp-pos-product", function (e) { e.preventDefault(); var b=$(this), id=b.data("product-id"), n=b.find("strong").text(), p=parseFloat(b.find("em").text().replace(/[^0-9.]/g,""))||0, box=$(".pos-cart-empty"); box.data("cart", (box.data("cart")||{})); var c=box.data("cart"); c[id]=c[id]||{name:n,price:p,qty:0}; c[id].qty++; var total=0; box.html(Object.keys(c).map(function(k){var x=c[k]; total+=x.qty*x.price; return "<div class=\"pos-line\"><span>"+x.name+"<small>"+x.qty+" x ?"+x.price.toFixed(2)+"</small></span><strong>?"+(x.qty*x.price).toFixed(2)+"</strong></div>";}).join("")); $(".pos-totals .grand strong,.pos-totals div:first-child strong").text("?"+total.toFixed(2)); });
+$(document).on("click.posCustomer", ".pos-new-customer", function(){ $(".pos-customer-form").toggleClass("d-none").find("[name=name]").trigger("focus"); });
+$(document).on("submit.posCustomer", ".pos-customer-form", function(e){ e.preventDefault(); var f=$(this), name=f.find("[name=name]").val(), mobile=f.find("[name=mobile]").val(); CholavinAjax.request({url:"/admin/parties/customers",method:"POST",data:{name:name,mobile:mobile,code:"POS-"+Date.now(),balance_type:"receivable",is_active:1},onSuccess:function(){ $(".pos-customer-box strong").text(name); f.addClass("d-none")[0].reset(); toastr.success("Customer added."); }}); });})(window.jQuery);
+

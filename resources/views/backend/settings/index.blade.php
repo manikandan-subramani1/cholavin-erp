@@ -3,7 +3,7 @@
 @section('title', 'Company Settings | Cholavin ERP')
 
 @section('content')
-    <div class="page-title-box"><span class="erp-eyebrow">Administration</span><h4>Company Settings</h4><p class="text-muted">One source for branding, contact, social, mail, and branch information.</p></div>
+    <div id="settings-module" data-maintenance-url="{{ route('admin.maintenance.index') }}" data-locations-url="{{ route('admin.locations.index') }}"><div class="page-title-box"><span class="erp-eyebrow">Administration</span><h4>Company Settings</h4><p class="text-muted">One source for branding, contact, social, mail, print, backup, branch, security, and notification settings.</p></div>
     <nav class="erp-settings-launchpad" aria-label="Business settings modules">
         @can('settings.update')<a href="#settings-brand"><i class="ri-building-4-line"></i><span><strong>Business Profile</strong><small>Brand and company details</small></span></a>@endcan
         @can('invoice-templates.view')<a href="{{ route('admin.invoice-templates.index') }}"><i class="ri-file-settings-line"></i><span><strong>Invoice Settings</strong><small>Layouts and print formats</small></span></a>@endcan
@@ -11,6 +11,9 @@
         @can('payment-methods.view')<a href="{{ route('admin.payment-methods.index') }}"><i class="ri-bank-card-line"></i><span><strong>Payment Methods</strong><small>Cash, bank and digital modes</small></span></a>@endcan
         @can('invoice-sequences.view')<a href="{{ route('admin.invoice-sequences.index') }}"><i class="ri-list-ordered-2"></i><span><strong>Number Series</strong><small>Document numbering</small></span></a>@endcan
         @can('maintenance.view')<a href="{{ route('admin.maintenance.index') }}"><i class="ri-database-2-line"></i><span><strong>Backup &amp; Data</strong><small>Export and maintenance</small></span></a>@endcan
+        @can('financial-years.view')<a href="{{ route('admin.financial-years.index') }}"><i class="ri-calendar-check-line"></i><span><strong>Financial Year</strong><small>Active year and period control</small></span></a>@endcan
+        @can('notification-templates.view')<a href="{{ route('admin.notification-templates.index') }}"><i class="ri-notification-3-line"></i><span><strong>Notifications</strong><small>Email, SMS and WhatsApp templates</small></span></a>@endcan
+        @can('settings.update')<a href="#settings-brand"><i class="ri-palette-line"></i><span><strong>Theme</strong><small>Brand colors and logos</small></span></a>@endcan
     </nav>
     @include('backend.access.partials.alerts')
     <form id="settings-form" method="post" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data" novalidate>
@@ -38,7 +41,7 @@
             </div>
             <div class="col-xl-4"><div class="card erp-panel position-sticky" style="top:90px"><div class="card-header"><h5>Branch addresses</h5></div><div class="card-body"><p class="text-muted">Shop records are the ERP branch directory. Manage their address and active status from Locations.</p>@forelse($branches as $branch)<div class="branch-mini"><strong>{{ $branch->name }}</strong><small>{{ $branch->code }}</small><p>{{ $branch->address ?: 'Address not added' }}</p></div>@empty<div class="erp-empty"><i class="ri-store-2-line"></i><p>No branches configured.</p></div>@endforelse @can('shops.update')<a href="{{ route('admin.locations.index') }}" class="btn btn-outline-brand w-100">Manage branches</a>@endcan</div></div></div>
         </div>
-</form>
+</form></div>
 @endsection
 
 @push('scripts')

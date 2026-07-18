@@ -1,4 +1,4 @@
-<a class="erp-skip-link" href="#erp-main-content">Skip to main content</a>
+<a class="erp-skip-link" href="#app-content">Skip to main content</a>
 
 <header id="page-topbar" class="erp-topbar">
     <div class="layout-width">
@@ -144,3 +144,4 @@
 
 {{-- Retained for compatibility with the existing theme runtime; no demo notifications are rendered. --}}
 <div id="removeNotificationModal" class="modal fade" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-body"></div></div></div></div>
+
