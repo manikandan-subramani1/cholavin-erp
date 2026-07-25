@@ -39,18 +39,18 @@
         var partyName = row.party && row.party.name ? row.party.name : '-';
         var methodName = row.method && row.method.name ? row.method.name : '-';
         var html = '' +
-            '<div class="erp-drawer-hero erp-payment-drawer-hero">' +
-                '<div class="erp-drawer-avatar"><i class="ri-wallet-3-line"></i></div>' +
+            '<div class="erp-details-hero erp-payment-details-hero">' +
+                '<div class="erp-details-avatar"><i class="ri-wallet-3-line"></i></div>' +
                 '<div><span class="erp-eyebrow">Payment transaction</span><h5>' + escapeHtml(row.number) + '</h5><p>' + escapeHtml(typeLabel(row.type)) + ' / ' + escapeHtml(partyName) + '</p></div>' +
             '</div>' +
-            '<div class="erp-drawer-kpis erp-drawer-kpis-3">' +
+            '<div class="erp-details-kpis erp-details-kpis-3">' +
                 '<article><small>Date</small><strong>' + escapeHtml(row.payment_date) + '</strong><em>Posted</em></article>' +
                 '<article><small>Amount</small><strong>' + money(row.amount) + '</strong><em>Cash flow</em></article>' +
                 '<article><small>Method</small><strong>' + escapeHtml(methodName) + '</strong><em>Settlement</em></article>' +
             '</div>' +
-            '<div class="erp-drawer-tabs"><button class="active">Overview</button><button>Allocation</button><button>Proof</button><button>Ledger</button><button>Audit</button></div>' +
-            '<dl class="erp-drawer-meta"><dt>Reference</dt><dd>' + escapeHtml(row.reference_number) + '</dd><dt>Party</dt><dd>' + escapeHtml(partyName) + '</dd><dt>Type</dt><dd>' + escapeHtml(typeLabel(row.type)) + '</dd></dl>' +
-            '<div class="erp-drawer-actions"><button type="button" class="btn btn-primary" data-payment-drawer-action="new"><i class="ri-add-line me-1"></i>New Payment</button><button type="button" class="btn btn-secondary" data-payment-drawer-action="ledger"><i class="ri-book-open-line me-1"></i>Party Ledger</button><button type="button" class="btn btn-secondary" data-payment-drawer-action="voucher"><i class="ri-file-list-3-line me-1"></i>Journal</button></div>';
+            '<div class="erp-details-tabs"><button class="active">Overview</button><button>Allocation</button><button>Proof</button><button>Ledger</button><button>Audit</button></div>' +
+            '<dl class="erp-details-meta"><dt>Reference</dt><dd>' + escapeHtml(row.reference_number) + '</dd><dt>Party</dt><dd>' + escapeHtml(partyName) + '</dd><dt>Type</dt><dd>' + escapeHtml(typeLabel(row.type)) + '</dd></dl>' +
+            '<div class="erp-details-actions"><button type="button" class="btn btn-primary" data-payment-details-action="new"><i class="ri-add-line me-1"></i>New Payment</button><button type="button" class="btn btn-secondary" data-payment-details-action="ledger"><i class="ri-book-open-line me-1"></i>Party Ledger</button><button type="button" class="btn btn-secondary" data-payment-details-action="voucher"><i class="ri-file-list-3-line me-1"></i>Journal</button></div>';
         window.CholavinShell.openDrawer({title: row.number || 'Payment Details', html: html});
     }
 
@@ -95,9 +95,9 @@
     $('#payments-pdf').on('click', function () { var params = filters(); params.search = $('#payment-search').val(); window.location.href = module.data('pdf-url') + '?' + new URLSearchParams(params).toString(); });
     $('#payments-table').on('click', '[data-payment-action="view"]', function (event) { event.preventDefault(); event.stopPropagation(); openPaymentDrawer(table.row($(this).closest('tr')).data()); });
     $('#payments-table').on('click', 'tbody tr', function () { openPaymentDrawer(table.row(this).data()); });
-    $(document).on('click', '[data-payment-drawer-action="new"]', function () { $('#add-payment').trigger('click'); });
-    $(document).on('click', '[data-payment-drawer-action="ledger"]', function () { visitUrl(module.data('ledger-url')); });
-    $(document).on('click', '[data-payment-drawer-action="voucher"]', function () { visitUrl(module.data('voucher-url')); });
+    $(document).on('click', '[data-payment-details-action="new"]', function () { $('#add-payment').trigger('click'); });
+    $(document).on('click', '[data-payment-details-action="ledger"]', function () { visitUrl(module.data('ledger-url')); });
+    $(document).on('click', '[data-payment-details-action="voucher"]', function () { visitUrl(module.data('voucher-url')); });
 
     installQuickActions();
 })(window, window.jQuery);

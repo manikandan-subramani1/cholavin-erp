@@ -167,7 +167,16 @@
                         </a>
                     </li>
                 @endcan 
-                @foreach($menuGroups as $group)
+                <li class="nav-item erp-sidebar-workspace-nav" aria-label="Workspace shortcuts">
+                    <div class="erp-sidebar-section-label"><span>Workspaces</span><i class="ri-flashlight-line" aria-hidden="true"></i></div>
+                    <div class="erp-sidebar-links">
+                        @can('customers.view')<a href="{{ route('admin.parties.index', 'customers') }}"><i class="ri-user-smile-line" aria-hidden="true"></i><span>Customer Workspace</span></a>@endcan
+                        @can('suppliers.view')<a href="{{ route('admin.parties.index', 'suppliers') }}"><i class="ri-truck-line" aria-hidden="true"></i><span>Supplier Workspace</span></a>@endcan
+                        @can('stock.view')<a href="{{ route('admin.stock.index') }}"><i class="ri-archive-stack-line" aria-hidden="true"></i><span>Inventory Workspace</span></a>@endcan
+                        @can('accounts.view')<a href="{{ route('admin.financial-overview') }}"><i class="ri-book-open-line" aria-hidden="true"></i><span>Accounting Workspace</span></a>@endcan
+                        @can('deliveries.view')<a href="{{ route('admin.deliveries.index') }}"><i class="ri-route-line" aria-hidden="true"></i><span>Delivery Workspace</span></a>@endcan
+                    </div>
+                </li>                @foreach($menuGroups as $group)
                     @php
                         $visibleItems = collect($group['items'])->where('allowed', true)->values();
                         $groupActive = $visibleItems->contains('active', true);

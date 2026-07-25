@@ -17,11 +17,11 @@
         var driver = row.driver && row.driver.name ? row.driver.name : '-';
         var route = row.route && row.route.name ? row.route.name : '-';
         var html = '' +
-            '<div class="erp-drawer-hero erp-delivery-drawer-hero"><div class="erp-drawer-avatar"><i class="ri-truck-line"></i></div><div><span class="erp-eyebrow">Delivery assignment</span><h5>' + escapeHtml(row.document_number) + '</h5><p>' + escapeHtml(row.party_name) + ' / ' + escapeHtml(route) + '</p></div></div>' +
-            '<div class="erp-drawer-kpis erp-drawer-kpis-3"><article><small>Scheduled</small><strong>' + escapeHtml(row.scheduled_at) + '</strong><em>Planned time</em></article><article><small>Cash</small><strong>' + money(row.cash_collected) + '</strong><em>Collected</em></article><article><small>Expense</small><strong>' + money(row.delivery_expense) + '</strong><em>Route cost</em></article></div>' +
-            '<div class="erp-drawer-tabs"><button class="active">Overview</button><button>Items</button><button>Address</button><button>Driver</button><button>POD</button><button>Activity</button></div>' +
-            '<dl class="erp-drawer-meta"><dt>Vehicle</dt><dd>' + escapeHtml(vehicle) + '</dd><dt>Driver</dt><dd>' + escapeHtml(driver) + '</dd><dt>Status</dt><dd>' + (row.status || '-') + '</dd></dl>' +
-            '<div class="erp-drawer-actions"><button type="button" class="btn btn-primary" data-delivery-drawer-action="edit" data-url="' + escapeHtml(row.show_url || '') + '"><i class="ri-edit-line me-1"></i>Update</button><button type="button" class="btn btn-secondary" data-delivery-drawer-action="routes"><i class="ri-road-map-line me-1"></i>Routes</button><button type="button" class="btn btn-secondary" data-delivery-drawer-action="drivers"><i class="ri-user-location-line me-1"></i>Drivers</button></div>';
+            '<div class="erp-details-hero erp-delivery-details-hero"><div class="erp-details-avatar"><i class="ri-truck-line"></i></div><div><span class="erp-eyebrow">Delivery assignment</span><h5>' + escapeHtml(row.document_number) + '</h5><p>' + escapeHtml(row.party_name) + ' / ' + escapeHtml(route) + '</p></div></div>' +
+            '<div class="erp-details-kpis erp-details-kpis-3"><article><small>Scheduled</small><strong>' + escapeHtml(row.scheduled_at) + '</strong><em>Planned time</em></article><article><small>Cash</small><strong>' + money(row.cash_collected) + '</strong><em>Collected</em></article><article><small>Expense</small><strong>' + money(row.delivery_expense) + '</strong><em>Route cost</em></article></div>' +
+            '<div class="erp-details-tabs"><button class="active">Overview</button><button>Items</button><button>Address</button><button>Driver</button><button>POD</button><button>Activity</button></div>' +
+            '<dl class="erp-details-meta"><dt>Vehicle</dt><dd>' + escapeHtml(vehicle) + '</dd><dt>Driver</dt><dd>' + escapeHtml(driver) + '</dd><dt>Status</dt><dd>' + (row.status || '-') + '</dd></dl>' +
+            '<div class="erp-details-actions"><button type="button" class="btn btn-primary" data-delivery-details-action="edit" data-url="' + escapeHtml(row.show_url || '') + '"><i class="ri-edit-line me-1"></i>Update</button><button type="button" class="btn btn-secondary" data-delivery-details-action="routes"><i class="ri-road-map-line me-1"></i>Routes</button><button type="button" class="btn btn-secondary" data-delivery-details-action="drivers"><i class="ri-user-location-line me-1"></i>Drivers</button></div>';
         window.CholavinShell.openDrawer({title: row.document_number || 'Delivery Details', html: html});
     }
 
@@ -44,9 +44,9 @@
     form.validate({ignore: [], rules: {commercial_document_id: {required: true}, scheduled_at: {date: true}, status: {required: true}, cash_collected: {number: true, min: 0}, delivery_expense: {number: true, min: 0}, proof: {extension: 'jpg|jpeg|png|webp|pdf'}, notes: {maxlength: 2000}}, errorElement: 'span', errorClass: 'error text-danger', highlight: function (el) { $(el).addClass('is-invalid'); }, unhighlight: function (el) { $(el).removeClass('is-invalid'); }, submitHandler: function (el) { submitFormUsingAjax(el, {reset: false, onSuccess: function () { modal.hide(); table.ajax.reload(null, false); }}); }});
     $('#add-delivery').on('click', function () { reset(); modal.show(); });
     $(document).on('click', '.edit-delivery', function (event) { event.preventDefault(); event.stopPropagation(); editDelivery($(this).data('url')); });
-    $(document).on('click', '[data-delivery-drawer-action="edit"]', function () { editDelivery($(this).data('url')); });
-    $(document).on('click', '[data-delivery-drawer-action="routes"]', function () { visitUrl(module.data('routes-url')); });
-    $(document).on('click', '[data-delivery-drawer-action="drivers"]', function () { visitUrl(module.data('drivers-url')); });
+    $(document).on('click', '[data-delivery-details-action="edit"]', function () { editDelivery($(this).data('url')); });
+    $(document).on('click', '[data-delivery-details-action="routes"]', function () { visitUrl(module.data('routes-url')); });
+    $(document).on('click', '[data-delivery-details-action="drivers"]', function () { visitUrl(module.data('drivers-url')); });
 
     var timer;
     $('#delivery-search').on('input', function () { var value = $(this).val(); clearTimeout(timer); timer = setTimeout(function () { table.search(value).draw(); }, 300); });

@@ -70,7 +70,7 @@
         <div class="product-table-head"><div><span class="erp-eyebrow">Live catalogue</span><h2>Items and stock visibility</h2></div><span class="product-context-pill"><i class="ri-shield-check-line"></i> Server-scoped results</span></div>
         <div class="table-responsive">
             <table id="products-table" class="table align-middle w-100">
-                <thead><tr><th>Image</th><th>Item</th><th>Category</th><th>Variety</th><th>Grade</th><th>Unit</th><th>Purchase Price</th><th>Selling Price</th><th>Godown Stock</th><th>Shop Stock</th><th>Status</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Image</th><th>Item Code</th><th>Category</th><th>Variety</th><th>Grade</th><th>Unit</th><th>Purchase Price</th><th>Selling Price</th><th>Stock</th><th>Shop Stock</th><th>Status</th><th>Actions</th></tr></thead>
             </table>
         </div>
         <div class="product-empty d-none" id="product-empty"><i class="ri-inbox-archive-line"></i><h3>No items match these filters</h3><p>Clear a filter or add a new rice product.</p></div>

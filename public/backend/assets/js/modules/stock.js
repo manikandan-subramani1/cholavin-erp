@@ -31,22 +31,22 @@
         var quantity = Number(String(row.quantity || '0').replace(/,/g, '')) || 0;
         var averageCost = Number(String(row.average_cost || '0').replace(/,/g, '')) || 0;
         var html = '' +
-            '<div class="erp-drawer-hero erp-stock-drawer-hero">' +
-                '<div class="erp-drawer-avatar"><i class="ri-stack-line"></i></div>' +
+            '<div class="erp-details-hero erp-stock-details-hero">' +
+                '<div class="erp-details-avatar"><i class="ri-stack-line"></i></div>' +
                 '<div><span class="erp-eyebrow">Stock balance</span><h5>' + escapeHtml(row.product_name) + '</h5>' +
                 '<p>' + escapeHtml(row.godown_name) + ' / Batch ' + escapeHtml(row.batch_number) + '</p></div>' +
             '</div>' +
-            '<div class="erp-drawer-kpis erp-drawer-kpis-3">' +
+            '<div class="erp-details-kpis erp-details-kpis-3">' +
                 '<article><small>Quantity</small><strong>' + escapeHtml(row.quantity) + '</strong><em>On hand</em></article>' +
                 '<article><small>Avg Cost</small><strong>' + money(averageCost) + '</strong><em>Weighted</em></article>' +
                 '<article><small>Value</small><strong>' + money(quantity * averageCost) + '</strong><em>Stock value</em></article>' +
             '</div>' +
-            '<div class="erp-drawer-tabs"><button class="active">Overview</button><button>History</button><button>Audit</button></div>' +
-            '<dl class="erp-drawer-meta"><dt>SKU</dt><dd>' + escapeHtml(row.sku) + '</dd><dt>Expiry</dt><dd>' + escapeHtml(row.expiry_date) + '</dd><dt>Status</dt><dd>' + (row.record_status || '-') + '</dd></dl>' +
-            '<div class="erp-drawer-actions">' +
-                '<button type="button" class="btn btn-primary" data-stock-drawer-action="transfer"><i class="ri-arrow-left-right-line me-1"></i>Transfer</button>' +
-                '<button type="button" class="btn btn-secondary" data-stock-drawer-action="adjust"><i class="ri-equalizer-line me-1"></i>Adjust</button>' +
-                '<button type="button" class="btn btn-secondary" data-stock-drawer-action="damage"><i class="ri-error-warning-line me-1"></i>Damage Entry</button>' +
+            '<div class="erp-details-tabs"><button class="active">Overview</button><button>History</button><button>Audit</button></div>' +
+            '<dl class="erp-details-meta"><dt>SKU</dt><dd>' + escapeHtml(row.sku) + '</dd><dt>Expiry</dt><dd>' + escapeHtml(row.expiry_date) + '</dd><dt>Status</dt><dd>' + (row.record_status || '-') + '</dd></dl>' +
+            '<div class="erp-details-actions">' +
+                '<button type="button" class="btn btn-primary" data-stock-details-action="transfer"><i class="ri-arrow-left-right-line me-1"></i>Transfer</button>' +
+                '<button type="button" class="btn btn-secondary" data-stock-details-action="adjust"><i class="ri-equalizer-line me-1"></i>Adjust</button>' +
+                '<button type="button" class="btn btn-secondary" data-stock-details-action="damage"><i class="ri-error-warning-line me-1"></i>Damage Entry</button>' +
             '</div>';
         window.CholavinShell.openDrawer({title: row.product_name || 'Stock Details', html: html});
     }
@@ -102,9 +102,9 @@
     $('#stock-pdf').on('click', function () { var params = filters(); params.search = $('#stock-search').val(); window.location.href = module.data('pdf-url') + '?' + new URLSearchParams(params).toString(); });
     $('#stock-table').on('click', '[data-stock-action="view"]', function (event) { event.preventDefault(); event.stopPropagation(); openStockDrawer(table.row($(this).closest('tr')).data()); });
     $('#stock-table').on('click', 'tbody tr', function () { openStockDrawer(table.row(this).data()); });
-    $(document).on('click', '[data-stock-drawer-action="transfer"]', function () { visitUrl(module.data('transfer-url')); });
-    $(document).on('click', '[data-stock-drawer-action="adjust"]', function () { visitUrl(module.data('adjustment-url')); });
-    $(document).on('click', '[data-stock-drawer-action="damage"]', function () { visitUrl(module.data('damage-url')); });
+    $(document).on('click', '[data-stock-details-action="transfer"]', function () { visitUrl(module.data('transfer-url')); });
+    $(document).on('click', '[data-stock-details-action="adjust"]', function () { visitUrl(module.data('adjustment-url')); });
+    $(document).on('click', '[data-stock-details-action="damage"]', function () { visitUrl(module.data('damage-url')); });
 
     installQuickActions();
 })(window, window.jQuery);

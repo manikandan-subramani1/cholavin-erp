@@ -27,18 +27,18 @@
     function openVoucherDrawer(row) {
         if (!window.CholavinShell || !row) return;
         var html = '' +
-            '<div class="erp-drawer-hero erp-voucher-drawer-hero">' +
-                '<div class="erp-drawer-avatar"><i class="ri-file-list-3-line"></i></div>' +
+            '<div class="erp-details-hero erp-voucher-details-hero">' +
+                '<div class="erp-details-avatar"><i class="ri-file-list-3-line"></i></div>' +
                 '<div><span class="erp-eyebrow">Journal voucher</span><h5>' + escapeHtml(row.number) + '</h5><p>' + escapeHtml(row.type) + ' / ' + escapeHtml(row.reference_number) + '</p></div>' +
             '</div>' +
-            '<div class="erp-drawer-kpis erp-drawer-kpis-3">' +
+            '<div class="erp-details-kpis erp-details-kpis-3">' +
                 '<article><small>Date</small><strong>' + escapeHtml(row.voucher_date) + '</strong><em>Voucher date</em></article>' +
                 '<article><small>Lines</small><strong>' + escapeHtml(row.lines_count) + '</strong><em>Ledger rows</em></article>' +
                 '<article><small>Total</small><strong>' + money(row.total_debit) + '</strong><em>Balanced value</em></article>' +
             '</div>' +
-            '<div class="erp-drawer-tabs"><button class="active">Overview</button><button>Ledger Lines</button><button>Attachments</button><button>Audit</button></div>' +
-            '<dl class="erp-drawer-meta"><dt>Reference</dt><dd>' + escapeHtml(row.reference_number) + '</dd><dt>Voucher Type</dt><dd>' + escapeHtml(row.type) + '</dd><dt>Rule</dt><dd>Debit and credit must balance before posting.</dd></dl>' +
-            '<div class="erp-drawer-actions"><button type="button" class="btn btn-primary" data-voucher-drawer-action="new"><i class="ri-add-line me-1"></i>New Voucher</button><button type="button" class="btn btn-secondary" data-voucher-drawer-action="payments"><i class="ri-wallet-3-line me-1"></i>Payments</button><button type="button" class="btn btn-secondary" data-voucher-drawer-action="finance"><i class="ri-line-chart-line me-1"></i>Finance</button></div>';
+            '<div class="erp-details-tabs"><button class="active">Overview</button><button>Ledger Lines</button><button>Attachments</button><button>Audit</button></div>' +
+            '<dl class="erp-details-meta"><dt>Reference</dt><dd>' + escapeHtml(row.reference_number) + '</dd><dt>Voucher Type</dt><dd>' + escapeHtml(row.type) + '</dd><dt>Rule</dt><dd>Debit and credit must balance before posting.</dd></dl>' +
+            '<div class="erp-details-actions"><button type="button" class="btn btn-primary" data-voucher-details-action="new"><i class="ri-add-line me-1"></i>New Voucher</button><button type="button" class="btn btn-secondary" data-voucher-details-action="payments"><i class="ri-wallet-3-line me-1"></i>Payments</button><button type="button" class="btn btn-secondary" data-voucher-details-action="finance"><i class="ri-line-chart-line me-1"></i>Finance</button></div>';
         window.CholavinShell.openDrawer({title: row.number || 'Voucher Details', html: html});
     }
 
@@ -87,9 +87,9 @@
     $('#vouchers-pdf').on('click', function () { var params = filters(); params.search = $('#voucher-search').val(); window.location.href = module.data('pdf-url') + '?' + new URLSearchParams(params).toString(); });
     $('#vouchers-table').on('click', '[data-voucher-action="view"]', function (event) { event.preventDefault(); event.stopPropagation(); openVoucherDrawer(table.row($(this).closest('tr')).data()); });
     $('#vouchers-table').on('click', 'tbody tr', function () { openVoucherDrawer(table.row(this).data()); });
-    $(document).on('click', '[data-voucher-drawer-action="new"]', function () { $('#add-voucher').trigger('click'); });
-    $(document).on('click', '[data-voucher-drawer-action="payments"]', function () { visitUrl(module.data('payment-url')); });
-    $(document).on('click', '[data-voucher-drawer-action="finance"]', function () { visitUrl(module.data('finance-url')); });
+    $(document).on('click', '[data-voucher-details-action="new"]', function () { $('#add-voucher').trigger('click'); });
+    $(document).on('click', '[data-voucher-details-action="payments"]', function () { visitUrl(module.data('payment-url')); });
+    $(document).on('click', '[data-voucher-details-action="finance"]', function () { visitUrl(module.data('finance-url')); });
 
     addLine();
     addLine();
