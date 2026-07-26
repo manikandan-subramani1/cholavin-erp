@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\ContactEnquiry;
 use Illuminate\Http\Request;
@@ -52,6 +53,6 @@ class ContactEnquiryController extends Controller
             'contacted_at' => $data['status'] === 'contacted' ? now() : null,
         ]);
 
-        return response()->json(['message' => 'Enquiry status updated successfully.']);
+        return ResponseHelper::success('Enquiry status updated successfully.', $enquiry->fresh(), 200, ['datatable' => true]);
     }
 }

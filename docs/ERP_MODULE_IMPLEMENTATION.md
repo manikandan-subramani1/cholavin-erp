@@ -48,3 +48,28 @@ Section 27 is implemented as shared business engines and configured modules, not
 
 SMTP uses Company Settings and powers password recovery. Invoice sharing provides direct email and WhatsApp handoff without storing third-party credentials. Automated SMS/WhatsApp delivery requires the chosen provider's endpoint and credentials; the notification table already records channel, recipient, sent/failed time, and failure details so a provider adapter can be connected without changing business tables.
 
+
+## UI and module structure
+
+The backend follows the existing Laravel module structure and does not move business logic into views:
+
+- module pages live below `resources/views/backend/{module}` and extend `backend.layouts.app`;
+- module controllers live below `app/Http/Controllers/Backend` and keep the Blade response and server-side DataTable response in the same `index(Request $request)` action;
+- module-specific validation remains in `app/Http/Requests`, business workflows remain in `app/Services`, and PDF output remains in `resources/views/pdf` through `PdfService`;
+- `public/backend/assets/css/cholavin-erp.css` provides the maroon/gold Cholavin visual system, index-page styling, responsive tables, and the master-detail workspace used across modules;
+- `public/backend/assets/js/erp-common.js` provides CSRF setup, AJAX form submission, validation error mapping, Toastr messages, DataTable initialization, table reloads, and shared index-page enhancement;
+- `public/backend/assets/js/module-workspace.js` progressively enhances server-side DataTables with a responsive list/detail workspace and AJAX quick-view modal without changing the underlying routes or queries;
+- `public/backend/assets/js/header-context.js` keeps shop, godown, and financial context controls connected to the authenticated context endpoints;
+- `resources/views/backend/layouts/menu.blade.php` remains permission-aware. The sidebar exposes only records the signed-in user can access while retaining the existing module route names and test-covered navigation IDs.
+
+The visual treatment follows the supplied reference screens: a dark Cholavin sidebar, fixed context-aware header, maroon primary actions, gold focus/active states, compact KPI cards, filter panels, server-side tables, responsive record detail panels, modal CRUD, and AJAX confirmation/error feedback. Existing controller, model, migration, permission, mPDF, and Maatwebsite Excel contracts remain unchanged.
+
+### Module UI rollout checklist
+
+For every new or revised module, inspect the route/controller/request/service/model first, then verify:
+
+1. the index page has permission-aware heading/actions, relevant filters, reset, loading/empty/error states, server-side DataTable, and PDF/Excel actions where applicable;
+2. create/update/delete/status actions use the shared AJAX helpers and Form Requests;
+3. detail/show data is loaded on demand through an authorized JSON endpoint or a module-specific Blade detail page;
+4. shop, godown, and financial-year context is enforced server-side;
+5. all response, PDF, export, authorization, and rollback tests pass before the next module is changed.

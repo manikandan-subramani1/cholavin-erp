@@ -1,4 +1,0 @@
-<?php
-namespace App\Http\Requests\Accounts;
-use Illuminate\Foundation\Http\FormRequest;use Illuminate\Validation\Rule;
-class PaymentRequest extends FormRequest{public function authorize():bool{return $this->user()?->can('payments.create')??false;}public function rules():array{$shop=session('active_shop_id');return['party_id'=>['nullable',Rule::exists('parties','id')->where('shop_id',$shop)],'commercial_document_id'=>['nullable',Rule::exists('commercial_documents','id')->where('shop_id',$shop)],'payment_method_id'=>['nullable',Rule::exists('reference_masters','id')->where('type','payment_method')],'type'=>['required',Rule::in(['cash_receipt','cash_payment','bank_receipt','bank_payment','supplier_payment','customer_collection','expense','income'])],'payment_date'=>['required','date'],'amount'=>['required','numeric','gt:0'],'reference_number'=>['nullable','string','max:100'],'notes'=>['nullable','string','max:1000']];}}

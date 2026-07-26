@@ -15,8 +15,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(AccessControlSeeder::class);
-        $this->call(SettingSeeder::class);
-        $this->call(ErpFoundationSeeder::class);
         $this->call(MasterDataSeeder::class);
     }
 }

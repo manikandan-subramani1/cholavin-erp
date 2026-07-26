@@ -172,7 +172,7 @@
                 $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Processing...');
             },
             success: function (response) {
-                if (!response.status) {
+                if (response.status === false || response.success === false) {
                     notify('error', response.message || 'The operation could not be completed.');
                     return;
                 }

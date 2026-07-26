@@ -4,11 +4,9 @@ namespace App\Providers;
 
 use App\Models\ContactEnquiry;
 use App\Models\Product;
-use App\Models\Setting;
 use App\Policies\ContactEnquiryPolicy;
 use App\Policies\ProductPolicy;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,20 +37,7 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
-        $commonSettings = Schema::hasTable('settings') ? Setting::values() : [];
-        View::share('commonSettings', $commonSettings);
+        View::share('commonSettings', config('cholavin_dashboard.common_settings', []));
 
-        if (filled($commonSettings['mail_host'] ?? null)) {
-            config([
-                'mail.default' => 'smtp',
-                'mail.mailers.smtp.host' => $commonSettings['mail_host'],
-                'mail.mailers.smtp.port' => $commonSettings['mail_port'] ?: 587,
-                'mail.mailers.smtp.username' => $commonSettings['mail_username'] ?: null,
-                'mail.mailers.smtp.password' => $commonSettings['mail_password'] ?: null,
-                'mail.mailers.smtp.scheme' => ($commonSettings['mail_encryption'] ?? 'tls') === 'ssl' ? 'smtps' : 'smtp',
-                'mail.from.address' => $commonSettings['mail_from_address'] ?: config('mail.from.address'),
-                'mail.from.name' => $commonSettings['mail_from_name'] ?: config('mail.from.name'),
-            ]);
-        }
     }
 }

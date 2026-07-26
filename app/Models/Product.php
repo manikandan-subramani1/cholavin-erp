@@ -66,6 +66,4 @@ class Product extends Model
     public function grade() { return $this->belongsTo(ReferenceMaster::class, 'grade_id'); }
     public function unitMaster() { return $this->belongsTo(ReferenceMaster::class, 'unit_id'); }
     public function taxRate() { return $this->belongsTo(ReferenceMaster::class, 'tax_rate_id'); }
-    public function stockBalances() { return $this->hasMany(InventoryBalance::class); }
-    public function documentItems() { return $this->hasMany(CommercialDocumentItem::class); }
 }
